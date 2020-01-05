@@ -12,7 +12,7 @@
 RootModule = 'Wozlab.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.27'
+ModuleVersion = '1.27.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
