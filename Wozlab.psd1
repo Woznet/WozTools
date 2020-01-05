@@ -69,15 +69,14 @@ Description = 'FYI: These are functions for personal use and may not work withou
 NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Test-IfAdmin', 'Invoke-WebDownload', 'Shutdown-ESXI', 'Get-ACLInfo', 
-               'Max-PartitionSize', 'Get-DotNetFrameworkVersion', 'Add-EnvPath', 
-               'Get-Functions', 'Get-EnvPath', 'Show-Cmdlet', 'Beep', 'Sync-GitUser', 
-               'Get-ComObject', 'Open-Script', 'New-Shortcut', 'List-SpecialFolders', 
-               'New-DynamicParam', 'Copy-GitRepo', 'Open-NPP', 'Search-WinCatalog', 
-               'Out-ISETab', 'Download-GitUser', 'Select-All', 'Restart-Process', 
-               'Find-CmdParam', 'Get-PartitionInfo', 'Start-ConsoleCommand', 
-               'Source-Directory', 'Remove-EnvPath', 'Get-PipelineInfo', 
-               'Set-AutoLogin'
+FunctionsToExport = 'Add-EnvPath', 'Beep', 'Copy-GitRepo', 'Download-GitUser', 
+               'Find-CmdParam', 'Flatten-Object', 'Get-ACLInfo', 'Get-ComObject', 
+               'Get-DotNetFrameworkVersion', 'Get-EnvPath', 'Get-Functions', 'Get-PartitionInfo', 
+               'Get-PipelineInfo', 'Invoke-WebDownload', 'List-SpecialFolders', 'Max-PartitionSize', 
+               'New-DynamicParam', 'New-Shortcut', 'Open-NPP', 'Open-Script', 
+               'Out-ISETab', 'Remove-EnvPath', 'Restart-Process', 'Search-WinCatalog', 
+               'Select-All', 'Set-AutoLogin', 'Show-Cmdlet', 'Shutdown-ESXI', 
+               'Source-Directory', 'Start-ConsoleCommand', 'Sync-GitUser', 'Test-IfAdmin'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = '*'
