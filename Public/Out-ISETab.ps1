@@ -1,18 +1,19 @@
 ﻿Function Out-ISETab {
-  [cmdletbinding()]
+  [cmdletbinding(DefaultParameterSetName='nosave')]
   Param(
-    [Parameter(Position=0,Mandatory,ValueFromPipeline)]
+    [Parameter(Mandatory,ValueFromPipeline,ParameterSetName='nosave')]
     [object]$Inputobject,
     [ValidateScript({
-          if($_ | Test-Path){
+          if($_ | Test-Path) {
             throw 'Choose a path that does not exist.'
           }
-          if(-Not ($_ | Test-Path -PathType Leaf -IsValid) ){
+          if(-Not ($_ | Test-Path -PathType Leaf -IsValid)) {
             throw 'The Path argument must be a file.'
           }
           return $true
     })]
-    [IO.FileInfo]$SaveAs
+    [Parameter(ParameterSetName='save')]
+    [IO.FileInfo]$SaveAs = $(Join-Path -Path $env:TEMP -ChildPath $('{0}.ps1' -f $((Get-Date).ToString('s').Replace(':','-'))))
   )
   Begin {
     if(!($psise)){
@@ -28,7 +29,12 @@
     $newfile.Editor.InsertText(($data | Out-String))
     $newfile.Editor.SetCaretPosition(1,1)
     if ($SaveAs) {
+      if ([IO.Path]::IsPathRooted($SaveAs)){
+        $SaveAs = Resolve-Path -Path $SaveAs -Verbose:$VerbosePreference
+      }
+      Write-Verbose -Message ('Saving to: {0}' -f $SaveAs) -Verbose:$VerbosePreference
       $newfile.SaveAs($SaveAs)
     }
   }
+
 }
