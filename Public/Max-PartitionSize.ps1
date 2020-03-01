@@ -1,6 +1,6 @@
-﻿function Max-PartitionSize{
+﻿function Max-PartitionSize {
   [CmdletBinding()]
-  [Alias('MaxPart')]
+  [Alias()]
   param()
   dynamicparam {
     $ParamName = 'DriveLetter'
@@ -18,16 +18,11 @@
     $Bucket
   }
   begin{
-  $Letter = $PSBoundParameters[$ParamName]
+    $Letter = $PSBoundParameters[$ParamName]
   }
   process{
     $Size = (Get-PartitionSupportedSize -DriveLetter $Letter).SizeMax
-    Resize-Partition -DriveLetter $Letter -Size $Size
+    Resize-Partition -DriveLetter $Letter -Size $Size -PassThru -Verbose:$VerbosePreference
   }
-  end{
-    @{
-      'Drive Letter' = $Letter
-      'New Size (GB)' = $([math]::round($Size/1Gb, 2))
-    }
-  }
+  end{}
 }
