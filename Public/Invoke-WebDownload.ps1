@@ -1,5 +1,7 @@
 ﻿function Invoke-WebDownload {
-  [Alias('WgetDL')]
+  [OutputType('System.IO.FileInfo')]
+  [Alias('wgetDL')]
+  [CmdletBinding()]
   param(
     [Parameter(Mandatory,ValueFromPipeline)]
     [Uri]$Uri,
@@ -14,5 +16,8 @@
   process{
     $OutPath = Join-Path -Path $OutDir -ChildPath $(Split-Path -Leaf -Path $Uri)
     Invoke-WebRequest -UseBasicParsing -Uri $Uri -OutFile $OutPath -Verbose:$VerbosePreference
+  }
+  end{
+    Get-Item -Path $OutPath
   }
 }
