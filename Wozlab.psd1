@@ -12,7 +12,7 @@
 RootModule = 'Wozlab.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.27.4'
+ModuleVersion = '1.27.6'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -77,7 +77,7 @@ FunctionsToExport = 'Add-EnvPath', 'Beep', 'Copy-GitRepo', 'Download-GitUser',
                'New-Shortut', 'Open-NPP', 'Open-Script', 'Out-ISETab', 'Remove-EnvPath', 
                'Restart-Process', 'Search-WinCatalog', 'Select-All', 'Set-AutoLogin', 
                'Show-Cmdlet', 'Shutdown-ESXI', 'Source-Directory', 
-               'Start-ConsoleCommand', 'Sync-GitUser', 'Test-IfAdmin'
+               'Start-ConsoleCommand','Stop-Sleep', 'Sync-GitUser', 'Test-IfAdmin'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = '*'
@@ -87,7 +87,7 @@ VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 AliasesToExport = 'cgit', 'dlgit', 'gfunc', 'WgetDL', 'MaxPart', 'npp', 'Open', 'dl-msu', 'Sall', 
-               '..', 'scc', 'GPull'
+               '..', 'scc', 'GPull', 'Awake'
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
