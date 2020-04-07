@@ -1,32 +1,44 @@
 ﻿function New-Shortcut {
   [CmdletBinding()]
   [Alias()]
-  param(
+  param (
     [Parameter(Mandatory)]
     [ValidateScript({
-          if( -not ($_ | Test-Path))
-          { throw "File or folder does not exist" }
-          return $true
-    })][String]$Target,
+          ($_ | Test-Path)
+    })]
+    [System.IO.FileInfo]$TargetFile,
     [Parameter(Mandatory)]
     [ValidateScript({
-          if( -not ($_ | Test-Path -IsValid))
-          { throw "$_ - is not a valid path" }
-          if(( -not ($_ -match "[.lnk]")) -or (-not ($_ -match "[.url]" )))
-          { throw "$_ must be a lnk or url file" }
+          ($_ | Test-Path -IsValid)
+    })]
+    [ValidateScript({
+          if( -not ($_ -match '[.lnk]')) {
+          Throw ('{0} must end in .lnk' -f $_)
+        }
           return $true
-    })][String]$ShortcutFile
+    })]
+    [String]$ShortcutFile,
+    [switch]$RunAsAdmin
   )
   begin {
-    Write-Verbose -Message "Creating WScript.Shell ComObject"
     $WScriptShell = New-Object -ComObject WScript.Shell
   }
   process {
-    Write-Verbose -Message "Creating Shortcut File"
     $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
-    Write-Verbose -Message "Setting TargetPath on Shortcut File"
-    $Shortcut.TargetPath = $Target
-    Write-Verbose -Message "Saving Completed Shortcut File"
+    $Shortcut.TargetPath = $TargetFile
     $Shortcut.Save()
+    Write-Verbose -Message 'Shortcut Saved' -Verbose:$VerbosePreference
+    
+    if($RunAsAdmin -eq $True) {
+      $bytes = [System.IO.File]::ReadAllBytes($ShortcutFile)
+      $bytes[0x15] = $bytes[0x15] -bor 0x20
+      [System.IO.File]::WriteAllBytes($ShortcutFile, $bytes)
+      Write-Verbose -Verbose:$VerbosePreference -Message ('{0} - Set to Run as Admin' -f $ShortcutFile)
+    }
+  }
+  end {
+    if( -not ( Test-Path -Path $ShortcutFile)) {
+      throw '.lnk file could not be found'
+    }
   }
 }
