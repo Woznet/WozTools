@@ -13,7 +13,7 @@
           return $true
     })]
     [Parameter(ParameterSetName='save')]
-    [IO.FileInfo]$SaveAs = $(Join-Path -Path $env:TEMP -ChildPath $('{0}.ps1' -f $((Get-Date).ToString('s').Replace(':','-'))))
+    [IO.FileInfo]$SaveAs
   )
   Begin {
     if(!($psise)){
