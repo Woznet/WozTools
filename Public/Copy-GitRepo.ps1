@@ -46,21 +46,23 @@
     if (!(Get-Command -Name git.exe)) {
       throw 'Install git.exe'
     }
-    Import-Module -Force -Name Microsoft.PowerShell.Management
+    # Import-Module -Force -Name Microsoft.PowerShell.Management
     if ($PSCmdlet.ParameterSetName -eq 'ClipBoard') {
-      if (-not($((Microsoft.PowerShell.Management\Get-Clipboard -Format Text).Split('.')[-1]) -eq 'git')) {
+      # if (-not($((Microsoft.PowerShell.Management\Get-Clipboard -Format Text).Split('.')[-1]) -eq 'git')) {
+      if (-not($((Microsoft.PowerShell.Management\Get-Clipboard).Split('.')[-1]) -eq 'git')) {
         throw 'The Clipboard does not appear to contain a git repo url'
       }
     }
-    Write-Verbose -Message ("Setting `$Dir to {0}" -f $PWD.Path)
+    Write-Verbose -Message ("Setting `$Dir to {0}" -f $PWD.Path) -Verbose:$VerbosePreference
     $Dir = $PWD.Path
     $Loc = Resolve-Path -Path $Path
-    Write-Verbose -Message ('Set-Location: {0}' -f $Loc)
+    Write-Verbose -Message ('Set-Location: {0}' -f $Loc) -Verbose:$VerbosePreference
     Set-Location -Path $Loc
   }
   Process {
     $RepoLoc = switch ($PSCmdlet.ParameterSetName) {
-      'ClipBoard' { Get-Clipboard -Format Text ; break }
+      # 'ClipBoard' { Get-Clipboard -Format Text ; break }
+      'ClipBoard' { Get-Clipboard ; break }
       'Repo' { $Repo ; break }
       default { throw "Error setting `$RepoLoc" }
     }
@@ -70,7 +72,7 @@
     }
   }
   End {
-    Write-Verbose -Message ('Returning to : {0}' -f $Dir)
+    Write-Verbose -Message ('Returning to : {0}' -f $Dir) -Verbose:$VerbosePreference
     Set-Location -Path $Dir
   }
 }
