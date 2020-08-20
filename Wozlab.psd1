@@ -4,7 +4,7 @@
   RootModule = 'Wozlab.psm1'
 
   # Version number of this module.
-  ModuleVersion = '1.28.1'
+  ModuleVersion = '1.29.5'
 
   # Supported PSEditions
   # CompatiblePSEditions = @()
@@ -61,14 +61,14 @@
   NestedModules = @()
 
   # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-  FunctionsToExport = 'Add-EnvPath', 'Beep', 'Copy-GitRepo', 'Download-GitUser', 
-  'Find-CmdParam', 'Flatten-Object', 'Get-ACLInfo', 'Get-ComObject', 
-  'Get-EnvPath', 'Get-Functions', 'Get-PartitionInfo', 'Get-PipelineInfo', 
-  'Invoke-InDirectory', 'Invoke-WebDownload', 'List-SpecialFolders', 
-  'Max-PartitionSize', 'New-DynamicParam', 'New-Shortcut', 'Open-NPP', 
-  'Open-RegPath', 'Open-Script', 'Out-ISETab', 'Push-GitChanges', 
-  'Remove-EnvPath', 'Restart-Process', 'Search-WinCatalog', 'Select-All', 
-  'Set-AutoLogin', 'Set-ConsoleWindow', 'Shutdown-ESXI', 'Source-Directory', 
+  FunctionsToExport = 'Add-EnvPath', 'Beep', 'Compare-Profile', 'Copy-GitRepo',
+  'Create-DirandEnter', 'Download-GitUser', 'Find-CmdParam', 'Flatten-Object',
+  'Get-ACLInfo', 'Get-ComObject', 'Get-EnvPath', 'Get-Functions', 'Get-PartitionInfo',
+  'Get-PipelineInfo', 'Invoke-InDirectory', 'Invoke-WebDownload',
+  'List-SpecialFolders', 'Max-PartitionSize', 'New-DynamicParam', 'New-Shortcut', 
+  'Open-NPP', 'Open-RegPath', 'Open-Script', 'Out-ISETab', 'Push-GitChanges',
+  'Remove-EnvPath', 'Restart-Process', 'Search-WinCatalog', 'Select-All',
+  'Set-AutoLogin', 'Set-ConsoleWindow', 'Shutdown-ESXI', 'Source-Directory',
   'Start-ConsoleCommand', 'Stop-Sleep', 'Sync-GitUser', 'Test-IfAdmin'
 
   # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
