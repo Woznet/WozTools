@@ -1,28 +1,28 @@
 
 @{
   # Script module or binary module file associated with this manifest.
-  RootModule        = 'Wozlab.psm1'
+  RootModule = 'Wozlab.psm1'
 
   # Version number of this module.
-  ModuleVersion     = '1.30'
+  ModuleVersion = '1.29.5'
 
   # Supported PSEditions
   # CompatiblePSEditions = @()
 
   # ID used to uniquely identify this module
-  GUID              = '4b7b2c12-32c7-4767-a5bc-b57546b77960'
+  GUID = '4b7b2c12-32c7-4767-a5bc-b57546b77960'
 
   # Author of this module
-  Author            = 'Woz'
+  Author = 'Woz'
 
   # Company or vendor of this module
-  CompanyName       = ''
+  CompanyName = ''
 
   # Copyright statement for this module
-  Copyright         = '(c) 2020 Woz. All rights reserved.'
+  Copyright = '(c) 2020 Woz. All rights reserved.'
 
   # Description of the functionality provided by this module
-  Description       = 'FYI: These are functions for personal use and may not work without minor alterations'
+  Description = 'FYI: These are functions for personal use and may not work without minor alterations'
 
   # Minimum version of the Windows PowerShell engine required by this module
   # PowerShellVersion = ''
@@ -58,26 +58,27 @@
   # FormatsToProcess = @()
 
   # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-  NestedModules     = @()
+  NestedModules = @()
 
   # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
   FunctionsToExport = 'Add-EnvPath', 'Beep', 'Compare-Profile', 'Copy-GitRepo',
-  'Create-DirandEnter', 'Find-CmdParam', 'Flatten-Object', 'Get-ACLInfo',
-  'Get-ComObject', 'Get-EnvPath', 'Get-GitUser', 'Get-PartitionInfo',
+  'Create-DirandEnter', 'Get-GitUser', 'Find-CmdParam', 'Flatten-Object',
+  'Get-ACLInfo', 'Get-ComObject', 'Get-EnvPath', 'Get-Functions', 'Get-PartitionInfo',
   'Get-PipelineInfo', 'Invoke-InDirectory', 'Invoke-WebDownload',
   'List-SpecialFolders', 'Max-PartitionSize', 'New-DynamicParam', 'New-Shortcut',
   'Open-NPP', 'Open-RegPath', 'Open-Script', 'Out-ISETab', 'Push-GitChanges',
-  'Remove-EnvPath', 'Search-WinCatalog', 'Select-All', 'Set-AutoLogin', 'Set-ConsoleWindow',
-  'Source-Directory', 'Start-ConsoleCommand', 'Stop-Sleep', 'Sync-GitUser', 'Test-IfAdmin', '*'
+  'Remove-EnvPath', 'Restart-Process', 'Search-WinCatalog', 'Select-All',
+  'Set-AutoLogin', 'Set-ConsoleWindow', 'Shutdown-ESXI', 'Source-Directory',
+  'Start-ConsoleCommand', 'Stop-Sleep', 'Sync-GitUser', 'Test-IfAdmin'
 
   # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-  CmdletsToExport   = '*'
+  CmdletsToExport = '*'
 
   # Variables to export from this module
   VariablesToExport = '*'
 
   # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-  AliasesToExport   = 'cgit', 'dlgit', 'gfunc', 'wgetDL', 'npp', 'Open', 'dl-msu', 'Sall', '..', 'scc', 'Awake', 'GPull'
+  AliasesToExport = 'cgit', 'dlgit', 'gfunc', 'wgetDL', 'npp', 'Open', 'dl-msu', 'Sall', '..', 'scc', 'Awake', 'GPull'
 
   # DSC resources to export from this module
   # DscResourcesToExport = @()
@@ -89,7 +90,7 @@
   # FileList = @()
 
   # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
-  PrivateData       = @{
+  PrivateData = @{
 
     PSData = @{
 

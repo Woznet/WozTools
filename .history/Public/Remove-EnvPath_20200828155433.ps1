@@ -2,21 +2,20 @@
   [Cmdletbinding(SupportsShouldProcess)]
   param(
     [parameter(Mandatory,ValueFromPipeline,Position=0)]
-    [ValidateScript({Test-Path -Path $_ -PathType Container})]
-    [String[]]$RemoveFolder,
+    [String[]]$RemovedFolder,
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine
   )
-  If ( ! (Test-IfAdmin) ) { Write-Host 'Need to RUN AS ADMINISTRATOR first'; Return 1 }
+  If ( ! (TEST-LocalAdmin) ) { Write-Host 'Need to RUN AS ADMINISTRATOR first'; Return 1 }
   # Get the Current Search Path from the Environment keys in the Registry
-  $NewPath = [environment]::GetEnvironmentVariable('PATH',$VariableTarget)
+  $NewPath=  [environment]::GetEnvironmentVariable('PATH',$VariableTarget)
   # Verify item exists as an EXACT match before removing
-  $Verify = $newpath.split(';') -contains $RemoveFolder
+  $Verify = $newpath.split(';') -contains $RemovedFolder
   # Find the value to remove, replace it with $NULL.  If it's not found, nothing will change
-  If ($Verify) { $NewPath = $NewPath.replace($RemoveFolder,$NULL) }
+  If ($Verify) { $NewPath = $NewPath.replace($RemovedFolder,$NULL) }
   # Clean up garbage from Path
-  $Newpath = $NewPath.replace(';;',';')
+  $Newpath=$NewPath.replace(';;',';')
   # Update the Environment Path
-  if ( $PSCmdlet.ShouldProcess($RemoveFolder) ) {
+  if ( $PSCmdlet.ShouldProcess($RemovedFolder) ) {
       [environment]::SetEnvironmentVariable('PATH',$Newpath,$VariableTarget)
     $confirm = [environment]::GetEnvironmentVariable('PATH',$VariableTarget).split(';')
     # Show our results back to the world

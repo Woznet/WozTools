@@ -2,7 +2,6 @@
   [Cmdletbinding(SupportsShouldProcess)]
   param(
     [parameter(Mandatory,ValueFromPipeline,Position=0)]
-    [ValidateScript({Test-Path -Path $_ -PathType Container})]
     [String[]]$RemoveFolder,
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine
   )
