@@ -12,7 +12,7 @@
 RootModule = 'Wozlab.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.31'
+ModuleVersion = '1.32'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -86,8 +86,7 @@ CmdletsToExport = @()
 # VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = 'cgit', 'dlgit', 'gfunc', 'wgetDL', 'npp', 'Open', 'dl-msu', 'Sall', '..', 'scc', 
-               'Awake', 'GPull'
+AliasesToExport = '*'
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -132,4 +131,3 @@ PrivateData = @{
 # DefaultCommandPrefix = ''
 
 }
-
