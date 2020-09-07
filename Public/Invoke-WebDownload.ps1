@@ -1,7 +1,6 @@
-﻿function Invoke-WebDownload {
+function Invoke-WebDownload {
   [OutputType('System.IO.FileInfo')]
   [Alias('wgetDL')]
-  [CmdletBinding()]
   param(
     [Parameter(Mandatory,ValueFromPipeline)]
     [Uri]$Uri,
@@ -11,7 +10,7 @@
           }
           return $true
     })]
-    [IO.FileInfo]$OutDir = $PWD.Path
+    [IO.DirectoryInfo]$OutDir = $PWD.Path
   )
   process{
     $OutPath = Join-Path -Path $OutDir -ChildPath $(Split-Path -Leaf -Path $Uri)
