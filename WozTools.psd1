@@ -18,13 +18,13 @@ ModuleVersion = '1.33'
 # CompatiblePSEditions = @()
 
 # ID used to uniquely identify this module
-GUID = '4b7b2c12-32c7-4767-a5bc-b57546b77960'
+GUID = '5a1ff380-c976-4278-88ce-b95084745199'
 
 # Author of this module
 Author = 'Woz'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = 'Woz'
 
 # Copyright statement for this module
 Copyright = '(c) 2020 Woz. All rights reserved.'
