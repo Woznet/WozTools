@@ -1,4 +1,4 @@
-﻿Function Open-Script {
+function Open-Script {
   [Alias('Open')]
   Param(
     [Parameter(Mandatory,ValueFromPipeline,Position=0)]
