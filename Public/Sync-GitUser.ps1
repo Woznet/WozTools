@@ -1,4 +1,4 @@
-﻿function Sync-GitUser {
+function Sync-GitUser {
   [CmdletBinding()]
   [OutputType([IO.DirectoryInfo])]
   [Alias('GPull')]
@@ -49,5 +49,3 @@
     }
   }
 }
-
-
