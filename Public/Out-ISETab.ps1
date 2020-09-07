@@ -1,4 +1,4 @@
-﻿Function Out-ISETab {
+Function Out-ISETab {
   [cmdletbinding(DefaultParameterSetName='nosave')]
   Param(
     [Parameter(Mandatory,ValueFromPipeline,ParameterSetName='nosave')]
@@ -29,12 +29,11 @@
     $newfile.Editor.InsertText(($data | Out-String))
     $newfile.Editor.SetCaretPosition(1,1)
     if ($SaveAs) {
-      if ([IO.Path]::IsPathRooted($SaveAs)){
+      if (-not ([IO.Path]::IsPathRooted($SaveAs))) {
         $SaveAs = Resolve-Path -Path $SaveAs -Verbose:$VerbosePreference
       }
       Write-Verbose -Message ('Saving to: {0}' -f $SaveAs) -Verbose:$VerbosePreference
       $newfile.SaveAs($SaveAs)
     }
   }
-
 }
