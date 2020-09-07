@@ -1,6 +1,3 @@
-﻿
-# Enable autologin on computer joined to domain
-
 function Set-AutoLogin {
   [CmdletBinding(DefaultParameterSetName = 'Enable')]
   param(
