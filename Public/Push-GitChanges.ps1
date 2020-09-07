@@ -1,7 +1,4 @@
-﻿
 function Push-GitChanges {
-  [CmdletBinding()]
-  [Alias()]
   Param(
     [Parameter(Mandatory)]
     [string]$Msg,
