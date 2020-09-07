@@ -1,4 +1,4 @@
-﻿Function Get-ACLInfo {
+function Get-ACLInfo {
   <#
       .SYNOPSIS
       Get a summary of a folder ACL
@@ -127,25 +127,25 @@
     Update-FormatData -AppendPath $tmpfile -ErrorAction SilentlyContinue
   } #Begin
   Process {
-    Foreach ($folder in $path) {
+    Foreach ($folder in $Path) {
       Write-Verbose -Message ('Getting ACL for {0}' -f $folder)
       #get the folder ACL
-      $acl= Get-ACL -Path $path
+      $acl= Get-ACL -Path $folder
       #a regex to get a file path
       [regex]$regex = '\w:\\\S+'
       #get full path from ACL object
-      $folderpath = $regex.match($acl.path).Value
+      $folderpath = $regex.Match($acl.Path).Value
       #get Access rules
       $access = $acl.Access
       #get builtin and system ACLS
-      $sysACL= $access | Where-Object {$_.identityreference -match 'BUILTIN|NT AUTHORITY|EVERYONE|CREATOR OWNER'}
+      $sysACL= $access | Where-Object {$_.IdentityReference -match 'BUILTIN|NT AUTHORITY|EVERYONE|CREATOR OWNER'}
       #get non builtin and system ACLS
-      $nonSysACL = $access | Where-Object {$_.identityreference -notmatch 'BUILTIN|NT AUTHORITY|EVERYONE|CREATOR OWNER'}
+      $nonSysACL = $access | Where-Object {$_.IdentityReference -notmatch 'BUILTIN|NT AUTHORITY|EVERYONE|CREATOR OWNER'}
       #grab some properties and add them to a hash table.
       $hash = @{
         Path = $folderpath
         Owner = $acl.Owner
-        TotalACL = $access.count
+        TotalACL = $access.Count
         SystemACL = ($sysACL | measure-object).Count
         UserACL = ($nonSysACL | measure-object).Count
         AccessRules = $access
@@ -163,6 +163,6 @@
       Write-Verbose -Message ('Deleting {0}' -f $tmpfile)
       Remove-Item -Path $tmpFile
     }
-    Write-Verbose -Message ('Ending {0}' -f $myinvocation.mycommand)
+    Write-Verbose -Message ('Ending {0}' -f $MyInvocation.MyCommand)
   } #end
 }
