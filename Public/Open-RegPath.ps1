@@ -1,4 +1,3 @@
-﻿
 function Open-RegPath {
   [CmdletBinding()]
   param(
