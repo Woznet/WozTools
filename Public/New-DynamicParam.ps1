@@ -1,4 +1,4 @@
-﻿Function New-DynamicParam {
+function New-DynamicParam {
   [CmdletBinding()]
   param(
     [string]$Name,
@@ -10,9 +10,9 @@
     [string]$HelpMessage
   )
   #param attributes
-  $ParamAttr = New-Object -TypeName System.Management.Automation.ParameterAttribute
+  $ParamAttr = [Parameter]::new()
   $ParamAttr.ParameterSetName = $SetName
-  if($Mandatory){ 
+  if($Mandatory){
     $ParamAttr.Mandatory = $True
   }
   if($Position -ne $null){
@@ -25,12 +25,12 @@
     $ParamAttr.HelpMessage = $HelpMessage
   }
   ##param validation set
-  $ParamOptions = New-Object -TypeName System.Management.Automation.ValidateSetAttribute -ArgumentList $options
-  $AttributeCollection = New-Object -TypeName 'Collections.ObjectModel.Collection[System.Attribute]'
+  $ParamOptions = [ValidateSet]::new($options)
+  $AttributeCollection = [Collections.ObjectModel.Collection[System.Attribute]]::new()
   $AttributeCollection.Add($ParamAttr)
   $AttributeCollection.Add($ParamOptions)
-  $Parameter = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter 	-ArgumentList @($Name, [string], $AttributeCollection)
-  $Dictionary = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameterDictionary
+  $Parameter = [System.Management.Automation.RuntimeDefinedParameter]::new($Name, [string], $AttributeCollection)
+  $Dictionary = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
   $Dictionary.Add($Name, $Parameter)
   $Dictionary
 }
