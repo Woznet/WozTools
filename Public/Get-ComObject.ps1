@@ -1,4 +1,4 @@
-﻿function Get-ComObject {
+function Get-ComObject {
   param(
     [Parameter(Mandatory,ParameterSetName='FilterByName')]
     [string]$Filter,
@@ -7,9 +7,8 @@
   )
   $ListofObjects = Get-ChildItem -Path 'HKLM:\Software\Classes' -ErrorAction SilentlyContinue |
   Where-Object {
-    $_.PSChildName -match '^\w+\.\w+$' -and (Test-Path -Path "$($_.PSPath)\CLSID")
+    $_.PSChildName -match '^\w+\.\w+$' -and (Test-Path -Path ('{0}\CLSID' -f $_.PSPath))
   } | Select-Object -ExpandProperty PSChildName
-
   if ($Filter) {
     $ListofObjects | Where-Object {$_ -like $Filter}
   } else {
