@@ -29,7 +29,7 @@ Function Add-EnvPath{
     [String[]]$NewFolder,
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine
   )
-  If ( ! (Test-LocalAdmin) ) { Write-Host 'Need to RUN AS ADMINISTRATOR first'; Return 1 }
+  If (-not (Test-LocalAdmin) ) { throw 'Need to RUN AS ADMINISTRATOR first' }
   # Get the Current Search Path from the Environment keys in the Registry
   $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget)
 
