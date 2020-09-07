@@ -12,7 +12,7 @@
 RootModule = 'WozTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.33'
+ModuleVersion = '1.33.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -109,7 +109,7 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/Woznet/WozLab'
+        ProjectUri = 'https://github.com/Woznet/WozTools'
 
         # A URL to an icon representing this module.
         # IconUri = ''
