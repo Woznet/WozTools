@@ -1,4 +1,4 @@
-﻿function Find-CmdParam {
+function Find-CmdParam {
   [cmdletbinding()]
   Param(
     [Parameter(Mandatory)]
@@ -8,27 +8,17 @@
   )
   Begin{
     $common = @(
-      'Verbose',
-      'Debug',
-      'ErrorAction',
-      'WarningAction',
-      'InformationAction',
-      'ErrorVariable',
-      'WarningVariable',
-      'InformationVariable',
-      'OutVariable',
-      'OutBuffer',
-      'PipelineVariable',
-      'WhatIf',
-      'Confirm'
+      'Verbose','Debug','ErrorAction','WarningAction',
+      'InformationAction','ErrorVariable','WarningVariable',
+      'InformationVariable','OutVariable','OutBuffer',
+      'PipelineVariable','WhatIf','Confirm'
     )
     $Params = [System.Collections.Generic.List[string]]::new()
-    $Params +=  
-    @"
-`n Command: $Command
+    $Params += (@'
+{1}Command: {0}
 --------------------
 ---- Parameters ----
-"@
+'@ -f $Command,([environment]::NewLine))
   }
   Process{
     if($ShowAll){
