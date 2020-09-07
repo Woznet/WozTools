@@ -1,4 +1,4 @@
-﻿function Source-Directory {
+function Source-Directory {
   [CmdletBinding()]
   [Alias('..')]
   param()
