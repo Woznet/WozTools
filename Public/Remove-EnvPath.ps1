@@ -1,4 +1,4 @@
-﻿Function Remove-EnvPath {
+Function Remove-EnvPath {
   [Cmdletbinding(SupportsShouldProcess)]
   param(
     [parameter(Mandatory,ValueFromPipeline,Position=0)]
@@ -17,7 +17,7 @@
   $Newpath = $NewPath.replace(';;',';')
   # Update the Environment Path
   if ( $PSCmdlet.ShouldProcess($RemoveFolder) ) {
-      [environment]::SetEnvironmentVariable('PATH',$Newpath,$VariableTarget)
+    [environment]::SetEnvironmentVariable('PATH',$Newpath,$VariableTarget)
     $confirm = [environment]::GetEnvironmentVariable('PATH',$VariableTarget).split(';')
     # Show our results back to the world
     Return $confirm
