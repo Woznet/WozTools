@@ -1,4 +1,4 @@
-﻿function Open-NPP {
+function Open-NPP {
   [Alias('npp')]
   param (
     [Parameter(Position = 0)]
