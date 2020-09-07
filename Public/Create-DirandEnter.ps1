@@ -1,6 +1,6 @@
-﻿function Create-DirandEnter {
+function Create-DirandEnter {
   [CmdletBinding()]
-  [alias('mcd')]
+  [alias('mdc')]
   param(
     [Parameter(Mandatory)]
     [String]$Name
