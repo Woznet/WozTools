@@ -1,6 +1,6 @@
-﻿Function Get-EnvPath {
+function Get-EnvPath {
   param(
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine
   )
-  Return ([environment]::GetEnvironmentVariable('PATH',$VariableTarget)).Split(';')
+  Return ([System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget)).Split(';')
 }
