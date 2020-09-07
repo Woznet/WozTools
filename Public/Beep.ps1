@@ -1,4 +1,4 @@
-﻿function Beep{
+function Beep{
   <#
       .SYNOPSIS
       Create Beep with System.Console dotnet class
