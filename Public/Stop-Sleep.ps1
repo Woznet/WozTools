@@ -1,6 +1,4 @@
-﻿function Stop-Sleep {
-  [CmdletBinding()]
-  #[Alias('')]
+function Stop-Sleep {
   param(
     [Parameter(Mandatory)]
     [ValidateScript({
@@ -11,7 +9,7 @@
     [string]$Caffeinated = 'V:\tools\Caffeinated.exe'
     
   )
-  if (Get-Process -Name Caffeinated -ea SilentlyContinue){
+  if (Get-Process -Name Caffeinated -ErrorAction SilentlyContinue){
     Write-Verbose -Message 'Closing current Caffeinated process' -Verbose:$VerbosePreference
     Get-Process -Name Caffeinated | Stop-Process
     Start-Sleep -Milliseconds 350
