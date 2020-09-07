@@ -1,31 +1,33 @@
-﻿function New-Shortcut {
+function New-Shortcut{
   [CmdletBinding()]
-  [Alias()]
-  param (
+  param(
     [Parameter(Mandatory)]
     [ValidateScript({
-          ($_ | Test-Path)
+          Test-Path -Path $_
     })]
-    [System.IO.FileInfo]$TargetFile,
+    [String]$Target,
     [Parameter(Mandatory)]
     [ValidateScript({
-          ($_ | Test-Path -IsValid)
+          Test-Path -Path $_ -IsValid
     })]
     [ValidateScript({
+          if( -not (Test-Path -Path $_)) {
+            Throw ('{0} already exists' -f $_)
+          }
           if( -not ($_ -match '[.lnk]')) {
-          Throw ('{0} must end in .lnk' -f $_)
-        }
+            Throw ('{0} must end in .lnk' -f $_)
+          }
           return $true
     })]
     [String]$ShortcutFile,
     [switch]$RunAsAdmin
   )
-  begin {
+  begin{
     $WScriptShell = New-Object -ComObject WScript.Shell
   }
-  process {
+  process{
     $Shortcut = $WScriptShell.CreateShortcut($ShortcutFile)
-    $Shortcut.TargetPath = $TargetFile
+    $Shortcut.TargetPath = $Target
     $Shortcut.Save()
     Write-Verbose -Message 'Shortcut Saved' -Verbose:$VerbosePreference
     
@@ -36,9 +38,5 @@
       Write-Verbose -Verbose:$VerbosePreference -Message ('{0} - Set to Run as Admin' -f $ShortcutFile)
     }
   }
-  end {
-    if( -not ( Test-Path -Path $ShortcutFile)) {
-      throw '.lnk file could not be found'
-    }
-  }
+  end{}
 }
