@@ -1,7 +1,6 @@
-﻿Function Flatten-Object {
+function Flatten-Object {
   # https://powersnippets.com/flatten-object/
   # Version 02.00.16, by iRon
-  [CmdletBinding()]
   Param (
     [Parameter(ValueFromPipeLine)]
     [Object[]]$Objects,
@@ -53,7 +52,7 @@
     }
     If (@($Iterate.Keys).Count) {
       $Iterate.Keys | ForEach-Object {
-        Flatten-Object @(,$Iterate.$_) $Separator $Base $Depth $Uncut $ToString ($Path + $_)
+        Flatten-Object -Objects @(,$Iterate.$_) -Separator $Separator -Base $Base -Depth $Depth -Uncut $Uncut -ToString $ToString -Path ($Path + $_)
       }
     }
     Else {
@@ -66,8 +65,8 @@
       $Names = @()
     } -Process {
       New-Variable -Force -Option AllScope -Name Property -Value ([System.Collections.Specialized.OrderedDictionary]::new())
-      Flatten-Object @(,$_) $Separator $Base $Depth $Uncut $ToString $Path
-      $Output += New-Object PSObject -Property $Property
+      Flatten-Object -Objects @(,$_) -Separator $Separator -Base $Base -Depth $Depth -Uncut $Uncut -ToString $ToString -Path $Path
+      $Output += New-Object -TypeName PSObject -Property $Property
       $Names += $Output[-1].PSObject.Properties | Select-Object -ExpandProperty Name
     }
     $Output | Select-Object -ExpandProperty ([String[]]($Names | Select-Object -Unique))
