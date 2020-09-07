@@ -12,7 +12,7 @@
 RootModule = 'Wozlab.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.32'
+ModuleVersion = '1.33'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -71,13 +71,13 @@ RequiredModules = @('PowerShellForGitHub')
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Add-EnvPath', 'Beep', 'Copy-GitRepo', 'Create-DirandEnter', 
                'Find-CmdParam', 'Flatten-Object', 'Get-ACLInfo', 'Get-ComObject', 
-               'Get-EnvPath', 'Get-GitUser', 'Get-PipelineInfo', 'Hide-Console', 
-               'Invoke-InDirectory', 'Invoke-WebDownload', 'List-SpecialFolders', 
-               'Max-PartitionSize', 'New-DynamicParam', 'New-Shortcut', 'Open-NPP', 
-               'Open-RegPath', 'Open-Script', 'Out-ISETab', 'Push-GitChanges', 
-               'Remove-EnvPath', 'Search-WinCatalog', 'Select-All', 'Set-AutoLogin', 
-               'Show-Console', 'Source-Directory', 'Start-ConsoleCommand', 
-               'Stop-Sleep', 'Sync-GitUser', 'Test-IfAdmin'
+               'Get-EnvPath', 'Get-GitHubUserRepos', 'Get-GitUser', 'Get-PipelineInfo', 
+               'Hide-Console', 'Invoke-InDirectory', 'Invoke-WebDownload', 
+               'List-SpecialFolders', 'Max-PartitionSize', 'New-DynamicParam', 
+               'New-Shortcut', 'Open-NPP', 'Open-RegPath', 'Open-Script', 'Out-ISETab', 
+               'Push-GitChanges', 'Remove-EnvPath', 'Search-WinCatalog', 'Select-All', 
+               'Set-AutoLogin', 'Show-Console', 'Source-Directory', 
+               'Start-ConsoleCommand', 'Stop-Sleep', 'Sync-GitUser', 'Test-IfAdmin'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

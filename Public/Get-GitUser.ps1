@@ -1,5 +1,5 @@
 ﻿function Copy-GitHubUserRepo {
-  [Alias('dlgit')]
+  [Alias()]
   param(
     [Parameter(Mandatory, ValueFromPipeline)]
     [String[]]$User,
