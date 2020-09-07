@@ -38,14 +38,18 @@
   {
     if ($PSVersionTable.PSVersion -le '7.0') {
       if (Get-Command -Name pwsh.exe) {
-        pwsh -NoProfile -Command { Invoke-Expression $($MyInvocation.Line) }
+        $cmd = $MyInvocation.Line
+        pwsh -NoProfile -Command ('& {0}' -f $cmd)
+        return
       }
       else {
-        throw 'Must Use PowerShell Core 7+'
+        throw 'Use PowerShell Core 7+'
       }
     }
+    if ($PSVersionTable.PSVersion -le '7.0') { throw 'Use PowerShell Core 7+' }
     if (-not (Get-Command -Name git.exe)){ throw 'git.exe is missing' }
     if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) {throw 'PowerShellForGitHub - is not installed'}
+	Import-Module -Name PowerShellForGitHub -Force
     $StopWatch = [System.Diagnostics.Stopwatch]::New()
     $html = @'
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
@@ -96,16 +100,18 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
           New-Item -Path $gistdir -ItemType Directory
         }
         New-Item -Path $userdir -Name '_gist.html' -ItemType File -Value ($html.Replace('-----',$user)) -Force
-        Get-GitHubGist -UserName $user | ForEach-Object -Parallel {
-          Start-Process -WorkingDirectory $gistdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f ($PSItem.git_pull_url)) -WindowStyle Hidden -Wait
+        $UserGist.git_pull_url | ForEach-Object {
+          #$gistdir = Join-Path -Path $userdir -ChildPath '_gist'
+          Start-Process -WorkingDirectory $gistdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
         }
       }
       
       $UserRepo = Get-GitHubRepository -OwnerName $user
       '{0}{1}s Repositories' -f $user,("'")
       $UserRepo | Format-Wide -Column 4
-      $UserRepo | ForEach-Object -Parallel {
-        Start-Process -WorkingDirectory $userdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f ($PSItem.clone_url)) -WindowStyle Hidden -Wait
+      $UserRepo.clone_url | ForEach-Object {
+        $userdir = Join-Path -Path $Path -ChildPath $user
+        Start-Process -WorkingDirectory $userdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f ($PSItem)) -WindowStyle Hidden -Wait
       }
     }
   }
