@@ -1,10 +1,9 @@
-﻿function Max-PartitionSize {
+function Max-PartitionSize {
   [CmdletBinding()]
-  [Alias()]
   param()
   dynamicparam {
     $ParamName = 'DriveLetter'
-    [String[]]$Values = (Get-WmiObject -Class win32_volume | ForEach-Object -MemberName DriveLetter | Sort-Object ).replace(':', '')
+    [String[]]$Values = (Get-WmiObject -Class win32_volume | ForEach-Object -MemberName DriveLetter | Sort-Object ).Replace(':', '')
 
     $Bucket = [Management.Automation.RuntimeDefinedParameterDictionary]::new()
     $AttributeList = [Collections.ObjectModel.Collection[System.Attribute]]::new()
