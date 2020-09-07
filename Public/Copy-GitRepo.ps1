@@ -38,7 +38,7 @@
     [IO.DirectoryInfo]$Path = $PWD.Path
   )
   Begin {
-    if ([Environment]::GetEnvironmentVariable('GIT_REDIRECT_STDERR',[EnvironmentVariableTarget]::Machine) -ne '2>&1') {
+    if (-not ([Environment]::GetEnvironmentVariable('GIT_REDIRECT_STDERR',[EnvironmentVariableTarget]::Machine) -ne '2>&1')) {
       [Environment]::SetEnvironmentVariable('GIT_REDIRECT_STDERR','2>&1',[EnvironmentVariableTarget]::Machine)
       Start-Sleep -Seconds 3
       Update-SessionEnvironment
@@ -53,11 +53,11 @@
         throw 'The Clipboard does not appear to contain a git repo url'
       }
     }
-    Write-Verbose -Message ("Setting `$Dir to {0}" -f $PWD.Path) -Verbose:$VerbosePreference
-    $Dir = $PWD.Path
+    # Write-Verbose -Message ("Setting `$Dir to {0}" -f $PWD.Path) -Verbose:$VerbosePreference
+    # $Dir = $PWD.Path
+    # Write-Verbose -Message ('Set-Location: {0}' -f $Loc) -Verbose:$VerbosePreference
+    # Set-Location -Path $Loc
     $Loc = Resolve-Path -Path $Path
-    Write-Verbose -Message ('Set-Location: {0}' -f $Loc) -Verbose:$VerbosePreference
-    Set-Location -Path $Loc
   }
   Process {
     $RepoLoc = switch ($PSCmdlet.ParameterSetName) {
@@ -66,13 +66,15 @@
       'Repo' { $Repo ; break }
       default { throw "Error setting `$RepoLoc" }
     }
-    foreach ($RepoUrl in $RepoLoc) {
-      Write-Verbose -Message ('Cloning: {0}{1}{2}' -f $RepoUrl,"`n",$(Join-Path -Path $Loc -ChildPath $(Split-Path -Path $RepoUrl -Leaf).Split('.')[0])) -Verbose
-      git clone --recursive $RepoUrl
+    Invoke-InDirectory -Path $Loc -ScriptBlock {
+      foreach ($RepoUrl in $RepoLoc) {
+        Write-Verbose -Message ('Cloning: {0}{1}{2}' -f $RepoUrl,"`n",$(Join-Path -Path $Loc -ChildPath $(Split-Path -Path $RepoUrl -Leaf).Split('.')[0])) -Verbose
+        git clone --recursive $RepoUrl
+      }
     }
   }
   End {
-    Write-Verbose -Message ('Returning to : {0}' -f $Dir) -Verbose:$VerbosePreference
-    Set-Location -Path $Dir
+    # Write-Verbose -Message ('Returning to : {0}' -f $Dir) -Verbose:$VerbosePreference
+    # Set-Location -Path $Dir
   }
 }
