@@ -97,21 +97,22 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
       if($UserGist)
       {
         $gistdir = Join-Path -Path $userdir -ChildPath '_gist'
-        if (-not (Test-Path -Path $userdir))
+        if (-not (Test-Path -Path $gistdir))
         {
           New-Item -Path $gistdir -ItemType Directory
         }
         New-Item -Path $userdir -Name '_gist.html' -ItemType File -Value ($html.Replace('-----',$user)) -Force
-        $UserGist.git_pull_url | ForEach-Object {
-          Start-Process -WorkingDirectory $gistdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
+        Get-GitHubGist -UserName $user  | ForEach-Object {
+          # $gistdir = Join-Path -Path $userdir -ChildPath '_gist'
+          Start-Process -WorkingDirectory $gistdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f ($PSItem.git_pull_url)) -WindowStyle Hidden -Wait
         }
       }
-      
+
       $UserRepo = Get-GitHubRepository -OwnerName $user
       '{0}{1}s Repositories' -f $user,("'")
       $UserRepo | Format-Wide -Column 4
       $UserRepo.clone_url | ForEach-Object {
-        $userdir = Join-Path -Path $Path -ChildPath $user
+        # $userdir = Join-Path -Path $Path -ChildPath $user
         Start-Process -WorkingDirectory $userdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f ($PSItem)) -WindowStyle Hidden -Wait
       }
     }
