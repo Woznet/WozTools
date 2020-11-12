@@ -1,4 +1,4 @@
-﻿function Get-GitHubUserRepos
+﻿function Get-GitHubUserRepo
 {
   <#
       .Synopsis
@@ -12,14 +12,15 @@
       .EXAMPLE
       'WozNet','PowerShell','Microsoft' | Get-GitHubUserRepos -Path 'V:\git\users'
   #>
+  [CmdletBinding()]
   [Alias('dlgit')]
-  Param (
+  Param(
     # Param1 help - GitHub Usernames
-    [Parameter(Mandatory,
+    [Parameter(
+        Mandatory,
         ValueFromPipeline
     )]
     [ValidateNotNullOrEmpty()]
-    [Alias('User')]
     [String[]]$UserName,
 
     # Param2 help - Directory to save Repositories
@@ -27,22 +28,22 @@
           Test-Path -Path $_ -PathType Container
     })]
     [String]$Path = 'V:\git\users',
-    
+
     # Param3 help - ThrottleLimit for Invoke-ForEachParallel
-    [int]$ThrottleLimit = 15
+    [int]$ThrottleLimit = 5,
+    [switch]$Happy
   )
-  Begin
-  {
+  Begin {
     if (-not (Get-Command -Name git.exe)){ throw 'git.exe is missing' }
-    if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) {throw 'Install Module - PowerShellForGitHub'}
+    if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) { throw 'Install Module - PowerShellForGitHub' }
     if (-not (Get-Module -ListAvailable -Name PForEach)){ throw 'Install Module - PForEach' }
-    Import-Module -Global -Name PowerShellForGitHub,PForEach
+    Import-Module -Name PowerShellForGitHub,PForEach -PassThru:$false
     $StopWatch = [System.Diagnostics.Stopwatch]::New()
     $html = @'
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
-<div id="placeholder"></div>
+<div id="ph"></div>
 <script>
-var username = '-----'
+var username = '---'
 $.getJSON('https://api.github.com/users/' + username + '/gists', function (data) {
     for (var i in data) {
         var oldDocumentWrite = document.write
@@ -56,9 +57,9 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
         }
         var scr = document.createElement('script');
         scr.src = 'https://gist.github.com/' + username + '/' + data[i].id + '.js';
-        $("#placeholder").append("<div><h2>" + data[i].description + "</h2></div>");
-        $("#placeholder").append(scr.outerHTML);
-        $("#placeholder").append('<div id="' + data[i].id + '"></div>');
+        $("#ph").append("<div><h2>" + data[i].description + "</h2></div>");
+        $("#ph").append(scr.outerHTML);
+        $("#ph").append('<div id="' + data[i].id + '"></div>');
     }
     document.write = oldDocumentWrite;
 });
@@ -66,73 +67,54 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 '@
     $StopWatch.Start()
   }
-
-  Process
-  {
-    foreach ($GitUser in $UserName)
-	{
+  Process {
+    # Manage Existing Contet
+    foreach ($GitUser in $UserName) {
       $UserPath = Join-Path -Path $Path -ChildPath $GitUser
-      if (Test-Path -Path $UserPath -PathType Container)
-	  {
-        Get-GitHubRepository -OwnerName $GitUser | Sort-Object -Property updated_at -Descending |  ForEach-Object -Begin {$a = @()} -Process {
-          $a += [pscustomobject]@{
-            'Name' = $_.Name
-            'Git Updated' = $_.updated_at.ToShortDateString()
-            'Local Updated' = if ( Test-Path -Path (Join-Path -Path $UserPath -ChildPath $_.Name)) {
-              (Get-ChildItem -Path $UserPath -Filter $_.Name -Directory | Select-Object -ExpandProperty LastWriteTime).ToShortDateString()
+      if (Test-Path -Path $UserPath -PathType Container) {
+        Get-GitHubRepository -OwnerName $GitUser | Sort-Object -Property updated_at -Descending |  ForEach-Object -Process {
+          if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item -ErrorAction SilentlyContinue ) {
+            [PSCustomObject]@{
+              'Name' = $_.Name
+              'Git Updated' = $_.updated_at.ToShortDateString()
+              'Local Updated' = $LPath.LastWriteTime.ToShortDateString()
+              'GetItem' = $LPath
             }
-            else { Write-Output -InputObject 'N/A' }
           }
+        } | Out-GridView -PassThru | Select-Object -ExpandProperty GetItem | ForEach-Object {
+          Write-Output -InputObject ('Deleting: {0}' -f $_.FullName)
+          Remove-Item -Path $_ -Recurse -Force
         }
-        $a | Out-GridView -PassThru | Select-Object -ExpandProperty Name | ForEach-Object {
-          $p1 = Join-Path -Path $UserPath -ChildPath $_ -Resolve -ErrorAction SilentlyContinue
-          if ($p1)
-		  {
-            Write-Output -InputObject ('Deleting: {0}' -f $p1)
-            Remove-Item -Path $p1 -Recurse -Force
-          }
-          $p1 = $null
-        }
-      }
-      else
-	  {
-        Write-Output -InputObject ('{0} - has not been cloned yet' -f $GitUser)
       }
     }
-
-    foreach ($GitUser in $UserName)
-    {
+    
+    # Download
+    foreach ($GitUser in $UserName) {
       $UserPath = Join-Path -Path $Path -ChildPath $GitUser
-      if (-not (Test-Path -Path $UserPath))
-      {
+      if (-not (Test-Path -Path $UserPath)) {
         New-Item -Path $UserPath -ItemType Directory
       }
-      
+      # Get Gist
       $UserGist = Get-GitHubGist -UserName $GitUser
-      if($UserGist)
-      {
+      if($UserGist) {
         $gistdir = Join-Path -Path $UserPath -ChildPath '_gist'
-        if (-not (Test-Path -Path $gistdir))
-        {
+        if (-not (Test-Path -Path $gistdir)) {
           New-Item -Path $gistdir -ItemType Directory
         }
-        New-Item -Path $UserPath -Name '_gist.html' -ItemType File -Value ($html.Replace('-----',$GitUser)) -Force
+        Set-Content -Value ($html.Replace('---',$GitUser)) -Path ([System.IO.Path]::Combine($UserPath,'_gist.html')) -Force
         $UserGist.git_pull_url | Invoke-ForEachParallel -Process {
           Start-Process -WorkingDirectory $gistdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
         } -ThrottleLimit $ThrottleLimit
       }
-      
+      # Get Repo
       $UserRepo = Get-GitHubRepository -OwnerName $GitUser
-      '{0}{1}s Repositories' -f $GitUser,("'")
-      $UserRepo | Format-Wide -Column 4
+      "{0}'s Repositories" -f $GitUser ; $UserRepo | Format-Wide -Column 4
       $UserRepo.clone_url | Invoke-ForEachParallel -Process {
         Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
       } -ThrottleLimit $ThrottleLimit
     }
   }
-
-  End
-  {
+  End {
     $StopWatch.Stop()
     'Time - {0:m\:ss}' -f $StopWatch.Elapsed
   }
