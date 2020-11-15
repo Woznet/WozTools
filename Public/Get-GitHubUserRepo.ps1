@@ -30,8 +30,7 @@
     [String]$Path = 'V:\git\users',
 
     # Param3 help - ThrottleLimit for Invoke-ForEachParallel
-    [int]$ThrottleLimit = 5,
-    [switch]$Happy
+    [int]$ThrottleLimit = 5
   )
   Begin {
     if (-not (Get-Command -Name git.exe)){ throw 'git.exe is missing' }

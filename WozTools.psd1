@@ -12,7 +12,7 @@
 RootModule = 'WozTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.36'
+ModuleVersion = '1.36.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
