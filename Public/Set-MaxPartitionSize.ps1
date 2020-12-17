@@ -1,5 +1,6 @@
-function Max-PartitionSize {
+function Set-MaxPartitionSize {
   [CmdletBinding()]
+  [Alias('Max-PartitionSize')]
   param()
   dynamicparam {
     $ParamName = 'DriveLetter'

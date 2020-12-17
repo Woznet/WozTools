@@ -3,16 +3,14 @@ function Open-Script {
   Param(
     [Parameter(Mandatory,ValueFromPipeline,Position=0)]
     [ValidateScript({($_ | Test-Path -PathType Leaf)})]
-    [IO.FileInfo[]]$Path
+    [System.IO.FileInfo[]]$Path
   )
   Begin{
-    if (!($psISE)){
-      Write-Warning -Message 'You must be in the PowerShell ISE to run this command.'
-    }
+    if (!($psISE)){ throw 'Must run in PowerShell ISE' }
   }
   Process {
-    foreach($f in $Path){
-      $null = $psISE.CurrentPowerShellTab.Files.Add((Get-Item -Path $f).Fullname)
+    foreach($File in $Path){
+      $null = $psISE.CurrentPowerShellTab.Files.Add((Get-Item -Path $File).Fullname)
     }
   }
 }

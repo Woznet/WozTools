@@ -1,4 +1,4 @@
-function Beep{
+function New-Beep {
   <#
       .SYNOPSIS
       Create Beep with System.Console dotnet class
@@ -13,11 +13,12 @@ function Beep{
       interger
 
       .EXAMPLE
-      Beep -Freq 700 -Duration 300
+      New-Beep -Freq 700 -Duration 300
   #>
+  [Alias('Beep')]
   param(
-    [int]$Freq = 1100,
-    [int]$Duration = 500
+    [int]$Freq = 800,
+    [int]$Duration = 200
   )
   [System.Console]::Beep($Freq,$Duration)
 }

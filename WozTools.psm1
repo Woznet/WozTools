@@ -1,13 +1,16 @@
 # Get public and private function definition files.
+
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('UseApprovedVerbs', '')]
+
 $Public  = @(Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue)
 $Private = @(Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue)
 # Dot source the files
-foreach ($import in @($Public + $Private)) {
+foreach ($Import in @($Public + $Private)) {
   try {
-    . $import.FullName
+    . $Import.FullName
   }
   catch {
-    Write-Error -Message "Failed to import function $($import.FullName): $_"
+    Write-Error -Message ('Failed to import function {0}: {1}' -f ($Import.FullName),$_)
   }
 }
 

@@ -1,4 +1,6 @@
-function Flatten-Object {
+function ConvertTo-FlatObject {
+  [CmdletBinding()]
+  [Alias('Flatten-Object')]
   # https://powersnippets.com/flatten-object/
   # Version 02.00.16, by iRon
   Param (
@@ -6,7 +8,7 @@ function Flatten-Object {
     [Object[]]$Objects,
     [String]$Separator = '.',
     [ValidateSet('', 0, 1)]
-    $Base = 1,
+    [Int]$Base = 1,
     [Int]$Depth = 5,
     [Int]$Uncut = 1,
     [String[]]$ToString = ([String], [DateTime], [TimeSpan], [Version], [Enum]),
