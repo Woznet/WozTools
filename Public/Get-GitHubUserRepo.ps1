@@ -15,7 +15,6 @@
       .EXAMPLE
       'WozNet','PowerShell','Microsoft' | Get-GitHubUserRepos -Path 'V:\git\users'
   #>
-  [CmdletBinding()]
   [Alias('dlgit')]
   Param(
     # Param1 help - GitHub Usernames
@@ -68,6 +67,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 });
 </script>
 '@
+    $UserPathList = [System.Collections.ArrayList]@()
     $StopWatch = [System.Diagnostics.Stopwatch]::New()
     $StopWatch.Start()
   }
@@ -76,6 +76,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
     $DelDir = @()
     foreach ($GitUser in $UserName) {
       $UserPath = Join-Path -Path $Path -ChildPath $GitUser
+      $UserPathList.Add($UserPath)
       if (Test-Path -Path $UserPath -PathType Container) {
         Get-GitHubRepository -OwnerName $GitUser | Sort-Object -Property updated_at -Descending | ForEach-Object -Process {
           if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item -ErrorAction SilentlyContinue ) {
@@ -86,7 +87,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
               GetItem = $LPath
             }
           }
-        } | Where-Object{$_.Git_Updated -ge $_.Local_Updated} | Select-Object -ExpandProperty GetItem | ForEach-Object {
+        } | Where-Object {$_.Git_Updated -ge $_.Local_Updated} | Select-Object -ExpandProperty GetItem | ForEach-Object {
           $DelDir += $PSItem
         }
       }
@@ -124,6 +125,8 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
   }
   End {
     $StopWatch.Stop()
-    'Time - {0:m\:ss}' -f $StopWatch.Elapsed
+    'Time - {0:m\:ss}{1}' -f $StopWatch.Elapsed,([System.Environment]::NewLine)
+    'Saved to User Directories:'
+    $UserPathList
   }
 }
