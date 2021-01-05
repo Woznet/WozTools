@@ -20,6 +20,7 @@
     # Param1 help - GitHub Usernames
     [Parameter(
         Mandatory,
+        HelpMessage='Github UserName',
         ValueFromPipeline
     )]
     [ValidateNotNullOrEmpty()]
@@ -73,10 +74,9 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
   }
   Process {
     # Manage Existing Contet
-    $DelDir = @()
+    $DelDir = [System.Collections.ArrayList]@()
     foreach ($GitUser in $UserName) {
       $UserPath = Join-Path -Path $Path -ChildPath $GitUser
-      $UserPathList.Add($UserPath)
       if (Test-Path -Path $UserPath -PathType Container) {
         Get-GitHubRepository -OwnerName $GitUser | Sort-Object -Property updated_at -Descending | ForEach-Object -Process {
           if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item -ErrorAction SilentlyContinue ) {
@@ -88,7 +88,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
             }
           }
         } | Where-Object {$_.Git_Updated -ge $_.Local_Updated} | Select-Object -ExpandProperty GetItem | ForEach-Object {
-          $DelDir += $PSItem
+          $null = $DelDir.Add($PSItem)
         }
       }
     }
@@ -100,6 +100,8 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
     # Download
     foreach ($GitUser in $UserName) {
       $UserPath = Join-Path -Path $Path -ChildPath $GitUser
+      $null = $UserPathList.Add($UserPath)
+
       if (-not (Test-Path -Path $UserPath)) {
         New-Item -Path $UserPath -ItemType Directory
       }
@@ -110,14 +112,31 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
         if (-not (Test-Path -Path $gistdir)) {
           New-Item -Path $gistdir -ItemType Directory
         }
+        Get-ChildItem -Path $gistdir | Remove-Item -Recurse -Force
         Set-Content -Value ($html.Replace('---',$GitUser)) -Path ([System.IO.Path]::Combine($UserPath,'_gist.html')) -Force
         $UserGist.git_pull_url | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
           Start-Process -WorkingDirectory $gistdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
         }
+        $GistDirectories = Get-ChildItem -Path $gistdir
+        $GistFiles = $GistDirectories | Get-ChildItem | Where-Object {$_.PsIsContainer -eq $false}
+        $Groupings = $GistFiles | Get-Item | Group-Object -Property Name
+        foreach( $Gitem in $Groupings) {
+          if ($Gitem.Count -ge 2) {
+            $Gitem| Where-Object {$_.Count -gt 1} | ForEach-Object {
+              # $gnum = $PSItem.Group
+              $PSItem.Group | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $gistdir
+              # Get-Item -Path $gnum | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $gistdir
+            }
+          }
+          else{
+            $Gitem.Group | Move-Item -Destination $gistdir
+          }
+        }
+        $GistDirectories | Get-Item | Remove-Item -Recurse -Force
       }
       # Get Repo
       $UserRepo = Get-GitHubRepository -OwnerName $GitUser
-      "{0}'s Repositories" -f $GitUser ; $UserRepo | Format-Wide -Column 4
+      '{0} - Repositories' -f $GitUser ; $UserRepo | Format-Wide -Column 4
       $UserRepo.clone_url | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
         Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
       }
