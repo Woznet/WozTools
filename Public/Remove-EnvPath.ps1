@@ -1,25 +1,34 @@
 Function Remove-EnvPath {
-  [Cmdletbinding(SupportsShouldProcess)]
+  [CmdletBinding()]
   param(
-    [parameter(Mandatory,ValueFromPipeline,Position=0)]
-    [ValidateScript({Test-Path -Path $_ -PathType Container})]
-    [String[]]$RemoveFolder,
+    [Parameter(Mandatory,ValueFromPipeline)]
+    [ValidateScript({
+          if (-not (Test-Path -Path $_ -PathType Container)) {
+            throw 'Path must be a Folder'
+          }
+          if (-not ([System.IO.Path]::IsPathRooted($_))) {
+            throw 'Path must be Rooted'
+          }
+          return $true
+    })]
+    [String[]]$Path,
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine
   )
-  If ( ! (Test-IfAdmin) ) { Write-Host 'Need to RUN AS ADMINISTRATOR first'; Return 1 }
-  # Get the Current Search Path from the Environment keys in the Registry
-  $NewPath = [environment]::GetEnvironmentVariable('PATH',$VariableTarget)
-  # Verify item exists as an EXACT match before removing
-  $Verify = $newpath.split(';') -contains $RemoveFolder
-  # Find the value to remove, replace it with $NULL.  If it's not found, nothing will change
-  If ($Verify) { $NewPath = $NewPath.replace($RemoveFolder,$NULL) }
-  # Clean up garbage from Path
-  $Newpath = $NewPath.replace(';;',';')
-  # Update the Environment Path
-  if ( $PSCmdlet.ShouldProcess($RemoveFolder) ) {
-    [environment]::SetEnvironmentVariable('PATH',$Newpath,$VariableTarget)
-    $confirm = [environment]::GetEnvironmentVariable('PATH',$VariableTarget).split(';')
-    # Show our results back to the world
-    Return $confirm
+  begin {
+    if ( -not (Test-IfAdmin) ) { throw 'RUN AS ADMINISTRATOR' }
+    $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\') | Sort-Object -Unique | Convert-Path -ErrorAction SilentlyContinue
+    $NewPath = [System.Collections.ArrayList]::new()
+    $NewPath.AddRange($OldPath)
+  }
+  process {
+    foreach($RDir in $Path) {
+      $RDir = (Convert-Path -Path $RDir -ErrorAction SilentlyContinue).TrimEnd('\')
+      if ($NewPath -contains $RDir) { $NewPath.Remove($RDir) }
+    }
+  }
+  end {
+    [System.Environment]::SetEnvironmentVariable('PATH',($NewPath -join ';'),$VariableTarget)
+    $Confirm = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';')
+    return $Confirm
   }
 }

@@ -4,62 +4,54 @@ Function Add-EnvPath{
       Add Folder to Environment Variable PATH
 
       .DESCRIPTION
-      Add Folder to Environment Variable PATH for Machine, User or Process scope
+      Add Path to Environment Variable PATH for Machine, User or Process scope
       And removes missing PATH locations
 
-      .PARAMETER NewFolder
+      .PARAMETER Path
       Folder to add to PATH
 
       .PARAMETER VariableTarget
-      Add NewFolder to Machine, User or Process Env Path Variable
+      Add Path to Machine, User or Process Env Path Variable
 
       .INPUTS
       string - folder path
 
       .OUTPUTS
-      List of the Path Variable after it has been changed
+      List of the updated Path Variable
 
       .EXAMPLE
-      Add-EnvPath -NewFolder 'C:\temp' -VariableTarget Machine
+      Add-EnvPath -Path 'C:\temp' -VariableTarget Machine
   #>
-  [Cmdletbinding(SupportsShouldProcess)]
+  [CmdletBinding()]
   param(
-    [parameter(Mandatory,ValueFromPipeline,Position=0)]
-    [ValidateScript({Test-Path -Path $_ -PathType Container})]
-    [String[]]$NewFolder,
+    [Parameter(Mandatory,ValueFromPipeline)]
+    [ValidateScript({
+          if (-not (Test-Path -Path $_ -PathType Container)) {
+            throw 'Path must be a Folder'
+          }
+          if (-not ([System.IO.Path]::IsPathRooted($_))) {
+            throw 'Path must be Rooted'
+          }
+          return $true
+    })]
+    [String[]]$Path,
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine
   )
-  If (-not (Test-LocalAdmin) ) { throw 'Need to RUN AS ADMINISTRATOR first' }
-  # Get the Current Search Path from the Environment keys in the Registry
-  $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget)
-
-  # See if the new Folder is already IN the Path
-  $PathasArray = {$OldPath.Split(';')}.Invoke()
-
-  If ($PathasArray -contains $NewFolder -or $PathAsArray -contains $NewFolder+'\') {
-    Return "Folder already within `$ENV:PATH"
+  begin {
+    if ( -not (Test-IfAdmin) ) { throw 'RUN AS ADMINISTRATOR' }
+    $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\') | Sort-Object -Unique | Convert-Path -ErrorAction SilentlyContinue
+    $NewPath = [System.Collections.ArrayList]::new()
+    $NewPath.AddRange($OldPath)
   }
-  $remove = [System.Collections.ArrayList]::new()
-  $PathasArray.ForEach({
-      if (!(Test-Path -Path $_ -PathType Container )) {
-        $remove.Add($_)
-        Write-Host -Object ('{0} - was not found, removing form list' -f $_) -ForegroundColor Red
-      }
-  })
-  $null = $remove.ForEach({$PathasArray.Remove($_)})
-  $null = $remove
-  $null = $PathasArray.Add($NewFolder)
-  $NewPath = ($PathasArray | Sort-Object) -join ';'
-  if ( $PSCmdlet.ShouldProcess($NewFolder) ) {
-    [System.Environment]::SetEnvironmentVariable('PATH',$NewPath,$VariableTarget)
-    $confirm = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget) -split ';' | Sort-Object
-    if (!(Compare-Object -ReferenceObject $($NewPath.Split(';')) -DifferenceObject $confirm -PassThru)){
-      Write-Host -Object ('PATH variable successfully updated{0}{0}' -f "`n")
-      Return $confirm
+  process{
+    foreach ($NDir in $Path) {
+      $NDir = (Convert-Path -Path $NDir -ErrorAction SilentlyContinue).TrimEnd('\')
+      $null = if ($NewPath -notcontains $NDir) { $NewPath.Add($NDir) }
     }
-    else {
-      [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget) -split ';'
-      throw 'Comparision of updated PATH var and requsted changes are different'
-    }
+  }
+  end {
+    [System.Environment]::SetEnvironmentVariable('PATH',($NewPath -join ';'),$VariableTarget)
+    $Confirm = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';')
+    return $Confirm
   }
 }
