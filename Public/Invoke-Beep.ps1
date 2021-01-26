@@ -1,4 +1,4 @@
-function New-Beep {
+function Invoke-Beep {
   <#
       .SYNOPSIS
       Create Beep with System.Console dotnet class
