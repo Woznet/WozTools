@@ -32,20 +32,20 @@ Copyright = '(c) 2020 Woz. All rights reserved.'
 # Description of the functionality provided by this module
 Description = 'FYI: These are functions for personal use and may not work without minor alterations'
 
-# Minimum version of the PowerShell engine required by this module
+# Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '5.1'
 
-# Name of the PowerShell host required by this module
+# Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
 
-# Minimum version of the PowerShell host required by this module
+# Minimum version of the Windows PowerShell host required by this module
 # PowerShellHostVersion = ''
 
 # Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
 # DotNetFrameworkVersion = ''
 
 # Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# ClrVersion = ''
+# CLRVersion = ''
 
 # Processor architecture (None, X86, Amd64) required by this module
 # ProcessorArchitecture = ''
@@ -70,7 +70,7 @@ PowerShellVersion = '5.1'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Add-EnvPath', 'ConvertTo-FlatObject', 'Convertto-TitleCase', 
-               'Copy-GitRepo', 'Find-CmdParam', 'Get-ACLInfo', 'Get-ComObject', 
+               'Clone-GitRepo', 'Find-CmdParam', 'Get-ACLInfo', 'Get-ComObject', 
                'Get-CurrentUser', 'Get-EnvPath', 'Get-FunctionCode', 
                'Get-GitHubUserRepo', 'Get-PipelineInfo', 'Get-SpecialFolders', 
                'Get-StringFromSecureString', 'Hide-Console', 'Invoke-Beep', 
@@ -100,8 +100,8 @@ AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dlgit', 'dl-
 
 # List of all files packaged with this module
 FileList = 'WozTools.psd1', 'WozTools.psm1', 'Public\Add-EnvPath.ps1', 
-               'Public\ConvertTo-FlatObject.ps1', 'Public\Convertto-TitleCase.ps1', 
-               'Public\Copy-GitRepo.ps1', 'Public\Find-CmdParam.ps1', 
+               'Public\Clone-GitRepo.ps1', 'Public\ConvertTo-FlatObject.ps1', 
+               'Public\Convertto-TitleCase.ps1', 'Public\Find-CmdParam.ps1', 
                'Public\Get-ACLInfo.ps1', 'Public\Get-ComObject.ps1', 
                'Public\Get-CurrentUser.ps1', 'Public\Get-EnvPath.ps1', 
                'Public\Get-FunctionCode.ps1', 'Public\Get-GitHubUserRepo.ps1', 
