@@ -1,24 +1,22 @@
 function Invoke-Beep {
   <#
       .SYNOPSIS
-      Create Beep with System.Console dotnet class
+      Invoke Console Beep
 
       .PARAMETER Freq
-      Frequency of the beep
+      Frequency of the beep, ranging from 37 to 32767 hertz
 
       .PARAMETER Duration
-      Duration of the beep
-
-      .INPUTS
-      interger
+      Duration of the beep measured in milliseconds
 
       .EXAMPLE
-      New-Beep -Freq 700 -Duration 300
+      Invoke-Beep -Freq 700 -Duration 300
   #>
   [Alias('Beep')]
   param(
-    [int]$Freq = 800,
+    [ValidateRange(37,32767)]
+    [int]$Freqency = 800,
     [int]$Duration = 200
   )
-  [System.Console]::Beep($Freq,$Duration)
+  [System.Console]::Beep($Freqency,$Duration)
 }

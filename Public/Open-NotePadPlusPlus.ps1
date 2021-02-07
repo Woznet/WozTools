@@ -1,6 +1,5 @@
 function Open-NotePadPlusPlus {
   [Alias('npp','Open-NPP')]
-  [CmdletBinding()]
   param (
     [Parameter(ValueFromPipeline)]
     [AllowNull()]
@@ -13,11 +12,12 @@ function Open-NotePadPlusPlus {
     [String[]]$Path
   )
   begin {
-    $NppExe = Join-Path -Path $env:ProgramFiles,${env:ProgramFiles(x86)} -ChildPath 'Notepad++\notepad++.exe' -Resolve -ErrorAction SilentlyContinue
-    if (-not ($NppExe)){ throw ('Notepad++ was not found{0}Install with Chocolatey - choco install notepadplusplus.install' -f ([System.Environment]::NewLine)) }
-    if ($NppExe.Count -gt 1){
-      Write-Verbose -Message ('Multiple Versions of Notepad++ found.{0}Using - {1}' -f ([System.Environment]::NewLine),($NppExe[0]))
-      $NppExe = $NppExe[0]
+    $NppExe = if (Get-Command -Name 'notepad++.exe') { 'notepad++.exe' }
+    elseif ($NPProg = Join-Path -Path $env:ProgramFiles -ChildPath 'Notepad++\notepad++.exe' -Resolve -ErrorAction SilentlyContinue) {
+      $NPProg
+    }
+    else {
+      throw 'Notepad++ was not found'
     }
   }
   process {
