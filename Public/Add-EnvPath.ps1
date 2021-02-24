@@ -1,7 +1,7 @@
-Function Add-EnvPath{
+Function Add-EnvPath {
   <#
       .SYNOPSIS
-      Add Folder to Environment Variable PATH
+      Add a Folder to Environment Variable PATH
 
       .DESCRIPTION
       Add Path to Environment Variable PATH for Machine, User or Process scope
@@ -11,18 +11,18 @@ Function Add-EnvPath{
       Folder to add to PATH
 
       .PARAMETER VariableTarget
-      Add Path to Machine, User or Process Env Path Variable
+      Which Env Path the directory gets added to.
+      Machine, User or Process
 
       .INPUTS
-      string - folder path
+      String - Folder Path
 
       .OUTPUTS
-      List of the updated Path Variable
+      String - List of the New Path Variable
 
       .EXAMPLE
       Add-EnvPath -Path 'C:\temp' -VariableTarget Machine
   #>
-  [CmdletBinding()]
   param(
     [Parameter(Mandatory,ValueFromPipeline)]
     [ValidateScript({
@@ -38,7 +38,7 @@ Function Add-EnvPath{
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine
   )
   begin {
-    if ( -not (Test-IfAdmin) ) { throw 'RUN AS ADMINISTRATOR' }
+    if (-not (Test-IfAdmin)) { throw 'RUN AS ADMINISTRATOR' }
     $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\') | Sort-Object -Unique | Convert-Path -ErrorAction SilentlyContinue
     $NewPath = [System.Collections.ArrayList]::new()
     $NewPath.AddRange($OldPath)

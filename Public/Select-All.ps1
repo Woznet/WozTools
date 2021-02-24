@@ -1,10 +1,10 @@
-function Select-All{
+function Select-All {
   [Alias('Sall')]
   param(
     [Parameter(Mandatory,ValueFromPipeline)]
-    [Object]$Object
+    [PSObject]$InputObject
   )
   process{
-    $Object | Select-Object -Property *
+    $InputObject | Select-Object -Property *
   }
 }

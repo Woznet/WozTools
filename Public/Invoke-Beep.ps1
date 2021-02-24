@@ -12,6 +12,7 @@ function Invoke-Beep {
       .EXAMPLE
       Invoke-Beep -Freq 700 -Duration 300
   #>
+  [CmdletBinding()]
   [Alias('Beep')]
   param(
     [ValidateRange(37,32767)]

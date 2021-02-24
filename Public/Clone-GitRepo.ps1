@@ -4,7 +4,6 @@ function Clone-GitRepo {
       Clone a Git Repository
 
       .EXAMPLE
-      Clone WozTools to 'D:\git\repos\WozTools'
       Clone-Git -Repo https://github.com/Woznet/WozTools.git -Path D:\git\repos
   #>
   [CmdletBinding(DefaultParameterSetName='ClipBoard')]
@@ -18,7 +17,7 @@ function Clone-GitRepo {
     # Location the repository folder will be saved to
     [ValidateScript({
           if(-Not ($_ | Test-Path -PathType Container)) {
-            throw [System.IO.DirectoryNotFoundException]::new(('Unable to locate - {0}' -f $_))
+            throw ('Unable to locate - {0}' -f $_)
           }
           return $true
     })]

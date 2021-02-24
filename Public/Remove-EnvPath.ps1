@@ -1,5 +1,4 @@
 Function Remove-EnvPath {
-  [CmdletBinding()]
   param(
     [Parameter(Mandatory,ValueFromPipeline)]
     [ValidateScript({

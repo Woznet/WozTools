@@ -1,28 +1,28 @@
-﻿function Get-StringFromSecureString
-{
+function Get-StringFromSecureString {
   <#
       .Synopsis
       Decrypt SecureString
-      .DESCRIPTION
-      Get unecrypted string from a secure string
-      .EXAMPLE
 
+      .DESCRIPTION
+      Convert securestring to string with
+      [Microsoft.PowerShell.DesiredStateConfiguration.Internal.DscClassCache]::GetStringFromSecureString
+
+      .EXAMPLE
       $test = Get-Credential # Username - Tester, Password test1
       $test.Password | Get-StringFromSecureString
-      .EXAMPLE
 
+      .EXAMPLE
       Get-StringFromSecureString -SecureString $test.Password
+
       .INPUTS
       securestring
+
       .OUTPUTS
       string
   #>
-  [CmdletBinding(
-      PositionalBinding=$true
-  )]
   [Alias('Convert-SecureString')]
   [OutputType([String])]
-  Param (
+  Param(
     [Parameter(
         Mandatory,
         ValueFromPipeline,
@@ -32,8 +32,7 @@
     [ValidateNotNullOrEmpty()]
     [securestring]$SecureString
   )
-  Process
-  {
+  Process {
     [Microsoft.PowerShell.DesiredStateConfiguration.Internal.DscClassCache]::GetStringFromSecureString($SecureString)
   }
 }

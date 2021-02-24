@@ -1,4 +1,5 @@
 function Set-ConsoleSize {
+  [CmdletBinding()]
   [Alias('FixCon')]
   param(
     [int]$Width = 145,

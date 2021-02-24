@@ -1,5 +1,4 @@
 function New-Shortcut{
-  [CmdletBinding()]
   param(
     [Parameter(Mandatory)]
     [ValidateScript({
@@ -30,7 +29,7 @@ function New-Shortcut{
     $Shortcut.TargetPath = $Target
     $Shortcut.Save()
     Write-Verbose -Message 'Shortcut Saved' -Verbose:$VerbosePreference
-    
+
     if($RunAsAdmin -eq $True) {
       $bytes = [System.IO.File]::ReadAllBytes($ShortcutFile)
       $bytes[0x15] = $bytes[0x15] -bor 0x20
@@ -38,5 +37,4 @@ function New-Shortcut{
       Write-Verbose -Verbose:$VerbosePreference -Message ('{0} - Set to Run as Admin' -f $ShortcutFile)
     }
   }
-  end{}
 }

@@ -2,6 +2,7 @@ function Get-ACLInfo {
   <#
       .SYNOPSIS
       Get a summary of a folder ACL
+
       .DESCRIPTION
       This command will examine the ACL of a given folder and create a custom object.
       The object will include a count of access rules based on the identity
@@ -31,138 +32,120 @@ function Get-ACLInfo {
 
       .PARAMETER Path
       The path of the folder to analyze. The default is the current directory.
+
       .EXAMPLE
       PS C:\> Get-ACLInfo D:\Files
       Get acl data on the Files folder.
+
       .EXAMPLE
       PS C:\> dir e:\groups\data -recurse | where {$_.PSIsContainer} | get-aclinfo
       Get acl information for every folder under e:\groups\data.
+
       .NOTES
       NAME        :  Get-ACLInfo
       VERSION     :  0.9
       LAST UPDATED:  6/21/2012
       AUTHOR      :  Jeffery Hicks (http://jdhitsolutions.com/blog)
+
       .LINK
       Get-ACL
+
       .INPUTS
       Strings
+
       .OUTPUTS
       Custom object
   #>
-  [cmdletbinding()]
   Param(
-    [Parameter(Position=0,ValueFromPipeline,ValueFromPipelineByPropertyName)]
+    [Parameter(ValueFromPipeline,ValueFromPipelineByPropertyName)]
     [ValidateScript({Test-Path -Path $_})]
-    [string[]]$Path = '.'
+    [string[]]$Path = $PWD.Path
   )
   Begin {
-    Write-Verbose -Message ('Starting {0}' -f $myinvocation.mycommand)
-    #create a format file on the fly
-    $xml = @'
-<?xml version="1.0" encoding="utf-8" ?>
+    Write-Verbose -Message ('Starting {0}' -f $MyInvocation.MyCommand)
+    $Xml = @'
+<?xml version="1.0" encoding="utf-8"?>
 <Configuration>
-    <ViewDefinitions>
-        <View>
-            <Name>JDH.ACLInfo</Name>
-            <ViewSelectedBy>
-                <TypeName>JDH.ACLInfo</TypeName>
-            </ViewSelectedBy>
-            <TableControl>
-                <TableHeaders>
-                    <TableColumnHeader>
-                        <Width>50</Width>
-					</TableColumnHeader>
-                    <TableColumnHeader/>
-                    <TableColumnHeader>
-                      <Width>8</Width>
-                    </TableColumnHeader>
+	<ViewDefinitions>
+		<View>
+			<Name>JDH.ACLInfo</Name>
+			<ViewSelectedBy>
+				<TypeName>JDH.ACLInfo</TypeName>
+			</ViewSelectedBy>
+			<TableControl>
+				<TableHeaders>
 					<TableColumnHeader>
-                      <Width>9</Width>
-                    </TableColumnHeader>
-                    <TableColumnHeader>
-                        <Width>7</Width>
-                    </TableColumnHeader>
-                </TableHeaders>
-                <TableRowEntries>
-                    <TableRowEntry>
-                        <TableColumnItems>
-                            <TableColumnItem>
-                                <PropertyName>Path</PropertyName>
-                            </TableColumnItem>
-                            <TableColumnItem>
-                                <PropertyName>Owner</PropertyName>
-                            </TableColumnItem>
-                            <TableColumnItem>
-                                <PropertyName>TotalACL</PropertyName>
-                            </TableColumnItem>
-                            <TableColumnItem>
-                                <Propertyname>SystemACL</Propertyname>
-                            </TableColumnItem>
-                             <TableColumnItem>
-                                <Propertyname>UserACL</Propertyname>
-                            </TableColumnItem>
-                        </TableColumnItems>
-                    </TableRowEntry>
-                 </TableRowEntries>
-            </TableControl>
-        </View>
-    </ViewDefinitions>
+						<Width>50</Width>
+					</TableColumnHeader>
+					<TableColumnHeader/>
+					<TableColumnHeader>
+						<Width>8</Width>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Width>9</Width>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Width>7</Width>
+					</TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<PropertyName>Path</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>Owner</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>TotalACL</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<Propertyname>SystemACL</Propertyname>
+							</TableColumnItem>
+							<TableColumnItem>
+								<Propertyname>UserACL</Propertyname>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>
+	</ViewDefinitions>
 </Configuration>
 '@
-    #create a temp file
-    $tmpfile = [IO.Path]::GetTempFileName()
-    #add the necessary file extension
-    $tmpfile += '.ps1xml'
-    #pipe the xml text to the temp file
-    Write-Verbose -Message ('Creating {0}' -f $tmpfile)
-    $xml | Out-File -FilePath $tmpfile
-    <#
-        update format data. I'm setting error action to SilentlyContinue
-        because everytime you run the function it creates a new temp file
-        but Update-FormatData tries to reload all the format files it
-        knows about in the current session, which includes previous versions
-        of this file which have already been deleted.
-    #>
+    $TempFile = [System.IO.Path]::GetTempFileName() + '.ps1xml'
+    Write-Verbose -Message ('Creating {0}' -f $TempFile)
+    $Xml | Out-File -FilePath $TempFile
     Write-Verbose -Message 'Updating format data'
-    Update-FormatData -AppendPath $tmpfile -ErrorAction SilentlyContinue
-  } #Begin
+    Update-FormatData -AppendPath $TempFile -ErrorAction SilentlyContinue
+  }
   Process {
-    Foreach ($folder in $Path) {
-      Write-Verbose -Message ('Getting ACL for {0}' -f $folder)
-      #get the folder ACL
-      $acl= Get-ACL -Path $folder
-      #a regex to get a file path
-      [regex]$regex = '\w:\\\S+'
-      #get full path from ACL object
-      $folderpath = $regex.Match($acl.Path).Value
-      #get Access rules
-      $access = $acl.Access
-      #get builtin and system ACLS
-      $sysACL= $access | Where-Object {$_.IdentityReference -match 'BUILTIN|NT AUTHORITY|EVERYONE|CREATOR OWNER'}
-      #get non builtin and system ACLS
-      $nonSysACL = $access | Where-Object {$_.IdentityReference -notmatch 'BUILTIN|NT AUTHORITY|EVERYONE|CREATOR OWNER'}
-      #grab some properties and add them to a hash table.
-      $hash = @{
-        Path = $folderpath
-        Owner = $acl.Owner
-        TotalACL = $access.Count
-        SystemACL = ($sysACL | measure-object).Count
-        UserACL = ($nonSysACL | measure-object).Count
-        AccessRules = $access
+    Foreach ($Folder in $Path) {
+      Write-Verbose -Message ('Getting ACL for {0}' -f $Folder)
+      $ACL= Get-ACL -Path $Folder
+      [regex]$Regex = '\w:\\\S+'
+      $FolderPath = $Regex.Match($ACL.Path).Value
+      $Access = $ACL.Access
+      $SysACL= $Access | Where-Object {$_.IdentityReference -match 'BUILTIN|NT AUTHORITY|EVERYONE|CREATOR OWNER'}
+      $NonSysACL = $Access | Where-Object {$_.IdentityReference -notmatch 'BUILTIN|NT AUTHORITY|EVERYONE|CREATOR OWNER'}
+      $Obj = [PSCustomObject] @{
+        Path = $FolderPath
+        Owner = $ACL.Owner
+        TotalACL = $Access.Count
+        SystemACL = ($SysACL | Measure-Object).Count
+        UserACL = ($NonSysACL | Measure-Object).Count
+        AccessRules = $Access
       }
-      #write a new object to the pipeline
-      $obj = New-object -TypeName PSObject -Property $hash
-      #add a type name for the format file
-      $obj.PSObject.TypeNames.Insert(0,'JDH.ACLInfo')
-      $obj
-    } #foreach
-  } #Process
+      $Obj.PSObject.TypeNames.Insert(0,'JDH.ACLInfo')
+      $Obj
+    }
+  }
   End {
-    #delete the temp file if it still exists
-    if (Test-Path -Path $tmpfile) {
-      Write-Verbose -Message ('Deleting {0}' -f $tmpfile)
-      Remove-Item -Path $tmpFile
+    if (Test-Path -Path $TempFile) {
+      Write-Verbose -Message ('Deleting {0}' -f $TempFile)
+      Remove-Item -Path $TempFile
     }
     Write-Verbose -Message ('Ending {0}' -f $MyInvocation.MyCommand)
-  } #end
+  }
 }

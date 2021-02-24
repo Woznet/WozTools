@@ -13,7 +13,7 @@ function Invoke-WebDownload {
     [String]$OutDir = $PWD.Path
   )
   process{
-    $OutPath = Join-Path -Path $OutDir -ChildPath $(Split-Path -Leaf -Path $Uri)
+    $OutPath = Join-Path -Path $OutDir -ChildPath (Split-Path -Leaf -Path $Uri)
     Invoke-WebRequest -UseBasicParsing -Uri $Uri -OutFile $OutPath
   }
   end{

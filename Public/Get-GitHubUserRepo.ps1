@@ -1,4 +1,4 @@
-﻿function Get-GitHubUserRepo
+function Get-GitHubUserRepo
 {
   <#
       .Synopsis
@@ -6,8 +6,8 @@
 
       .DESCRIPTION
       Requires Module - PowerShellForGitHub
-      Requires Module - PForEach
       Requires git.exe
+      PForEach - https://www.powershellgallery.com/packages/PForEach/ ; https://github.com/vlariono/PForEach
 
       .EXAMPLE
       Get-GitHubUserRepos -UserName WozNet -Path 'V:\git\users'
@@ -32,14 +32,17 @@
     })]
     [String]$Path = 'V:\git\users',
 
-    # Param3 help - ThrottleLimit for Invoke-ForEachParallel
+    # Param3 help - Exclude Repository with Names matching these strings
+    [String[]]$Exclude,
+
+    # Param4 help - ThrottleLimit for Invoke-ForEachParallel
     [int]$ThrottleLimit = 5
   )
   Begin {
     if (-not (Get-Command -Name git.exe)) { throw 'git.exe is missing' }
     if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) { throw 'Install Module - PowerShellForGitHub' }
-    if (-not (Get-Module -ListAvailable -Name PForEach)) { throw 'Install Module - PForEach' }
-    Import-Module -Name PowerShellForGitHub,PForEach -PassThru:$false
+    Import-Module -Name PowerShellForGitHub -PassThru:$false
+    Import-Module -Name (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'Lib\PForEach\PForEach.dll' -Resolve) -PassThru:$false
     if (-not (Get-GitHubConfiguration -Name DisableTelemetry)) { Set-GitHubConfiguration -DisableTelemetry }
     if (-not (Test-GitHubAuthenticationConfigured)) { $Host.UI.WriteErrorLine('PowerShellForGitHub is not Authenticated') }
     $html = @'
@@ -114,6 +117,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
         }
         Get-ChildItem -Path $gistdir | Remove-Item -Recurse -Force
         Set-Content -Value ($html.Replace('---',$GitUser)) -Path ([System.IO.Path]::Combine($UserPath,'_gist.html')) -Force
+        Write-Output ('{0} Gists - {1}' -f $GitUser,$UserGist.Count)
         $UserGist.git_pull_url | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
           Start-Process -WorkingDirectory $gistdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
         }
@@ -136,7 +140,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
       }
       # Get Repo
       $UserRepo = Get-GitHubRepository -OwnerName $GitUser
-      '{0} - Repositories' -f $GitUser ; $UserRepo | Format-Wide -Column 4
+      Write-Output ('{0}{1} - Repositories' -f "`n",$GitUser) ; $UserRepo | Format-Wide -Column 4
       $UserRepo.clone_url | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
         Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
       }

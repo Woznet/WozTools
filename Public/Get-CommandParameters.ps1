@@ -1,8 +1,8 @@
 Function Get-CommandParameters {
-  Param (
+  Param(
     [Parameter(Mandatory)]
     [ValidateScript({
-          if( -Not (Get-Command -Name $_) ){
+          if (-Not (Get-Command -Name $_ -ErrorAction SilentlyContinue)) {
             throw 'Command does not exist'
           }
           return $true
@@ -10,9 +10,10 @@ Function Get-CommandParameters {
     [string]$Command
   )
 
-  $CPara = [System.Collections.Generic.List[string]]@()
-  $CPara.AddRange([System.Management.Automation.PSCmdlet]::CommonParameters)
-  $CPara.AddRange([System.Management.Automation.PSCmdlet]::OptionalCommonParameters)
+  $CPara = @(
+    [System.Management.Automation.PSCmdlet]::CommonParameters
+    [System.Management.Automation.PSCmdlet]::OptionalCommonParameters
+  )
 
   (Get-Command -Name $Command).ParameterSets.Parameters | Where-Object {$_.Name -notin $CPara} |
   Select-Object -Property Name,Aliases,IsMandatory,Value* -Unique | Format-Table -RepeatHeader

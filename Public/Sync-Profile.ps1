@@ -1,4 +1,4 @@
-﻿function Sync-Profile {
+function Sync-Profile {
   [CmdletBinding(SupportsShouldProcess)]
   param(
     [ValidateScript({
