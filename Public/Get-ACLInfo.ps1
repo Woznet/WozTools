@@ -117,13 +117,13 @@ function Get-ACLInfo {
     $TempFile = [System.IO.Path]::GetTempFileName() + '.ps1xml'
     Write-Verbose -Message ('Creating {0}' -f $TempFile)
     $Xml | Out-File -FilePath $TempFile
-    Write-Verbose -Message 'Updating format data'
+    Write-Verbose -Message 'Updating Format Data'
     Update-FormatData -AppendPath $TempFile -ErrorAction SilentlyContinue
   }
   Process {
     Foreach ($Folder in $Path) {
       Write-Verbose -Message ('Getting ACL for {0}' -f $Folder)
-      $ACL= Get-ACL -Path $Folder
+      $ACL = Get-ACL -Path $Folder
       [regex]$Regex = '\w:\\\S+'
       $FolderPath = $Regex.Match($ACL.Path).Value
       $Access = $ACL.Access
@@ -146,6 +146,5 @@ function Get-ACLInfo {
       Write-Verbose -Message ('Deleting {0}' -f $TempFile)
       Remove-Item -Path $TempFile
     }
-    Write-Verbose -Message ('Ending {0}' -f $MyInvocation.MyCommand)
   }
 }
