@@ -3,9 +3,12 @@ function Invoke-InDirectory {
   Param(
     [Parameter(Mandatory)]
     [ValidateScript({
-          Test-Path -Path $_ -PathType Container
+          if(-not (Test-Path -Path $_ -PathType Container)){
+            throw 'Folder does not exist'
+          }
+          return $true
     })]
-    [string]$Path,
+    [String]$Path,
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
     [scriptblock]$ScriptBlock
