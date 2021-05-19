@@ -2,19 +2,19 @@ function Sync-Profile {
   [CmdletBinding(SupportsShouldProcess)]
   param(
     [ValidateScript({
-          if( -Not ($_ | Test-Path -PathType Leaf) ){
+          if( -not ($_ | Test-Path -PathType Leaf) ){
             throw ('File does not exist - {0}' -f $_)
           }
           return $true
     })]
     [String]$LocalProfile = '\\localhost\ADMIN$\System32\WindowsPowerShell\v1.0\profile.ps1',
     [ValidateScript({
-          if( -Not ($_ | Test-Path -PathType Leaf) ){
+          if( -not ($_ | Test-Path -PathType Leaf) ){
             throw ('File does not exist - {0}' -f $_)
           }
           return $true
     })]
-    [String]$WozProfile = '\\wozcore\ADMIN$\System32\WindowsPowerShell\v1.0\profile.ps1'
+    [String]$WozProfile
   )
   if (-not ([System.Security.Principal.WindowsPrincipal][System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)){
     throw 'Admin privileges required'

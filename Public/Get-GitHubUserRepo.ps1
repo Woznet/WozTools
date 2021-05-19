@@ -1,5 +1,4 @@
-function Get-GitHubUserRepo
-{
+function Get-GitHubUserRepo {
   <#
       .Synopsis
       Download GitHub User Gists & Repositories
@@ -111,39 +110,73 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
       # Get Gist
       $UserGist = Get-GitHubGist -UserName $GitUser
       if($UserGist) {
-        $gistdir = Join-Path -Path $UserPath -ChildPath '_gist'
-        if (-not (Test-Path -Path $gistdir)) {
-          New-Item -Path $gistdir -ItemType Directory
+        $GistDir = Join-Path -Path $UserPath -ChildPath '_gist'
+        if (-not (Test-Path -Path $GistDir)) {
+          New-Item -Path $GistDir -ItemType Directory
         }
-        Get-ChildItem -Path $gistdir | Remove-Item -Recurse -Force
+        Get-ChildItem -Path $GistDir | Remove-Item -Recurse -Force
         Set-Content -Value ($html.Replace('---',$GitUser)) -Path ([System.IO.Path]::Combine($UserPath,'_gist.html')) -Force
         Write-Output ('{0} Gists - {1}' -f $GitUser,$UserGist.Count)
-        $UserGist.git_pull_url | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
-          Start-Process -WorkingDirectory $gistdir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
-        }
-        $GistDirectories = Get-ChildItem -Path $gistdir
-        $GistFiles = $GistDirectories | Get-ChildItem | Where-Object {$_.PsIsContainer -eq $false}
-        $Groupings = $GistFiles | Get-Item | Group-Object -Property Name
-        foreach( $Gitem in $Groupings) {
-          if ($Gitem.Count -ge 2) {
-            $Gitem| Where-Object {$_.Count -gt 1} | ForEach-Object {
-              # $gnum = $PSItem.Group
-              $PSItem.Group | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $gistdir
-              # Get-Item -Path $gnum | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $gistdir
+        $UserGist | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
+          $UGist = $PSItem
+          Start-Process -WorkingDirectory $GistDir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $UGist.git_pull_url) -WindowStyle Hidden -Wait
+
+          $GistDLDir = Join-Path -Path $GistDir -ChildPath $UGist.Id -Resolve
+
+          # Number of Files in Gist
+          switch (($UGist.files|gm -MemberType NoteProperty | measure -Property Name).Count) {
+            1 {
+              # Move Gist File to Central Gist Folder
+              'one'
+              Join-Path -Path $GistDLDir -ChildPath ($UGist.files|gm -MemberType NoteProperty).Name -Resolve | Move-Item -Destination $GistDir
+              Remove-Item -Path $GistDLDir -Recurse -ErrorAction SilentlyContinue -Force
+              break
             }
+            {$_ -gt 1} {
+              # Gist Files Get Their Own Directory
+              # Rename Dir Name from ID to name of the first file
+              Rename-Item -Path $GistDLDir -NewName ($UGist.files|gm -MemberType NoteProperty)[0].Name
+
+              break
+            }
+            default {'anything else' ; break }
           }
-          else{
-            $Gitem.Group | Move-Item -Destination $gistdir
-          }
+
+
         }
-        $GistDirectories | Get-Item | Remove-Item -Recurse -Force
+
+        <#
+            $GistDirectories = Get-ChildItem -Path $GistDir
+            $GistFiles = $GistDirectories | Get-ChildItem | Where-Object {$_.PsIsContainer -eq $false}
+            $Groupings = $GistFiles | Get-Item | Group-Object -Property Name
+            foreach( $Gitem in $Groupings) {
+            if ($Gitem.Count -ge 2) {
+            $Gitem| Where-Object {$_.Count -gt 1} | ForEach-Object {
+            # $gnum = $PSItem.Group
+            $PSItem.Group | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $GistDir
+            # Get-Item -Path $gnum | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $GistDir
+            }
+            }
+            else{
+            $Gitem.Group | Move-Item -Destination $GistDir
+            }
+            }
+            $GistDirectories | Get-Item | Remove-Item -Recurse -Force
+        #>
+
       }
+
       # Get Repo
       $UserRepo = Get-GitHubRepository -OwnerName $GitUser
       Write-Output ('{0}{1} - Repositories' -f "`n",$GitUser) ; $UserRepo | Format-Wide -Column 4
-      $UserRepo.clone_url | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
-        Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem) -WindowStyle Hidden -Wait
+      $UserRepo | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
+        Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem.clone_url) -WindowStyle Hidden -Wait
+
+        # Set Repo Dir time to $PSItem.updated_at ($UserRepo)
+        $RepoDir = Get-Item -Path (Join-Path -Path $UserPath -ChildPath $UserRepo.name -Resolve)
+        $RepoDir.LastWriteTime = $PSItem.updated_at
       }
+
     }
   }
   End {

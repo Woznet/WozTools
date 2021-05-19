@@ -50,7 +50,7 @@ Function Add-EnvPath {
     }
   }
   end {
-    [System.Environment]::SetEnvironmentVariable('PATH',($NewPath -join ';'),$VariableTarget)
+    [System.Environment]::SetEnvironmentVariable('PATH',(($NewPath | Sort-Object) -join ';'),$VariableTarget)
     $Confirm = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';')
     return $Confirm
   }

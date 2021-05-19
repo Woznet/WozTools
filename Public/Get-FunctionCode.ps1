@@ -1,7 +1,7 @@
 function Get-FunctionCode {
   <#
       .Synopsis
-      Get the code of a powershell function
+      Get the code of a powershell function or filter
       .EXAMPLE
       # Gets the code for New-Guid
       Get-FunctionCode New-Guid
@@ -19,7 +19,7 @@ function Get-FunctionCode {
     # Function Name
     [Parameter(Mandatory)]
     [ValidateScript({
-          if (-not (Get-Command -Name $_ -CommandType Function -ErrorAction SilentlyContinue)) {
+          if (-not (Get-Command -Name $_ -CommandType Function,Filter -ErrorAction SilentlyContinue)) {
             throw ('Cannot find function - {0}' -f $_)
           }
           return $true
@@ -41,8 +41,8 @@ function Get-FunctionCode {
     [string]$OutFile
   )
   Process {
-    $CmdInfo = Get-Command -Name $Function -CommandType Function
-    $FCode = 'function {0} {2}{1}{3}' -f $CmdInfo.Name,$CmdInfo.Definition,('{'),('}')
+    $CmdInfo = Get-Command -Name $Function -CommandType Function,Filter
+    $FCode = '{0} {1} {3}{2}{4}' -f $CmdInfo.CommandType,$CmdInfo.Name,$CmdInfo.Definition,('{'),('}')
     $FCode = ($FCode.Split("`n") | ForEach-Object { $_ -replace '\s*$' }) -join "`n"
     if($OutISE) {
       $IseFile1 = $psISE.CurrentPowerShellTab.Files.Add()
