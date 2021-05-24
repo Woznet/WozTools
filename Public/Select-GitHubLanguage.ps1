@@ -1,4 +1,4 @@
-Function Filter-GitHubLanguage {
+Function Select-GitHubLanguage {
   [CmdletBinding()]
   [Alias('GitLang')]
   param(

@@ -70,7 +70,7 @@ PowerShellVersion = '5.1'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Add-EnvPath', 'Add-ISEText', 'Clone-GitRepo', 'Convertto-TitleCase',
-               'Filter-GitHubLanguage', 'Get-ACLInfo', 'Get-CommandParameters',
+               'Select-GitHubLanguage', 'Get-ACLInfo', 'Get-CommandParameters',
                'Get-ComObject', 'Get-CurrentUser', 'Get-EnvPath', 'Get-FunctionCode',
                'Get-GitHubUserRepo', 'Get-StringFromSecureString', 'Invoke-Beep',
                'Invoke-InDirectory', 'Invoke-WSLPath', 'New-DirandEnter',
@@ -87,8 +87,7 @@ CmdletsToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dl-msu', 'dlgit', 'FixCon',
-               'FLang', 'InISE', 'Max-PartitionSize', 'mdc', 'Open', 'Password', 'scc',
-               'wslpath'
+               'GitLang', 'InISE', 'Max-PartitionSize', 'mdc', 'Open', 'scc', 'wslpath'
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -100,7 +99,7 @@ AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dl-msu', 'dl
 FileList = 'WozTools.psd1', 'WozTools.psm1', 'Public\Add-EnvPath.ps1',
                'Public\Add-ISEText.ps1', 'Public\Clone-GitRepo.ps1',
                'Public\Convertto-TitleCase.ps1',
-               'Public\Filter-GitHubLanguage.ps1', 'Public\Get-ACLInfo.ps1',
+               'Public\Select-GitHubLanguage.ps1', 'Public\Get-ACLInfo.ps1',
                'Public\Get-CommandParameters.ps1', 'Public\Get-ComObject.ps1',
                'Public\Get-CurrentUser.ps1', 'Public\Get-EnvPath.ps1',
                'Public\Get-FunctionCode.ps1', 'Public\Get-GitHubUserRepo.ps1',
@@ -124,7 +123,7 @@ PrivateData = @{
         # Tags = @()
 
         # A URL to the license for this module.
-        LicenseUri = 'https://github.com/Woznet/WozTools/blob/master/LICENSE'
+        LicenseUri = 'https://github.com/Woznet/WozTools/blob/main/LICENSE'
 
         # A URL to the main website for this project.
         ProjectUri = 'https://github.com/Woznet/WozTools'

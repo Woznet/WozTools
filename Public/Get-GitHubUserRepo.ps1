@@ -4,8 +4,13 @@ function Get-GitHubUserRepo {
       Download GitHub User Gists & Repositories
 
       .DESCRIPTION
+      Uses git.exe to clone the gists and repositories of a github user.
+      Can Exclude repositories with names that match the string/strings defined with -Exclude
       Requires Module - PowerShellForGitHub
       Requires git.exe
+      
+      I included the source file for PForEach because it is no longer visible in the powershellgallery and github
+      Vasily Larionov - https://www.powershellgallery.com/profiles/vlariono | https://github.com/vlariono
       PForEach - https://www.powershellgallery.com/packages/PForEach
 
       .EXAMPLE
@@ -26,13 +31,13 @@ function Get-GitHubUserRepo {
     [ValidateNotNullOrEmpty()]
     [String[]]$UserName,
 
-    # Param2 help - Directory to save Repositories
+    # Param2 help - Directory to save User Gists and Repositories
     [ValidateScript({
           Test-Path -Path $_ -PathType Container
     })]
     [String]$Path = 'V:\git\users',
 
-    # Param3 help - Exclude Repository with Names matching these strings
+    # Param3 help - Exclude Repositories with Names matching these strings
     [String[]]$Exclude = 'docs',
 
     # Param4 help - ThrottleLimit for Invoke-ForEachParallel
@@ -112,9 +117,9 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
         }
       }
     }
-    if($DelDir) {
+    if ($DelDir) {
       Remove-Item -Path $DelDir -Recurse -Force
-      if(Resolve-Path -Path $DelDir -ErrorAction Ignore) { Remove-Item -Path $DelDir -Recurse -Force }
+      if (Resolve-Path -Path $DelDir -ErrorAction Ignore) { Remove-Item -Path $DelDir -Recurse -Force }
     }
     Remove-Variable -Name DelDir -ErrorAction Ignore
 
@@ -127,14 +132,14 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
       # Get Gist
       $UserGist = Get-GitHubGist -UserName $GitUser
-      if($UserGist) {
+      if ($UserGist) {
         $GistDir = Join-Path -Path $UserPath -ChildPath '_gist'
         if (-not (Test-Path -Path $GistDir)) { New-Item -Path $GistDir -ItemType Directory }
-        
+
         Get-ChildItem -Path $GistDir | Remove-Item -Recurse -Force
         Set-Content -Value ($HTML.Replace('---',$GitUser)) -Path ([System.IO.Path]::Combine($UserPath,'_gist.html')) -Force
-        Write-Output ('{0} Gists - {1}' -f $GitUser,$UserGist.Count)
-        $UserGist | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
+        Write-Output ('{2}{0} Gists - {1}' -f $GitUser,$UserGist.Count,("`n"))
+        $UserGist | ForEach-Object -Process {
           $UGist = $PSItem
           Start-Process -WorkingDirectory $GistDir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $UGist.git_pull_url) -WindowStyle Hidden -Wait
 
@@ -159,6 +164,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
             }
             default { Write-Warning 'Something Went Wrong' ; break }
           }
+          Start-Sleep -Milliseconds 350
         }
       }
 
@@ -168,9 +174,12 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
         {$_ -ge 1} { $UserRepo | Where-Object {$_.name -notmatch ($Exclude -join '|')} ; break }
         default { $UserRepo ; break }
       }
-      Write-Output ('{0}{1} Repositories - {2}' -f "`n",$GitUser,$FilteredUserRepo.Count) ; $FilteredUserRepo | Format-Wide -Column 4 -AutoSize
+      Write-Output ('{0}{1} Repositories - {2} (excluded - {3})' -f "`n",$GitUser,$FilteredUserRepo.Count,($UserRepo.Count - $FilteredUserRepo.Count))
+      $FilteredUserRepo.name| Select-Object -Property @{e={if ($_.Length -gt 27) {$_.Substring(0,24) + '...'} else{$_}}} | Format-Wide -AutoSize
       $FilteredUserRepo | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
         Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem.clone_url) -WindowStyle Hidden -Wait
+
+        Start-Sleep -Milliseconds 150
 
         $RepoDir = Get-Item -Path (Join-Path -Path $UserPath -ChildPath $PSItem.name -Resolve)
         $RepoDir.LastWriteTime = $PSItem.updated_at
