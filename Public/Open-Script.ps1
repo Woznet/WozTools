@@ -1,4 +1,5 @@
 function Open-Script {
+  [CmdletBinding()]
   [Alias('Open')]
   Param(
     [Parameter(Mandatory,ValueFromPipeline)]

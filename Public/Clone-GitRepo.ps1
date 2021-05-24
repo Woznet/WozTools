@@ -6,14 +6,12 @@ function Clone-GitRepo {
       .EXAMPLE
       Clone-Git -Repo https://github.com/Woznet/WozTools.git -Path D:\git\repos
   #>
-  [CmdletBinding(DefaultParameterSetName='ClipBoard')]
+  [CmdletBinding()]
   [Alias('cgit')]
   param(
     # Git Repository to Clone
-    [Parameter(ParameterSetName='Repo',Mandatory,ValueFromPipeline)]
-    [String[]]$Repo,
-    [Parameter(ParameterSetName='ClipBoard')]
-    [switch]$ClipBoard,
+    [Parameter(ValueFromPipeline)]
+    [String[]]$Repo = $(Get-Clipboard),
     # Location the repository folder will be saved to
     [ValidateScript({
           if(-Not ($_ | Test-Path -PathType Container)) {
@@ -24,25 +22,24 @@ function Clone-GitRepo {
     [String]$Path = 'V:\git\repos'
   )
   Begin {
-    if (-not ([Environment]::GetEnvironmentVariable('GIT_REDIRECT_STDERR',[EnvironmentVariableTarget]::Machine) -ne '2>&1')) {
-      [Environment]::SetEnvironmentVariable('GIT_REDIRECT_STDERR','2>&1',[EnvironmentVariableTarget]::Machine)
-      Start-Sleep -Seconds 3
+    if (-not ([Environment]::GetEnvironmentVariable('GIT_REDIRECT_STDERR') -eq '2>&1')) {
+      [Environment]::SetEnvironmentVariable('GIT_REDIRECT_STDERR','2>&1')
+      Start-Sleep -Seconds 1
       Update-SessionEnvironment
     }
-    if (!(Get-Command -Name git.exe)) {
-      throw 'Install git.exe'
-    }
+    if (-not (Get-Command -Name git.exe)) { throw 'Install git.exe' }
+    $RepoDir = [System.Collections.ArrayList]@()
+    $null = $RepoDir.Add('')
   }
   Process {
-    $RepoLoc = switch ($PSCmdlet.ParameterSetName) {
-      'ClipBoard' { Get-Clipboard ; break }
-      'Repo' { $Repo ; break }
-    }
     Invoke-InDirectory -Path $Path -ScriptBlock {
-      foreach ($RepoUrl in $RepoLoc) {
-        Write-Verbose -Message ('Cloning: {0}{1}{2}' -f $RepoUrl,"`n",$(Join-Path -Path $Path -ChildPath $(Split-Path -Path $RepoUrl -Leaf).Split('.')[0])) -Verbose
+      foreach ($RepoUrl in $Repo) {
+        $null = $RepoDir.Add([System.IO.Path]::Combine($Path, ((Split-Path -Path $RepoUrl -Leaf).Split('.')[0])))
         git clone --recurse-submodules $RepoUrl
       }
     }
+  }
+  end {
+    $RepoDir
   }
 }

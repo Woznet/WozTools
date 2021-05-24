@@ -1,6 +1,6 @@
 Function Filter-GitHubLanguage {
   [CmdletBinding()]
-  [Alias('FLang')]
+  [Alias('GitLang')]
   param(
     [Parameter(Mandatory,ValueFromPipeline)]
     $InputObject,

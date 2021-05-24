@@ -1,4 +1,5 @@
 function New-DirandEnter {
+  [CmdletBinding()]
   [Alias('mdc')]
   param(
     [Parameter(Mandatory)]

@@ -11,7 +11,7 @@ Function Out-ISETab {
     [System.IO.FileInfo]$SaveAs
   )
   Begin {
-    if(!($psISE)){ throw 'Must run in PowerShell ISE' }
+    if(-not ($psISE)){ throw 'Must run in PowerShell ISE' }
     $Data = @()
   }
   Process {

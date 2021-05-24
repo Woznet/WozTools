@@ -17,18 +17,17 @@ function Get-ACLInfo {
       SystemACL   : 7
       Owner       : BUILTIN\Administrators
       UserACL     : 1
-      AccessRules : {System.Security.AccessControl.FileSystemAccessRule, System.Security.
-      AccessControl.FileSystemAccessRule, System.Security.AccessControl.
-      FileSystemAccessRule, System.Security.AccessControl.FileSystemAccess
-      Rule...}
+      AccessRules : {System.Security.AccessControl.FileSystemAccessRule,
+						System.Security.AccessControl.FileSystemAccessRule,
+						System.Security.AccessControl.FileSystemAccessRule,
+						System.Security.AccessControl.FileSystemAccessRule...}
       Path        : C:\work
       TotalACL    : 8
 
       It is assumed you will use this with the FileSystem provider.
 
-      This version of the command uses a format file which is loaded "on the fly" so
-      by default, information is presented as a nicely formatted table without the
-      AccessRules property.
+      This version of the command uses a format file which is loaded "on the fly" so by default,
+	  information is presented as a nicely formatted table without the AccessRules property.
 
       .PARAMETER Path
       The path of the folder to analyze. The default is the current directory.
@@ -38,7 +37,7 @@ function Get-ACLInfo {
       Get acl data on the Files folder.
 
       .EXAMPLE
-      PS C:\> dir e:\groups\data -recurse | where {$_.PSIsContainer} | get-aclinfo
+      PS C:\> Get-ChildItem e:\groups\data -Recurse | Where-Object {$_.PSIsContainer} | Get-ACLInfo
       Get acl information for every folder under e:\groups\data.
 
       .NOTES
@@ -58,7 +57,7 @@ function Get-ACLInfo {
   #>
   Param(
     [Parameter(ValueFromPipeline,ValueFromPipelineByPropertyName)]
-    [ValidateScript({Test-Path -Path $_})]
+    [ValidateScript({Test-Path -Path $_ -PathType Container})]
     [string[]]$Path = $PWD.Path
   )
   Begin {
@@ -73,21 +72,7 @@ function Get-ACLInfo {
 				<TypeName>JDH.ACLInfo</TypeName>
 			</ViewSelectedBy>
 			<TableControl>
-				<TableHeaders>
-					<TableColumnHeader>
-						<Width>50</Width>
-					</TableColumnHeader>
-					<TableColumnHeader/>
-					<TableColumnHeader>
-						<Width>8</Width>
-					</TableColumnHeader>
-					<TableColumnHeader>
-						<Width>9</Width>
-					</TableColumnHeader>
-					<TableColumnHeader>
-						<Width>7</Width>
-					</TableColumnHeader>
-				</TableHeaders>
+				<TableHeaders/>
 				<TableRowEntries>
 					<TableRowEntry>
 						<TableColumnItems>

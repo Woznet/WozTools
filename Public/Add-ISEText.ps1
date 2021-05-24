@@ -12,6 +12,7 @@ function Add-ISEText {
       .EXAMPLE
       Get-ChildItem 'C:\temp' | Add-ISEText
   #>
+  [CmdletBinding()]
   [Alias('InISE')]
   Param(
     # Text to insert

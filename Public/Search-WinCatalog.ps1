@@ -1,4 +1,5 @@
 function Search-WinCatalog {
+  [CmdletBinding()]
   [Alias('dl-msu')]
   param(
     [Parameter(Mandatory)]

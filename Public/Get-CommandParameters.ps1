@@ -15,5 +15,5 @@ Function Get-CommandParameters {
   )
 
   (Get-Command -Name $Command).ParameterSets.Parameters | Where-Object {$_.Name -notin $CPara} |
-  Select-Object -Property Name,IsMandatory,Aliases,Value* -Unique | Format-Table -RepeatHeader
+  Select-Object -Property Name,IsMandatory,Value*,Aliases -Unique | Format-Table -RepeatHeader
 }

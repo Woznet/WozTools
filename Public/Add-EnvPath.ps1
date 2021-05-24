@@ -30,7 +30,7 @@ Function Add-EnvPath {
             throw 'Path must be a Folder'
           }
           if (-not ([System.IO.Path]::IsPathRooted($_))) {
-            throw 'Path must be Rooted'
+            throw 'Path must be absolute, such as - C:\Program Files\Notepad++'
           }
           return $true
     })]
@@ -39,18 +39,19 @@ Function Add-EnvPath {
   )
   begin {
     if (-not (Test-IfAdmin)) { throw 'RUN AS ADMINISTRATOR' }
-    $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\') | Sort-Object -Unique | Convert-Path -ErrorAction SilentlyContinue
+    $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\') | Convert-Path -ErrorAction SilentlyContinue
     $NewPath = [System.Collections.ArrayList]::new()
     $NewPath.AddRange($OldPath)
   }
   process{
-    foreach ($NDir in $Path) {
+    foreach($NDir in $Path) {
       $NDir = (Convert-Path -Path $NDir -ErrorAction SilentlyContinue).TrimEnd('\')
-      $null = if ($NewPath -notcontains $NDir) { $NewPath.Add($NDir) }
+      if ($NewPath -notcontains $NDir) { $NewPath.Remove($NDir) }
+      else { Write-Warning -Message ('SKIPPING: {0} - was found within - ({1}) PATH' -f $NDir,$VariableTarget) }
     }
   }
   end {
-    [System.Environment]::SetEnvironmentVariable('PATH',(($NewPath | Sort-Object) -join ';'),$VariableTarget)
+    [System.Environment]::SetEnvironmentVariable('PATH',(($NewPath | Sort-Object -Unique) -join ';'),$VariableTarget)
     $Confirm = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';')
     return $Confirm
   }

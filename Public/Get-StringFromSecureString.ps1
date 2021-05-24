@@ -20,6 +20,7 @@ function Get-StringFromSecureString {
       .OUTPUTS
       string
   #>
+  [CmdletBinding()]
   [Alias('Convert-SecureString')]
   [OutputType([String])]
   Param(

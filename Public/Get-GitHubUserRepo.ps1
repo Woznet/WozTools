@@ -6,14 +6,15 @@ function Get-GitHubUserRepo {
       .DESCRIPTION
       Requires Module - PowerShellForGitHub
       Requires git.exe
-      PForEach - https://www.powershellgallery.com/packages/PForEach/ ; https://github.com/vlariono/PForEach
+      PForEach - https://www.powershellgallery.com/packages/PForEach
 
       .EXAMPLE
-      Get-GitHubUserRepos -UserName WozNet -Path 'V:\git\users'
+      Get-GitHubUserRepos -UserName WozNet -Path 'V:\git\users' -Exclude 'docs'
 
       .EXAMPLE
-      'WozNet','PowerShell','Microsoft' | Get-GitHubUserRepos -Path 'V:\git\users'
+      'WozNet','PowerShell','Microsoft' | Get-GitHubUserRepos -Path 'V:\git\users' -Exclude 'azure,'office365'
   #>
+  [CmdletBinding()]
   [Alias('dlgit')]
   Param(
     # Param1 help - GitHub Usernames
@@ -32,19 +33,36 @@ function Get-GitHubUserRepo {
     [String]$Path = 'V:\git\users',
 
     # Param3 help - Exclude Repository with Names matching these strings
-    [String[]]$Exclude,
+    [String[]]$Exclude = 'docs',
 
     # Param4 help - ThrottleLimit for Invoke-ForEachParallel
     [int]$ThrottleLimit = 5
   )
   Begin {
-    if (-not (Get-Command -Name git.exe)) { throw 'git.exe is missing' }
-    if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) { throw 'Install Module - PowerShellForGitHub' }
-    Import-Module -Name PowerShellForGitHub -PassThru:$false
-    Import-Module -Name (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'Lib\PForEach\PForEach.dll' -Resolve) -PassThru:$false
-    if (-not (Get-GitHubConfiguration -Name DisableTelemetry)) { Set-GitHubConfiguration -DisableTelemetry }
-    if (-not (Test-GitHubAuthenticationConfigured)) { $Host.UI.WriteErrorLine('PowerShellForGitHub is not Authenticated') }
-    $html = @'
+
+    try{
+      if (-not (Get-Command -Name git.exe)) { throw 'git.exe is missing' }
+      if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) { throw 'Install Module - PowerShellForGitHub' }
+      Import-Module -Name PowerShellForGitHub -PassThru:$false
+      if (-not (Get-Command -Name Invoke-ForEachParallel)) {
+        Import-Module -Name (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'Lib\PForEach\PForEach.dll' -Resolve) -PassThru:$false -ErrorAction Stop
+      }
+      if (-not (Get-GitHubConfiguration -Name DisableTelemetry)) { Set-GitHubConfiguration -DisableTelemetry }
+      if (-not (Test-GitHubAuthenticationConfigured)) { $Host.UI.WriteErrorLine('PowerShellForGitHub is not Authenticated') }
+    }
+    catch {
+      [System.Management.Automation.ErrorRecord]$e = $_
+      [PSCustomObject]@{
+        Type      = $e.Exception.GetType().FullName
+        Exception = $e.Exception.Message
+        Reason    = $e.CategoryInfo.Reason
+        Target    = $e.CategoryInfo.TargetName
+        Script    = $e.InvocationInfo.ScriptName
+        Line      = $e.InvocationInfo.ScriptLineNumber
+        Column    = $e.InvocationInfo.OffsetInLine
+      }
+    }
+    $HTML = @'
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
 <div id="ph"></div>
 <script>
@@ -75,7 +93,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
     $StopWatch.Start()
   }
   Process {
-    # Manage Existing Contet
+
     $DelDir = [System.Collections.ArrayList]@()
     foreach ($GitUser in $UserName) {
       $UserPath = Join-Path -Path $Path -ChildPath $GitUser
@@ -98,24 +116,23 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
       Remove-Item -Path $DelDir -Recurse -Force
       if(Resolve-Path -Path $DelDir -ErrorAction Ignore) { Remove-Item -Path $DelDir -Recurse -Force }
     }
-    Remove-Variable -Name DelDir
+    Remove-Variable -Name DelDir -ErrorAction Ignore
+
     # Download
     foreach ($GitUser in $UserName) {
       $UserPath = Join-Path -Path $Path -ChildPath $GitUser
       $null = $UserPathList.Add($UserPath)
 
-      if (-not (Test-Path -Path $UserPath)) {
-        New-Item -Path $UserPath -ItemType Directory
-      }
+      if (-not (Test-Path -Path $UserPath)) { New-Item -Path $UserPath -ItemType Directory }
+
       # Get Gist
       $UserGist = Get-GitHubGist -UserName $GitUser
       if($UserGist) {
         $GistDir = Join-Path -Path $UserPath -ChildPath '_gist'
-        if (-not (Test-Path -Path $GistDir)) {
-          New-Item -Path $GistDir -ItemType Directory
-        }
+        if (-not (Test-Path -Path $GistDir)) { New-Item -Path $GistDir -ItemType Directory }
+        
         Get-ChildItem -Path $GistDir | Remove-Item -Recurse -Force
-        Set-Content -Value ($html.Replace('---',$GitUser)) -Path ([System.IO.Path]::Combine($UserPath,'_gist.html')) -Force
+        Set-Content -Value ($HTML.Replace('---',$GitUser)) -Path ([System.IO.Path]::Combine($UserPath,'_gist.html')) -Force
         Write-Output ('{0} Gists - {1}' -f $GitUser,$UserGist.Count)
         $UserGist | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
           $UGist = $PSItem
@@ -123,66 +140,48 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
           $GistDLDir = Join-Path -Path $GistDir -ChildPath $UGist.Id -Resolve
 
-          # Number of Files in Gist
-          switch (($UGist.files|gm -MemberType NoteProperty | measure -Property Name).Count) {
+          switch (($UGist.files|Get-Member -MemberType NoteProperty | Measure-Object -Property Name).Count) {
             1 {
-              # Move Gist File to Central Gist Folder
-              'one'
-              Join-Path -Path $GistDLDir -ChildPath ($UGist.files|gm -MemberType NoteProperty).Name -Resolve | Move-Item -Destination $GistDir
-              Remove-Item -Path $GistDLDir -Recurse -ErrorAction SilentlyContinue -Force
+              try {
+                Join-Path -Path $GistDLDir -ChildPath ($UGist.files | Get-Member -MemberType NoteProperty).Name -Resolve | Move-Item -Destination $GistDir -ErrorAction Stop
+              }
+              catch [System.IO.IOException] {
+                Join-Path -Path $GistDLDir -ChildPath ($UGist.files | Get-Member -MemberType NoteProperty).Name -Resolve | Get-Item | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $GistDir -ErrorAction Stop
+              }
+              finally {
+                Remove-Item -Path $GistDLDir -Recurse -ErrorAction SilentlyContinue -Force
+              }
               break
             }
             {$_ -gt 1} {
-              # Gist Files Get Their Own Directory
-              # Rename Dir Name from ID to name of the first file
-              Rename-Item -Path $GistDLDir -NewName ($UGist.files|gm -MemberType NoteProperty)[0].Name
-
+              Rename-Item -Path $GistDLDir -NewName ($UGist.files|Get-Member -MemberType NoteProperty)[0].Name
               break
             }
-            default {'anything else' ; break }
+            default { Write-Warning 'Something Went Wrong' ; break }
           }
-
-
         }
-
-        <#
-            $GistDirectories = Get-ChildItem -Path $GistDir
-            $GistFiles = $GistDirectories | Get-ChildItem | Where-Object {$_.PsIsContainer -eq $false}
-            $Groupings = $GistFiles | Get-Item | Group-Object -Property Name
-            foreach( $Gitem in $Groupings) {
-            if ($Gitem.Count -ge 2) {
-            $Gitem| Where-Object {$_.Count -gt 1} | ForEach-Object {
-            # $gnum = $PSItem.Group
-            $PSItem.Group | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $GistDir
-            # Get-Item -Path $gnum | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $GistDir
-            }
-            }
-            else{
-            $Gitem.Group | Move-Item -Destination $GistDir
-            }
-            }
-            $GistDirectories | Get-Item | Remove-Item -Recurse -Force
-        #>
-
       }
 
       # Get Repo
       $UserRepo = Get-GitHubRepository -OwnerName $GitUser
-      Write-Output ('{0}{1} - Repositories' -f "`n",$GitUser) ; $UserRepo | Format-Wide -Column 4
-      $UserRepo | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
+      $FilteredUserRepo = switch ($Exclude.Count) {
+        {$_ -ge 1} { $UserRepo | Where-Object {$_.name -notmatch ($Exclude -join '|')} ; break }
+        default { $UserRepo ; break }
+      }
+      Write-Output ('{0}{1} Repositories - {2}' -f "`n",$GitUser,$FilteredUserRepo.Count) ; $FilteredUserRepo | Format-Wide -Column 4 -AutoSize
+      $FilteredUserRepo | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
         Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem.clone_url) -WindowStyle Hidden -Wait
 
-        # Set Repo Dir time to $PSItem.updated_at ($UserRepo)
-        $RepoDir = Get-Item -Path (Join-Path -Path $UserPath -ChildPath $UserRepo.name -Resolve)
+        $RepoDir = Get-Item -Path (Join-Path -Path $UserPath -ChildPath $PSItem.name -Resolve)
         $RepoDir.LastWriteTime = $PSItem.updated_at
       }
-
     }
   }
   End {
     $StopWatch.Stop()
-    'Time - {0:m\:ss}{1}' -f $StopWatch.Elapsed,([System.Environment]::NewLine)
-    'Saved to User Directories:'
+    'Time - {0:m\:ss}{1}' -f $StopWatch.Elapsed,("`n")
+    'Updated User Directories:'
     $UserPathList
   }
 }
+
