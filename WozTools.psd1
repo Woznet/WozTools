@@ -12,7 +12,7 @@
 RootModule = 'WozTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.50'
+ModuleVersion = '1.51'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core', 'Desktop'
@@ -69,14 +69,14 @@ PowerShellVersion = '5.1'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Add-EnvPath', 'Add-ISEText', 'Clone-GitRepo', 'Convertto-TitleCase', 
-               'Filter-GitHubLanguage', 'Get-ACLInfo', 'Get-CommandParameters', 
-               'Get-ComObject', 'Get-CurrentUser', 'Get-EnvPath', 'Get-FunctionCode', 
-               'Get-GitHubUserRepo', 'Get-StringFromSecureString', 'Invoke-Beep', 
-               'Invoke-InDirectory', 'Invoke-WSLPath', 'New-DirandEnter', 
-               'New-Shortcut', 'Open-Script', 'Out-ISETab', 'Push-GitChanges', 
-               'Remove-EnvPath', 'Save-ISEFile', 'Search-WinCatalog', 'Set-AutoLogin', 
-               'Set-ConsoleSize', 'Set-ConsoleWindow', 'Set-MaxPartitionSize', 
+FunctionsToExport = 'Add-EnvPath', 'Add-ISEText', 'Clone-GitRepo', 'Convertto-TitleCase',
+               'Filter-GitHubLanguage', 'Get-ACLInfo', 'Get-CommandParameters',
+               'Get-ComObject', 'Get-CurrentUser', 'Get-EnvPath', 'Get-FunctionCode',
+               'Get-GitHubUserRepo', 'Get-StringFromSecureString', 'Invoke-Beep',
+               'Invoke-InDirectory', 'Invoke-WSLPath', 'New-DirandEnter',
+               'New-Shortcut', 'Open-Script', 'Out-ISETab', 'Push-GitChanges',
+               'Remove-EnvPath', 'Save-ISEFile', 'Search-WinCatalog', 'Set-AutoLogin',
+               'Set-ConsoleSize', 'Set-ConsoleWindow', 'Set-MaxPartitionSize',
                'Start-ConsoleCommand', 'Sync-Profile', 'Test-IfAdmin'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -86,8 +86,8 @@ CmdletsToExport = @()
 # VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dl-msu', 'dlgit', 'FixCon', 
-               'FLang', 'InISE', 'Max-PartitionSize', 'mdc', 'Open', 'Password', 'scc', 
+AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dl-msu', 'dlgit', 'FixCon',
+               'FLang', 'InISE', 'Max-PartitionSize', 'mdc', 'Open', 'Password', 'scc',
                'wslpath'
 
 # DSC resources to export from this module
@@ -97,22 +97,22 @@ AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dl-msu', 'dl
 # ModuleList = @()
 
 # List of all files packaged with this module
-FileList = 'WozTools.psd1', 'WozTools.psm1', 'Public\Add-EnvPath.ps1', 
-               'Public\Add-ISEText.ps1', 'Public\Clone-GitRepo.ps1', 
-               'Public\Convertto-TitleCase.ps1', 
-               'Public\Filter-GitHubLanguage.ps1', 'Public\Get-ACLInfo.ps1', 
-               'Public\Get-CommandParameters.ps1', 'Public\Get-ComObject.ps1', 
-               'Public\Get-CurrentUser.ps1', 'Public\Get-EnvPath.ps1', 
-               'Public\Get-FunctionCode.ps1', 'Public\Get-GitHubUserRepo.ps1', 
-               'Public\Get-StringFromSecureString.ps1', 'Public\Invoke-Beep.ps1', 
-               'Public\Invoke-InDirectory.ps1', 'Public\Invoke-WSLPath.ps1', 
-               'Public\New-DirandEnter.ps1', 'Public\New-Shortcut.ps1', 
-               'Public\Open-Script.ps1', 'Public\Out-ISETab.ps1', 
-               'Public\Push-GitChanges.ps1', 'Public\Remove-EnvPath.ps1', 
-               'Public\Save-ISEFile.ps1', 'Public\Search-WinCatalog.ps1', 
-               'Public\Set-AutoLogin.ps1', 'Public\Set-ConsoleSize.ps1', 
-               'Public\Set-ConsoleWindow.ps1', 'Public\Set-MaxPartitionSize.ps1', 
-               'Public\Start-ConsoleCommand.ps1', 'Public\Sync-Profile.ps1', 
+FileList = 'WozTools.psd1', 'WozTools.psm1', 'Public\Add-EnvPath.ps1',
+               'Public\Add-ISEText.ps1', 'Public\Clone-GitRepo.ps1',
+               'Public\Convertto-TitleCase.ps1',
+               'Public\Filter-GitHubLanguage.ps1', 'Public\Get-ACLInfo.ps1',
+               'Public\Get-CommandParameters.ps1', 'Public\Get-ComObject.ps1',
+               'Public\Get-CurrentUser.ps1', 'Public\Get-EnvPath.ps1',
+               'Public\Get-FunctionCode.ps1', 'Public\Get-GitHubUserRepo.ps1',
+               'Public\Get-StringFromSecureString.ps1', 'Public\Invoke-Beep.ps1',
+               'Public\Invoke-InDirectory.ps1', 'Public\Invoke-WSLPath.ps1',
+               'Public\New-DirandEnter.ps1', 'Public\New-Shortcut.ps1',
+               'Public\Open-Script.ps1', 'Public\Out-ISETab.ps1',
+               'Public\Push-GitChanges.ps1', 'Public\Remove-EnvPath.ps1',
+               'Public\Save-ISEFile.ps1', 'Public\Search-WinCatalog.ps1',
+               'Public\Set-AutoLogin.ps1', 'Public\Set-ConsoleSize.ps1',
+               'Public\Set-ConsoleWindow.ps1', 'Public\Set-MaxPartitionSize.ps1',
+               'Public\Start-ConsoleCommand.ps1', 'Public\Sync-Profile.ps1',
                'Public\Test-IfAdmin.ps1', 'Lib\PForEach\PForEach.dll'
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
