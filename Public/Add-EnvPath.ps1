@@ -46,7 +46,7 @@ Function Add-EnvPath {
   process{
     foreach($NDir in $Path) {
       $NDir = (Convert-Path -Path $NDir -ErrorAction SilentlyContinue).TrimEnd('\')
-      if ($NewPath -notcontains $NDir) { $NewPath.Remove($NDir) }
+      if ($NewPath -notcontains $NDir) { $NewPath.Add($NDir) }
       else { Write-Warning -Message ('SKIPPING: {0} - was found within - ({1}) PATH' -f $NDir,$VariableTarget) }
     }
   }
