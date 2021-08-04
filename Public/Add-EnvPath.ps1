@@ -4,18 +4,21 @@ Function Add-EnvPath {
       Add a Folder to Environment Variable PATH
 
       .DESCRIPTION
-      Add Path to Environment Variable PATH for Machine, User or Process scope
+      Add Folders to Environment Variable PATH for Machine, User or Process scope
       And removes missing PATH locations
 
       .PARAMETER Path
-      Folder to add to PATH
+      Folder or Folders to add to PATH
 
       .PARAMETER VariableTarget
       Which Env Path the directory gets added to.
       Machine, User or Process
+	  
+	  .PARAMETER Clean
+	  Remove all Folder Paths that no longer exist.
 
       .INPUTS
-      String - Folder Path
+      [String] - Folder Path, accepts multiple folders
 
       .OUTPUTS
       String - List of the New Path Variable
@@ -35,19 +38,23 @@ Function Add-EnvPath {
           return $true
     })]
     [String[]]$Path,
-    [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine
+    [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine,
+	[switch]$Clean
   )
   begin {
     if (-not (Test-IfAdmin)) { throw 'RUN AS ADMINISTRATOR' }
-    $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\') | Convert-Path -ErrorAction SilentlyContinue
+    $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\')
+	if ($Clean) {
+	  $OldPath = $OldPath | Convert-Path -ErrorAction SilentlyContinue
+	}
     $NewPath = [System.Collections.ArrayList]::new()
     $NewPath.AddRange($OldPath)
   }
   process{
     foreach($NDir in $Path) {
       $NDir = (Convert-Path -Path $NDir -ErrorAction SilentlyContinue).TrimEnd('\')
-      if ($NewPath -notcontains $NDir) { $NewPath.Add($NDir) }
-      else { Write-Warning -Message ('SKIPPING: {0} - was found within - ({1}) PATH' -f $NDir,$VariableTarget) }
+      if ($NewPath -notcontains $NDir) { $null = $NewPath.Add($NDir) }
+      else { Write-Warning -Message ('SKIPPING: {0} ' -f $NDir) }
     }
   }
   end {
