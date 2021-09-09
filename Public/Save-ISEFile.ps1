@@ -2,7 +2,9 @@ Function Save-ISEFile {
   [CmdletBinding()]
   param(
     [ValidateScript({
-          if ($_.Exists) { throw ('{1}{0} | Already Exists' -f $_.FullName,("`n")) }
+          if ($_.Exists) {
+          throw ('{1}{0} | Already Exists' -f $_.FullName,("`n"))
+          }
           return $true
     })]
     [System.IO.FileInfo]$Path,
