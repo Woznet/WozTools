@@ -49,8 +49,9 @@ function Get-GitHubUserRepo {
       if (-not (Get-Command -Name git.exe)) { throw 'git.exe is missing' }
       if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) { throw 'Install Module - PowerShellForGitHub' }
       Import-Module -Name PowerShellForGitHub -PassThru:$false
-      if (-not (Get-Command -Name Invoke-ForEachParallel)) {
-        Import-Module -Name (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'Lib\PForEach\PForEach.dll' -Resolve) -PassThru:$false -ErrorAction Stop
+      if (-not (Get-Command -Name Invoke-ForEachParallel -ErrorAction SilentlyContinue)) {
+        # Import-Module -Name (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'Lib\PForEach\PForEach.dll' -Resolve) -PassThru:$false -ErrorAction Stop
+		Import-Module -Name ([System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent),'Lib\PForEach\PForEach.dll')) -PassThru:$false -ErrorAction Stop
       }
       if (-not (Get-GitHubConfiguration -Name DisableTelemetry)) { Set-GitHubConfiguration -DisableTelemetry }
       if (-not (Test-GitHubAuthenticationConfigured)) { $Host.UI.WriteErrorLine('PowerShellForGitHub is not Authenticated') }
@@ -101,10 +102,11 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
     $DelDir = [System.Collections.ArrayList]@()
     foreach ($GitUser in $UserName) {
-      $UserPath = Join-Path -Path $Path -ChildPath $GitUser
+      # $UserPath = Join-Path -Path $Path -ChildPath $GitUser
+	  $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
       if (Test-Path -Path $UserPath -PathType Container) {
         Get-GitHubRepository -OwnerName $GitUser | Sort-Object -Property updated_at -Descending | ForEach-Object -Process {
-          if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item -ErrorAction SilentlyContinue ) {
+          if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item ) {
             [PSCustomObject]@{
               Name = $_.Name
               Git_Updated = $_.updated_at
@@ -125,7 +127,8 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
     # Download
     foreach ($GitUser in $UserName) {
-      $UserPath = Join-Path -Path $Path -ChildPath $GitUser
+      # $UserPath = Join-Path -Path $Path -ChildPath $GitUser
+	  $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
       $null = $UserPathList.Add($UserPath)
 
       if (-not (Test-Path -Path $UserPath)) { New-Item -Path $UserPath -ItemType Directory }
@@ -133,7 +136,8 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
       # Get Gist
       $UserGist = Get-GitHubGist -UserName $GitUser
       if ($UserGist) {
-        $GistDir = Join-Path -Path $UserPath -ChildPath '_gist'
+        # $GistDir = Join-Path -Path $UserPath -ChildPath '_gist'
+		$GistDir = [System.IO.Path]::Combine($UserPath,'_gist')
         if (-not (Test-Path -Path $GistDir)) { New-Item -Path $GistDir -ItemType Directory }
 
         Get-ChildItem -Path $GistDir | Remove-Item -Recurse -Force
