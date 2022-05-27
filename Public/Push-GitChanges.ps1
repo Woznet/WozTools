@@ -12,6 +12,8 @@ function Push-GitChanges {
   )
   Process{
     Invoke-InDirectory -Path $RepoPath -ScriptBlock {
+      # Include - git pull command
+
       git add --all .
       git commit --all --message "$Msg"
       git push --all
