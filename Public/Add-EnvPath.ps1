@@ -14,8 +14,8 @@ Function Add-EnvPath {
       Which Env Path the directory gets added to.
       Machine, User or Process
 	  
-	  .PARAMETER Clean
-	  Remove all Folder Paths that no longer exist.
+      .PARAMETER Clean
+      Remove all Folder Paths that no longer exist.
 
       .INPUTS
       [String] - Folder Path, accepts multiple folders
@@ -32,21 +32,18 @@ Function Add-EnvPath {
           if (-not (Test-Path -Path $_ -PathType Container)) {
             throw 'Path must be a Folder'
           }
-          if (-not ([System.IO.Path]::IsPathRooted($_))) {
-            throw 'Path must be absolute, such as - C:\Program Files\Notepad++'
-          }
           return $true
     })]
     [String[]]$Path,
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine,
-	[switch]$Clean
+    [switch]$Clean
   )
   begin {
     if (-not (Test-IfAdmin)) { throw 'RUN AS ADMINISTRATOR' }
     $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\')
-	if ($Clean) {
-	  $OldPath = $OldPath | Convert-Path -ErrorAction SilentlyContinue
-	}
+    if ($Clean) {
+      $OldPath = $OldPath | Convert-Path -ErrorAction SilentlyContinue
+    }
     $NewPath = [System.Collections.ArrayList]::new()
     $NewPath.AddRange($OldPath)
   }
@@ -54,7 +51,9 @@ Function Add-EnvPath {
     foreach($NDir in $Path) {
       $NDir = (Convert-Path -Path $NDir -ErrorAction SilentlyContinue).TrimEnd('\')
       if ($NewPath -notcontains $NDir) { $null = $NewPath.Add($NDir) }
-      else { Write-Warning -Message ('SKIPPING: {0} ' -f $NDir) }
+      else {
+        Write-Warning -Message ('SKIPPING:{0} - duplicates not included' -f $NDir)
+      }
     }
   }
   end {

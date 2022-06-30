@@ -2,7 +2,8 @@
   Param(
     [Parameter(Mandatory)]
     [string]$Path,
-    [string]$Filter = '*'
+    [string]$Filter = '*',
+    [switch]$Recurse
   )
   begin {
     try {  
@@ -42,6 +43,14 @@
       }
     }
     $AlphaFiles = [System.Collections.ArrayList]@()
+    
+    
+    if ($Recurse) {
+      $DirectoryEnumerationOptions = [Alphaleonis.Win32.Filesystem.DirectoryEnumerationOptions]'FilesAndFolders, Recursive, SkipReparsePoints, ContinueOnException'
+    }
+    else {
+      $DirectoryEnumerationOptions = [Alphaleonis.Win32.Filesystem.DirectoryEnumerationOptions]'FilesAndFolders, SkipReparsePoints, ContinueOnException'
+    }
   }
   process {
   
@@ -49,7 +58,7 @@
       Instance = ([Alphaleonis.Win32.Filesystem.Directory])
       MethodName = 'EnumerateFileSystemEntryInfos'
       TypeParameters = 'Alphaleonis.Win32.Filesystem.FileSystemEntryInfo'
-      MethodParameters = $Path, $Filter,([Alphaleonis.Win32.Filesystem.DirectoryEnumerationOptions]'FilesAndFolders, Recursive, SkipReparsePoints, ContinueOnException'), ([Alphaleonis.Win32.Filesystem.PathFormat]::FullPath)
+      MethodParameters = $Path, $Filter, $DirectoryEnumerationOptions, ([Alphaleonis.Win32.Filesystem.PathFormat]::FullPath)
     }
     # $SplattAlpha
     foreach ($private:Folder in (Invoke-GenericMethod @SplattAlpha)) {
