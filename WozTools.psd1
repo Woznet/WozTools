@@ -12,7 +12,7 @@
 RootModule = 'WozTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.0.0'
+ModuleVersion = '2.0.1'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core', 'Desktop'
@@ -70,7 +70,7 @@ PowerShellVersion = '5.1'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Add-EnvPath', 'Add-ISEText', 'Add-PSModulePath', 'Clone-GitRepo', 
-               'Convertto-TitleCase', 'Get-ACLInfo', 'Get-CommandParameters', 
+               'Convertto-TitleCase', 'Convert-FileLength', 'Get-ACLInfo', 'Get-CommandParameters', 
                'Get-ComObject', 'Get-CurrentUser', 'Get-EnumerateFiles', 'Get-EnvPath', 
                'Get-FunctionCode', 'Get-GitHubUserRepos', 'Get-ItemFromClipboard', 
                'Get-RedirectedUrl', 'Get-RelativePath', 'Get-StringFromSecureString', 
@@ -89,9 +89,12 @@ CmdletsToExport = @()
 # VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dlgit', 'dl-msu', 'FixCon', 
-               'GitLang', 'InISE', 'Max-PartitionSize', 'mdc', 'Open', 'psEdit', 'scc', 
-               'wslpath'
+#
+#AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dlgit', 'dl-msu', 'FixCon', 
+#               'GitLang', 'InISE', 'Max-PartitionSize', 'mdc', 'Open', 'psEdit', 'scc', 
+#               'wslpath'
+#
+AliasesToExport = '*'
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -103,7 +106,8 @@ AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dlgit', 'dl-
 FileList = 'LICENSE', 'README.md', 'WozTools.psd1', 'WozTools.psm1', 
                'Public\Add-EnvPath.ps1', 'Public\Add-ISEText.ps1', 
                'Public\Add-PSModulePath.ps1', 'Public\Clone-GitRepo.ps1', 
-               'Public\Convertto-TitleCase.ps1', 'Public\Get-ACLInfo.ps1', 
+               'Public\Convertto-TitleCase.ps1', 'Public\Convert-FileLength.ps1',
+			   'Public\Get-ACLInfo.ps1', 
                'Public\Get-CommandParameters.ps1', 'Public\Get-ComObject.ps1', 
                'Public\Get-CurrentUser.ps1', 'Public\Get-EnumerateFiles.ps1', 
                'Public\Get-EnvPath.ps1', 'Public\Get-FunctionCode.ps1', 
