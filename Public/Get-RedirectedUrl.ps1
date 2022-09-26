@@ -1,26 +1,9 @@
 
-Function Test-Url {
-  param(
-    [Parameter(Mandatory,ValueFromPipeline)]
-    [String]$Url
-  )
-  Process {
-    if ([System.Uri]::IsWellFormedUriString($Url,[System.UriKind]::Absolute)) {
-      return $true
-    }
-    else {
-      return $false
-    }
-  }
-}
-
-
-
 Function Get-RedirectedUrl {
   Param(
     [Parameter(Mandatory,ValueFromPipeline)]
     [ValidateScript({
-          if (-not ($_ | Test-Url)) {
+          if (-not ([System.Uri]::IsWellFormedUriString($_,[System.UriKind]::Absolute))) {
             throw ('{0}{1} - Failed URL Validation' -f "`n",$_)
           }
           return $true

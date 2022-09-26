@@ -12,7 +12,7 @@
 RootModule = 'WozTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.0.1'
+ModuleVersion = '2.1.0'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core', 'Desktop'
@@ -71,16 +71,16 @@ PowerShellVersion = '5.1'
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Add-EnvPath', 'Add-ISEText', 'Add-PSModulePath', 'Clone-GitRepo', 
                'Convertto-TitleCase', 'Convert-FileLength', 'Get-ACLInfo', 'Get-CommandParameters', 
-               'Get-ComObject', 'Get-CurrentUser', 'Get-EnumerateFiles', 'Get-EnvPath', 
+               'Get-ComObjects', 'Get-CurrentUser', 'Get-EnumerateFiles', 'Get-EnvPath', 
                'Get-FunctionCode', 'Get-GitHubUserRepos', 'Get-ItemFromClipboard', 
                'Get-RedirectedUrl', 'Get-RelativePath', 'Get-StringFromSecureString', 
-               'Invoke-Beep', 'Invoke-InDirectory', 'Invoke-psEdit', 'Invoke-WSLPath', 
-               'Join-Url', 'New-ANSIString', 'New-DirandEnter', 'New-Shortcut', 
+               'Invoke-Beep', 'Invoke-InDirectory', 'Invoke-psEdit', 'Invoke-ReArmLicense',
+			   'Invoke-WSLPath', 'Join-Url', 'New-ANSIString', 'New-DirandEnter', 'New-Shortcut', 
                'Open-NotepadPlusPlus', 'Open-Script', 'Out-ISETab', 'Push-GitChanges', 
                'Remove-EnvPath', 'Save-ISEFile', 'Search-WinCatalog', 
                'Select-GitHubLanguage', 'Set-AutoLogin', 'Set-ConsoleSize', 
                'Set-ConsoleWindow', 'Set-MaxPartitionSize', 'Start-ConsoleCommand', 
-               'Start-PSLogging', 'Sync-Profile', 'Test-IfAdmin', 'Test-Url'
+               'Start-PSLogging', 'Test-IfAdmin', 'Test-Url'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -89,11 +89,6 @@ CmdletsToExport = @()
 # VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-#
-#AliasesToExport = 'Beep', 'cgit', 'Convert-SecureString', 'CUser', 'dlgit', 'dl-msu', 'FixCon', 
-#               'GitLang', 'InISE', 'Max-PartitionSize', 'mdc', 'Open', 'psEdit', 'scc', 
-#               'wslpath'
-#
 AliasesToExport = '*'
 
 # DSC resources to export from this module
@@ -108,13 +103,14 @@ FileList = 'LICENSE', 'README.md', 'WozTools.psd1', 'WozTools.psm1',
                'Public\Add-PSModulePath.ps1', 'Public\Clone-GitRepo.ps1', 
                'Public\Convertto-TitleCase.ps1', 'Public\Convert-FileLength.ps1',
 			   'Public\Get-ACLInfo.ps1', 
-               'Public\Get-CommandParameters.ps1', 'Public\Get-ComObject.ps1', 
+               'Public\Get-CommandParameters.ps1', 'Public\Get-ComObjects.ps1', 
                'Public\Get-CurrentUser.ps1', 'Public\Get-EnumerateFiles.ps1', 
                'Public\Get-EnvPath.ps1', 'Public\Get-FunctionCode.ps1', 
                'Public\Get-GitHubUserRepos.ps1', 'Public\Get-ItemFromClipboard.ps1', 
                'Public\Get-RedirectedUrl.ps1', 'Public\Get-RelativePath.ps1', 
                'Public\Get-StringFromSecureString.ps1', 'Public\Invoke-Beep.ps1', 
                'Public\Invoke-InDirectory.ps1', 'Public\Invoke-psEdit.ps1', 
+			   'Public\Invoke-ReArmLicense',
                'Public\Invoke-WSLPath.ps1', 'Public\Join-Url.ps1', 
                'Public\New-ANSIString.ps1', 'Public\New-DirandEnter.ps1', 
                'Public\New-Shortcut.ps1', 'Public\Open-NotepadPlusPlus.ps1', 
@@ -123,11 +119,10 @@ FileList = 'LICENSE', 'README.md', 'WozTools.psd1', 'WozTools.psm1',
                'Public\Save-ISEFile.ps1', 'Public\Search-WinCatalog.ps1', 
                'Public\Select-GitHubLanguage.ps1', 'Public\Set-AutoLogin.ps1', 
                'Public\Set-ConsoleSize.ps1', 'Public\Set-ConsoleWindow.ps1', 
-               'Public\Set-MaxPartitionSize.ps1', 
-               'Public\Start-ConsoleCommand.ps1', 'Public\Start-PSLogging.ps1', 
-               'Public\Sync-Profile.ps1', 'Public\Test-IfAdmin.ps1', 
-               'Public\Test-Url.ps1', 'Lib\PForEach\PForEach.dll', 
-               'Lib\AlphaFS\Net452\AlphaFS.dll', 'Lib\AlphaFS\Net452\AlphaFS.xml'
+               'Public\Set-MaxPartitionSize.ps1', 'Public\Start-ConsoleCommand.ps1',
+			   'Public\Start-PSLogging.ps1', 'Public\Test-IfAdmin.ps1',
+			   'Public\Test-Url.ps1', 'Lib\PForEach\PForEach.dll',
+			   'Lib\AlphaFS\Net452\AlphaFS.dll', 'Lib\AlphaFS\Net452\AlphaFS.xml'
 
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
