@@ -1,14 +1,18 @@
 ﻿Function Test-Url {
+[CmdletBinding()]
   param (
     [Parameter(Mandatory,ValueFromPipeline)]
-    [String]$Url
+    [String[]]$Url,
+	[System.UriKind]$UriKind = [System.UriKind]::Absolute
   )
   Process {
-    if ([System.Uri]::IsWellFormedUriString($Url,[System.UriKind]::Absolute)) {
+  foreach($U in $Url) {
+    if ([System.Uri]::IsWellFormedUriString($U, $UriKind)) {
       $true
     }
     else {
       $false
     }
+  }
   }
 }

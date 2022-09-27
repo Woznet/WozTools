@@ -1,17 +1,18 @@
-function Clone-GitRepo {
+function Invoke-GitClone {
   <#
       .Synopsis
       Clone a Git Repository
 
       .EXAMPLE
-      Clone-Git -Repo https://github.com/Woznet/WozTools.git -Path D:\git\repos
+      Invoke-GitClone -Repo https://github.com/Woznet/WozTools.git -Path D:\git\repos
   #>
   [CmdletBinding()]
+  [Alias('Clone-GitRepo')]
   [Alias('cgit')]
   param(
     # Git Repository to Clone
-    [Parameter(ValueFromPipeline)]
-    [String[]]$Repo = $(Get-Clipboard),
+    [Parameter(Mandatory,ValueFromPipeline)]
+    [String[]]$Repo,
     # Location the repository folder will be saved to
     [ValidateScript({
           if(-Not ($_ | Test-Path -PathType Container)) {
@@ -19,11 +20,11 @@ function Clone-GitRepo {
           }
           return $true
     })]
-    [String]$Path = 'V:\git\repos'
+    [String]$Path
   )
   Begin {
     if (-not ([Environment]::GetEnvironmentVariable('GIT_REDIRECT_STDERR') -eq '2>&1')) {
-      [Environment]::SetEnvironmentVariable('GIT_REDIRECT_STDERR','2>&1')
+      [Environment]::SetEnvironmentVariable('GIT_REDIRECT_STDERR','2>&1',[System.EnvironmentVariableTarget]::Process)
       Start-Sleep -Seconds 1
       Update-SessionEnvironment
     }
