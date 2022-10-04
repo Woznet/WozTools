@@ -1,18 +1,18 @@
-﻿function Invoke-WSLPath {
+﻿function Convert-WSLPath {
   <#
       .Synopsis
-      Covert a path inbetween the Windows and the WSL format
+      Covert a path in between the Windows and the WSL path formats
 
       .DESCRIPTION
       Use "wslpath" to convert the path
 
       .EXAMPLE
-      # Convert Windows Path to WSL - /mnt/c/temp/
-      Invoke-WSLPath -Path 'C:\temp\'
+      # Convert Windows Path to WSL
+      Convert-WSLPath -Path 'C:\temp\'
 
       .EXAMPLE
-      # Convert WSL Path to Windows - \\wsl$\Ubuntu-18.04\usr\bin\ssh
-      Invoke-WSLPath -Path '/usr/bin/ssh' -ToWindows
+      # Convert WSL Path to Windows
+      Convert-WSLPath -Path '/usr/bin/ssh' -ToWindows
   #>
   [CmdletBinding(DefaultParameterSetName='WSL')]
   [Alias('wslpath')]
@@ -30,28 +30,31 @@
           return $true
     })]
     [string[]]$Path,
-    # Convert Path to Windows format
+    # Convert Path from WSL format to Windows format
     [Parameter(ParameterSetName='Win')]
     [switch]$ToWindows,
-    # Convert Path to WSL format - Default
+    # Convert Path from Windows format to WSL format - Default
     [Parameter(ParameterSetName='WSL')]
     [switch]$ToWSL
   )
   Begin {
-    if (-not (Get-Command -Name wsl.exe -ErrorAction SilentlyContinue)) {throw 'Cannot locate WSL'}
+    if (-not (Get-Command -Name wsl.exe -ErrorAction SilentlyContinue)) {
+        throw 'Cannot locate WSL'
+      }
     $ArgList = [System.Collections.ArrayList]@()
     $Results = [System.Collections.Generic.List[string]]@()
     $ConvertTo = switch ($PSCmdlet.ParameterSetName) {
       'WSL' { '-u' ; break }
       'Win' { '-w' ; break }
-      default { throw 'something went wrong' }
     }
   }
   Process {
     foreach ($Item in $Path) {
       $ArgList.AddRange((
-          'wslpath', '-a',
-          $ConvertTo, ([regex]::Escape($Item))
+          'wslpath',
+          '-a',
+          $ConvertTo,
+          ([regex]::Escape($Item))
       ))
       $CPath = & wsl $ArgList 2>$null
       $Results.Add($CPath)

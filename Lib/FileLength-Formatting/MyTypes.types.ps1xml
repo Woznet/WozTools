@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+  <Type>
+    <Name>System.IO.FileInfo</Name>
+    <Members>
+      <ScriptProperty>
+        <!-- Filesize converts length to a human readable format (kb, mb, gb, tb) -->
+        <Name>FileSize</Name>
+        <GetScriptBlock>
+
+					Convert-Size -Size $this.length
+
+                </GetScriptBlock>
+      </ScriptProperty>
+    </Members>
+  </Type>
+</Types>

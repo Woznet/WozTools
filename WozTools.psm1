@@ -1,6 +1,5 @@
 # Get public and private function definition files.
 
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('UseApprovedVerbs', '')]
 
 $Signature =  @'
 [DllImport("Shlwapi.dll", CharSet = CharSet.Auto)]
@@ -19,6 +18,7 @@ $Public  = @(Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction Silentl
 # foreach ($Import in @($Public + $Private)) {
 foreach ($Import in $Public) {
   try {
+  Write-Verbose -Message ('Importing - {0}' -f $Import.Name)
     . $Import.FullName
   }
   catch {
@@ -26,4 +26,5 @@ foreach ($Import in $Public) {
   }
 }
 
-Export-ModuleMember -Function $Public.Basename -Alias *
+# Export-ModuleMember -Function $Public.Basename -Alias *
+Export-ModuleMember -Function * -Alias * -Cmdlet * -Variable *
