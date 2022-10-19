@@ -5,12 +5,10 @@ function Get-ItemFromClipboard {
 
       .DESCRIPTION
       Trims single and double quotes from path stored in clipboard then passes results to Get-Item
-      
-      for use primarily with Windows Explorer "Copy Path"
-      Get-ItemFromClipboard trims single and double quotes from around path and then pipes result into Get-Item
+      Designed for taking the clipboard contents from Windows Explorer "Copy Path" into PowerShell.
   #>
   try {
-    (Get-Clipboard).Trim('"',"'") | Get-Item -ErrorAction Stop
+    (Get-Clipboard).Trim('"',"'") | Where-Object {(Test-Path -Path $_ ) -eq $true} | Get-Item -ErrorAction Ignore
   }
   catch {
     [System.Management.Automation.ErrorRecord]$e = $_
