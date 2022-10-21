@@ -14,8 +14,8 @@ Function Add-EnvPath {
       Which Env Path the directory gets added to.
       Machine, User or Process
 	  
-      .PARAMETER Clean
-      Remove all Folder Paths that no longer exist.
+      .PARAMETER PassThru
+      Display updated PATH variable
 
       .INPUTS
       [String] - Folder Path, accepts multiple folders
@@ -36,14 +36,11 @@ Function Add-EnvPath {
     })]
     [String[]]$Path,
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine,
-    [switch]$Clean
+    [switch]$PassThru
   )
   begin {
     if (-not (Test-IfAdmin)) { throw 'RUN AS ADMINISTRATOR' }
-    $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\')
-    if ($Clean) {
-      $OldPath = $OldPath | Convert-Path -ErrorAction SilentlyContinue
-    }
+    $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\') | Convert-Path -ErrorAction SilentlyContinue
     $NewPath = [System.Collections.ArrayList]::new()
     $NewPath.AddRange($OldPath)
   }
@@ -58,7 +55,9 @@ Function Add-EnvPath {
   }
   end {
     [System.Environment]::SetEnvironmentVariable('PATH',(($NewPath | Sort-Object -Unique) -join ';'),$VariableTarget)
-    $Confirm = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';')
-    return $Confirm
+    if ($PassThru) {
+      $Confirm = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';')
+      return $Confirm
+    }
   }
 }
