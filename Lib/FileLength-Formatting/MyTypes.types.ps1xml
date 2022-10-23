@@ -4,13 +4,13 @@
     <Name>System.IO.FileInfo</Name>
     <Members>
       <ScriptProperty>
-        <!-- Filesize converts length to a human readable format (kb, mb, gb, tb) -->
+        <!-- FileSize converts Length to a human readable format (bytes, KB, MB, GB, TB...) -->
         <Name>FileSize</Name>
         <GetScriptBlock>
 
-					Convert-Size -Size $this.length
+					Convert-FileLength -Length $this.Length
 
-                </GetScriptBlock>
+        </GetScriptBlock>
       </ScriptProperty>
     </Members>
   </Type>
