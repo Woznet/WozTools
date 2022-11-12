@@ -4,8 +4,8 @@
     <Name>System.IO.FileInfo</Name>
     <Members>
       <ScriptProperty>
-        <!-- FileSize converts Length to a human readable format (bytes, KB, MB, GB, TB...) -->
-        <Name>FileSize</Name>
+        <!-- LengthHR converts Length to a human readable format (bytes, KB, MB, GB, TB...) -->
+        <Name>LengthHR</Name>
         <GetScriptBlock>
 
 					Convert-FileLength -Length $this.Length

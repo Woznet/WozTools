@@ -60,10 +60,10 @@ PowerShellVersion = '5.1'
 # ScriptsToProcess = @()
 
 # Type files (.ps1xml) to be loaded when importing this module
-TypesToProcess = 'Lib\FileLength-Formatting\MyTypes.types.ps1xml'
+TypesToProcess = 'Lib\Formatting\MyTypes.types.ps1xml'
 
 # Format files (.ps1xml) to be loaded when importing this module
-FormatsToProcess = 'Lib\FileLength-Formatting\Show-LinkTarget.format.ps1xml'
+FormatsToProcess = 'Lib\Formatting\Show-LinkTarget.format.ps1xml'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 # NestedModules = @()

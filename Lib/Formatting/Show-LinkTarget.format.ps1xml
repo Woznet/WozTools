@@ -64,7 +64,7 @@ Modified formatting of directory output to include Symlinks and Hardlinks
             <Alignment>right</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>FileSize</Label>
+            <Label>LengthHR</Label>
             <Width>14</Width>
             <Alignment>right</Alignment>
           </TableColumnHeader>
@@ -85,7 +85,7 @@ Modified formatting of directory output to include Symlinks and Hardlinks
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>FileSize</PropertyName>
+                <PropertyName>LengthHR</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
