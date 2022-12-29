@@ -1,9 +1,9 @@
 
 filter Get-HostEntry {
-  [CmdletBinding(PositionalBinding=$true)]
+  [CmdletBinding(PositionalBinding)]
   [OutputType([System.Net.IPHostEntry])]
   param(
-    [Parameter(ValueFromPipeline)]
+    [Parameter(Mandatory,ValueFromPipeline)]
     [ValidateScript({
           if ($_ -as [uri]) {
             return $true
