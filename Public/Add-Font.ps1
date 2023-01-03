@@ -1,21 +1,21 @@
 ﻿function Add-Font {
-<#
-    .SYNOPSIS
-    Add font to system
+  <#
+      .SYNOPSIS
+      Add fonts to system
 
-    .DESCRIPTION
-    Install a font from file path using CSharp code, compatitable fonts are available within the console font list as well.
+      .DESCRIPTION
+      Install a font from file path using CSharp code, compatitable fonts are available for use within the console font list.
 
-    .PARAMETER FilePath
-    Path of Font File
-    Supported File Types - .ttc, .ttf, .fnt, .otf, .fon
+      .PARAMETER Path
+      Path of Font File, can accept multiple font files
+      Supported File Types - .ttc, .ttf, .fnt, .otf, .fon
 
-    .EXAMPLE
-    Add-Font -FilePath C:\temp\mononoki-nerdfont.ttf
+      .EXAMPLE
+      Add-Font -Path C:\temp\mononoki-nerdfont.ttf
 
-    .NOTES
-    Administartor privileges are required
-#>
+      .NOTES
+      Administartor privileges are required
+  #>
   param(
     [Parameter(Mandatory)]
     [ValidateScript({
@@ -25,7 +25,8 @@
           return $true
     })]
     [ValidatePattern('(\.ttc|\.ttf|\.fnt|\.otf|\.fon)$')]
-    [string]$FilePath
+    [string[]]$Path,
+    [switch]$Remove
   )
   begin {
 
@@ -33,7 +34,7 @@
     if (-not ($IsAdmin)) {
       throw 'This must run with admin privileges'
     }
-    
+
     $FontsFolderPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::Fonts)
 
     # Define constants
@@ -354,48 +355,78 @@ namespace FontResource
 
   }
   process {
-    try {
+    foreach($FilePath in $Path) {
 
       $FileInfo = [System.IO.FileInfo]::new($FilePath)
-      [string]$FilePath = $FileInfo.FullName
-      [string]$FileDir  = $FileInfo.DirectoryName
-      [string]$FileName = $FileInfo.Name
-      [string]$FileExt = $FileInfo.Extension
-      [string]$FileBaseName = $FileInfo.BaseName
 
-      $Shell = New-Object -ComObject Shell.Application
-      $MyFolder = $Shell.Namespace($FileDir)
-      $FileObj = $MyFolder.Items().Item($FileName)
-      $FontName = $MyFolder.GetDetailsOf($FileObj,21)
-      if ($FontName -eq '') { $FontName = $FileBaseName }
+      if ($Remove) {
+        $RetVal = [FontResource.AddRemoveFonts]::RemoveFont($FilePath.FullName)
+        if ($RetVal -eq 0) {
+          throw ('Failed to remove font - "{0}"' -f ($FileInfo.FullName))
+        }
+        else {
+          $RegFonts = Get-Item -Path 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts\'
+          $RFData = $RegFonts.GetValueNames() | ForEach-Object {
+            try {
+              [pscustomobject]@{
+                Font = $_
+                Path = (Join-Path -Path 'C:\Windows\Fonts\' -ChildPath $rf.GetValue($_) -Resolve -ErrorAction Stop)
+              }
+            }
+            catch {}
+          }
 
-      $FontFinalPath = Copy-Item -Path $FilePath -Destination $FontsFolderPath -PassThru -ErrorAction Stop
-      $RetVal = [FontResource.AddRemoveFonts]::AddFont($FontFinalPath.FullName)
-
-      if ($RetVal -eq 0) {
-        throw ('Failed to install font - "{0}"' -f ($FilePath))
+          $RFItem = $RFData | Where-Object {$_.Path -eq $FileInfo.FullName}
+          $RFItem | Write-Verbose -Verbose
+          Remove-ItemProperty -Path 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts\' -Name $RFItem.Font -Force -Verbose
+          Get-Item -Path $RFItem.Path | Remove-Item -Force -Verbose
+        }
       }
       else {
-        $null = Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts' -Name ('{0}{1}' -f $FontName, $HashFontFileTypes.Item($FileExt)) -Value ('{0}' -f $FileName) -Type String -Force -ErrorAction Stop
-        Write-Host ('Font install successful - "{0}"' -f ($FilePath)) -ForegroundColor Green
-        Write-Host ''
-        return
+        try {
+
+          $Shell = New-Object -ComObject Shell.Application
+          $MyFolder = $Shell.Namespace($FileInfo.DirectoryName)
+          $FileObj = $MyFolder.Items().Item($FileInfo.Name)
+          $FontName = $MyFolder.GetDetailsOf($FileObj,21)
+          if ($FontName -eq '') { $FontName = $FileInfo.BaseName }
+
+          $FontFinalPath = Copy-Item -Path $FileInfo.FullName -Destination $FontsFolderPath -PassThru -Force -ErrorAction Stop
+          $RetVal = [FontResource.AddRemoveFonts]::AddFont($FontFinalPath.FullName)
+
+          if ($RetVal -eq 0) {
+            throw ('Failed to install font - "{0}"' -f ($FileInfo.FullName))
+          }
+          else {
+            $SetItemProp = @{
+              Path = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
+              Name = '{0}{1}' -f $FontName, $HashFontFileTypes.Item($FileInfo.Extension)
+              Value = $FileInfo.Name
+              Type = 'String'
+              Force = $true
+              ErrorAction = 'Stop'
+            }
+            $null = Set-ItemProperty @SetItemProp
+            Write-Host ('Font install successful - "{0}"' -f ($FileInfo.FullName)) -ForegroundColor Green
+            Write-Host ''
+          }
+        }
+        catch {
+          Write-Host ''
+          [System.Management.Automation.ErrorRecord]$e = $_
+          [PSCustomObject]@{
+            Type      = $e.Exception.GetType().FullName
+            Exception = $e.Exception.Message
+            Reason    = $e.CategoryInfo.Reason
+            Target    = $e.CategoryInfo.TargetName
+            Script    = $e.InvocationInfo.ScriptName
+            Line      = $e.InvocationInfo.ScriptLineNumber
+            Column    = $e.InvocationInfo.OffsetInLine
+          }
+          Write-Host ''
+          throw ('An error occured installing - "{0}"' -f ($FileInfo.FullName))
+        }
       }
-    }
-    catch {
-      Write-Host ''
-      [System.Management.Automation.ErrorRecord]$e = $_
-      [PSCustomObject]@{
-        Type      = $e.Exception.GetType().FullName
-        Exception = $e.Exception.Message
-        Reason    = $e.CategoryInfo.Reason
-        Target    = $e.CategoryInfo.TargetName
-        Script    = $e.InvocationInfo.ScriptName
-        Line      = $e.InvocationInfo.ScriptLineNumber
-        Column    = $e.InvocationInfo.OffsetInLine
-      }
-      Write-Host ''
-      throw ('An error occured installing - "{0}"' -f ($FilePath))
     }
   }
 }
