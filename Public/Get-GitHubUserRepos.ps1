@@ -8,7 +8,7 @@ function Get-GitHubUserRepos {
       Can Exclude repositories with names that match the string/strings defined with -Exclude
       Requires Module - PowerShellForGitHub
       Requires git.exe
-      
+
       I included the source file for PForEach because it is no longer visible in the powershellgallery and github
       Vasily Larionov - https://www.powershellgallery.com/profiles/vlariono | https://github.com/vlariono
       PForEach - https://www.powershellgallery.com/packages/PForEach
@@ -45,13 +45,81 @@ function Get-GitHubUserRepos {
   )
   Begin {
 
+    ##### Load Progress Class
+    class Progress {
+
+      [int]$Total
+      [int]$Frequency = 1
+      [string]$Activity = 'Progress'
+      [string]$CurrentOperation
+
+      [int] $Index = 0
+      [datetime] $StartTime
+      [datetime] $LastTime
+      [datetime] $CurrentTime = [datetime]::Now
+      [timespan] $Last
+      [bool] $First = $true
+
+      Progress($TotalSteps) {
+        $this.Total = $TotalSteps
+        $this.StartTime = $this.LastTime = [datetime]::Now
+      }
+
+      [int] Left() {
+        return $this.Total - $this.Index
+      }
+
+      [timespan] ElapsedTime() {
+        return $this.CurrentTime - $this.StartTime
+      }
+
+      [string] Message() {
+        return (('{0} {1:g}' -f $this.Activity, $this.CurrentTime)) -join ' '
+      }
+
+      [decimal] PercentComplete() {
+        return $this.Index / $this.Total * 100
+      }
+
+      [string] Status() {
+        return ('{0} of {1} ({2} left) [{3:N2}%]' -f $this.Index, $this.Total, $this.Left(), $this.PercentComplete())
+      }
+
+      [void] OutputProgress() {
+        $Progress = @{
+          Activity = $this.Message()
+          Status = $this.Status()
+          CurrentOperation = $this.CurrentOperation
+          PercentComplete = $this.PercentComplete()
+        }
+        Write-Progress @Progress
+      }
+
+      [void] Show([bool]$DoNotIncrement) {
+        $this.CurrentTime = [datetime]::Now
+        if ($DoNotIncrement) {
+          $this.Index++ ; $this.Last = $this.CurrentTime - $this.LastTime
+          if ($this.First -or [math]::Floor($this.PercentComplete() % $this.Frequency) -eq 0) {
+            $this.OutputProgress() ; $this.First = $false;
+          }
+          $this.LastTime = [datetime]::Now
+        }
+        else {
+          $this.OutputProgress()
+        }
+      }
+    }
+
+    #####
+
+
     try{
       if (-not (Get-Command -Name git.exe)) { throw 'git.exe is missing' }
       if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) { throw 'Install Module - PowerShellForGitHub' }
       Import-Module -Name PowerShellForGitHub -PassThru:$false
       if (-not (Get-Command -Name Invoke-ForEachParallel -ErrorAction SilentlyContinue)) {
         # Import-Module -Name (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'Lib\PForEach\PForEach.dll' -Resolve) -PassThru:$false -ErrorAction Stop
-		Import-Module -Name ([System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent),'Lib\PForEach\PForEach.dll')) -PassThru:$false -ErrorAction Stop
+        Import-Module -Name ([System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent),'Lib\PForEach\PForEach.dll')) -PassThru:$false -ErrorAction Stop
       }
       if (-not (Get-GitHubConfiguration -Name DisableTelemetry)) { Set-GitHubConfiguration -DisableTelemetry }
       if (-not (Test-GitHubAuthenticationConfigured)) { $Host.UI.WriteErrorLine('PowerShellForGitHub is not Authenticated') }
@@ -67,7 +135,7 @@ function Get-GitHubUserRepos {
         Line      = $e.InvocationInfo.ScriptLineNumber
         Column    = $e.InvocationInfo.OffsetInLine
       }
-	  throw $_
+      throw $_
     }
     $HTML = @'
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
@@ -95,16 +163,15 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 });
 </script>
 '@
-    $UserPathList = [System.Collections.ArrayList]@()
+    $UserPathList = [System.Collections.Generic.List[string]]@()
     $StopWatch = [System.Diagnostics.Stopwatch]::New()
     $StopWatch.Start()
   }
   Process {
 
-    $DelDir = [System.Collections.ArrayList]@()
+    $DelDir = [System.Collections.Generic.List[string]]@()
     foreach ($GitUser in $UserName) {
-      # $UserPath = Join-Path -Path $Path -ChildPath $GitUser
-	  $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
+      $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
       if (Test-Path -Path $UserPath -PathType Container) {
         Get-GitHubRepository -OwnerName $GitUser | Sort-Object -Property updated_at -Descending | ForEach-Object -Process {
           if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item ) {
@@ -116,7 +183,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
             }
           }
         } | Where-Object {$_.Git_Updated -ge $_.Local_Updated} | Select-Object -ExpandProperty GetItem | ForEach-Object {
-          $null = $DelDir.Add($PSItem)
+          $DelDir.Add($PSItem)
         }
       }
     }
@@ -128,49 +195,67 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
     # Download
     foreach ($GitUser in $UserName) {
-      # $UserPath = Join-Path -Path $Path -ChildPath $GitUser
-	  $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
-      $null = $UserPathList.Add($UserPath)
+      $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
+      $UserPathList.Add($UserPath)
 
       if (-not (Test-Path -Path $UserPath)) { New-Item -Path $UserPath -ItemType Directory }
 
       # Get Gist
       $UserGist = Get-GitHubGist -UserName $GitUser
       if ($UserGist) {
-        # $GistDir = Join-Path -Path $UserPath -ChildPath '_gist'
-		$GistDir = [System.IO.Path]::Combine($UserPath,'_gist')
+        $GistDir = [System.IO.Path]::Combine($UserPath,'_gist')
+        $TempGistDir = [System.IO.Path]::Combine($UserPath,'_tempgist')
         if (-not (Test-Path -Path $GistDir)) { New-Item -Path $GistDir -ItemType Directory }
+        if (-not (Test-Path -Path $TempGistDir)) { New-Item -Path $TempGistDir -ItemType Directory }
 
         Get-ChildItem -Path $GistDir | Remove-Item -Recurse -Force
         Set-Content -Value ($HTML.Replace('---',$GitUser)) -Path ([System.IO.Path]::Combine($UserPath,'_gist.html')) -Force
         Write-Output ('{2}{0} Gists - {1}' -f $GitUser,$UserGist.Count,("`n"))
+
+        ### Start Downloading Gist to temp dir
+        $Progress = [Progress]::new($UserGist.Count)
+        $Progress.Frequency = 1
+        $Progress.Activity = ('{0} - Cloning gist' -f $GitUser)
         $UserGist | ForEach-Object -Process {
           $UGist = $PSItem
-          Start-Process -WorkingDirectory $GistDir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $UGist.git_pull_url) -WindowStyle Hidden -Wait
-
-          $GistDLDir = Join-Path -Path $GistDir -ChildPath $UGist.Id -Resolve
-
-          switch (($UGist.files|Get-Member -MemberType NoteProperty | Measure-Object -Property Name).Count) {
-            1 {
-              try {
-                Join-Path -Path $GistDLDir -ChildPath ($UGist.files | Get-Member -MemberType NoteProperty).Name -Resolve | Move-Item -Destination $GistDir -ErrorAction Stop
-              }
-              catch [System.IO.IOException] {
-                Join-Path -Path $GistDLDir -ChildPath ($UGist.files | Get-Member -MemberType NoteProperty).Name -Resolve | Get-Item | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name))} -PassThru | Move-Item -Destination $GistDir -ErrorAction Stop
-              }
-              finally {
-                Remove-Item -Path $GistDLDir -Recurse -ErrorAction SilentlyContinue -Force
-              }
-              break
-            }
-            {$_ -gt 1} {
-              Rename-Item -Path $GistDLDir -NewName ($UGist.files|Get-Member -MemberType NoteProperty)[0].Name
-              break
-            }
-            default { Write-Warning 'Something Went Wrong' ; break }
-          }
-          Start-Sleep -Milliseconds 350
+          $Progress.CurrentOperation = ''
+          $Progress.Show($true)
+          Start-Process -WorkingDirectory $TempGistDir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $UGist.git_pull_url) -WindowStyle Hidden -Wait
+          $UGist = $null
+          Start-Sleep -Milliseconds 100
         }
+        $Progress = $null
+        ### Start Moving Gist from temp dir to $GistDir
+        Get-ChildItem $TempGistDir | ForEach-Object {
+          $TGDir = $_
+          Join-Path -Path $TGDir -ChildPath '.git' -Resolve | Remove-Item -Recurse -Force
+          $TGFiles = $TGDir | Get-ChildItem -Force:$false
+          $TGFileCount = $TGFiles.Count
+          if ($TGFileCount -eq 1) {
+            try {
+              $TGFiles | Move-Item -Destination $GistDir -PassThru:$false -ErrorAction Stop
+            }
+            catch [System.IO.IOException] {
+              @'
+Shit happened trying to move - {0}
+Attempting to rename and try moving again
+'@ -f $TGFiles.Name | Write-Warning
+              $TGFiles | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name.Substring(0,6)))} -PassThru | Move-Item -Destination $GistDir -PassThru:$false -ErrorAction Stop
+            }
+            $MCheck = $TGDir | Get-ChildItem -Force:$false
+            if ($MCheck.Count -eq 0) { Remove-Item -Path $TGDir -Recurse -Force }
+          }
+          else {
+            try {
+              $TGDir | Move-Item -Destination $GistDir -PassThru:$false -ErrorAction Stop
+            }
+            catch [System.IO.IOException] {
+              Write-Error $_
+            }
+          }
+        }
+        ### Cleaning up Temp Gist Dir
+        Remove-Item -Path $TempGistDir -Recurse -Force
       }
 
       # Get Repo

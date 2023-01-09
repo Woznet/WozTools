@@ -12,7 +12,7 @@
 RootModule = 'WozTools.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.6.5'
+ModuleVersion = '2.9.5'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core', 'Desktop'
@@ -27,7 +27,7 @@ Author = 'Woz'
 CompanyName = 'Woz'
 
 # Copyright statement for this module
-Copyright = '(c) 2022 Woz. All rights reserved.'
+Copyright = '(c) 2023 Woz. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'FYI: These are functions for personal use and may not work without minor alterations'
