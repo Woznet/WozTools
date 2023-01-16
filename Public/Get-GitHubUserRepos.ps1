@@ -45,71 +45,81 @@ function Get-GitHubUserRepos {
   )
   Begin {
 
-    ##### Load Progress Class
-    class Progress {
+    ##### Load Progress helper function
 
-      [int]$Total
-      [int]$Frequency = 1
-      [string]$Activity = 'Progress'
-      [string]$CurrentOperation
+    function Write-MyProgress {
+      <#
+          .SYNOPSIS
+          Displays a progress bar within a Windows PowerShell command window.
 
-      [int] $Index = 0
-      [datetime] $StartTime
-      [datetime] $LastTime
-      [datetime] $CurrentTime = [datetime]::Now
-      [timespan] $Last
-      [bool] $First = $true
+          .DESCRIPTION
+          The Write-Progress cmdlet displays a progress bar in a Windows PowerShell command window that depicts the status of a running command or script.
 
-      Progress($TotalSteps) {
-        $this.Total = $TotalSteps
-        $this.StartTime = $this.LastTime = [datetime]::Now
-      }
+          .NOTES
+          File Name   : Write-MyProgress.ps1
+          Author      : Woz
+          Date        : 2017-05-10
+          Last Update : 2023-01-14
+          Version     : 2.0.0
 
-      [int] Left() {
-        return $this.Total - $this.Index
-      }
+          .PARAMETER id
+          Specifies an ID that distinguishes each progress bar from the others.
 
-      [timespan] ElapsedTime() {
-        return $this.CurrentTime - $this.StartTime
-      }
+          .PARAMETER ParentId
+          Specifies the parent activity of the current activity.
 
-      [string] Message() {
-        return (('{0} {1:g}' -f $this.Activity, $this.CurrentTime)) -join ' '
-      }
+          .PARAMETER StartTime
+          StartTime of the foreach processing
 
-      [decimal] PercentComplete() {
-        return $this.Index / $this.Total * 100
-      }
+          .PARAMETER Object
+          Object use in your foreach processing
 
-      [string] Status() {
-        return ('{0} of {1} ({2} left) [{3:N2}%]' -f $this.Index, $this.Total, $this.Left(), $this.PercentComplete())
-      }
+          .PARAMETER Count
+          Foreach Count variable
 
-      [void] OutputProgress() {
-        $Progress = @{
-          Activity = $this.Message()
-          Status = $this.Status()
-          CurrentOperation = $this.CurrentOperation
-          PercentComplete = $this.PercentComplete()
-        }
-        Write-Progress @Progress
-      }
+          .EXAMPLE
+          $GetProcess = Get-Process
 
-      [void] Show([bool]$DoNotIncrement) {
-        $this.CurrentTime = [datetime]::Now
-        if ($DoNotIncrement) {
-          $this.Index++ ; $this.Last = $this.CurrentTime - $this.LastTime
-          if ($this.First -or [math]::Floor($this.PercentComplete() % $this.Frequency) -eq 0) {
-            $this.OutputProgress() ; $this.First = $false;
+          $Count = 0
+          $StartTime = Get-Date
+          foreach($Process in $GetProcess) {
+          $Count++
+          Write-MyProgress -StartTime $StartTime -Object $GetProcess -Count $Count
+
+          Write-Host "-> $($Process.ProcessName)"
+          Start-Sleep -Seconds 1
           }
-          $this.LastTime = [datetime]::Now
-        }
-        else {
-          $this.OutputProgress()
-        }
-      }
-    }
 
+          .LINK
+          Source
+          https://github.com/Netboot-France/Write-MyProgress
+      #>
+      Param(
+        [Parameter(Mandatory)]
+        [Array]$Object,
+        [Parameter(Mandatory)]
+        [DateTime]$StartTime,
+        [Parameter(Mandatory)]
+        [Int]$Count,
+        [Int]$Id=1,
+        [Int]$ParentId=-1
+      )
+
+      $SecondsElapsed = ((Get-Date) - $StartTime).TotalSeconds
+      $SecondsRemaining = ($SecondsElapsed / ($Count / $Object.Count)) - $SecondsElapsed
+      $PercentComplete = ($Count/$($Object.Count)) * 100
+
+      $Argument = @{}
+      $Argument.Add('Activity', ('Processing {0} of {1}' -f $Count, $Object.Count))
+      $Argument.Add('PercentComplete', $PercentComplete)
+      $Argument.Add('CurrentOperation', ('{0:N2}% Complete' -f $PercentComplete))
+      $Argument.Add('SecondsRemaining', $SecondsRemaining)
+
+      if($Id -ne $null) { $Argument.Add('Id', $Id) }
+      if($ParentId -ne $null) { $Argument.Add('ParentId', $ParentId) }
+
+      Write-Progress @Argument
+    }
     #####
 
 
@@ -213,18 +223,17 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
         Write-Output ('{2}{0} Gists - {1}' -f $GitUser,$UserGist.Count,("`n"))
 
         ### Start Downloading Gist to temp dir
-        $Progress = [Progress]::new($UserGist.Count)
-        $Progress.Frequency = 1
-        $Progress.Activity = ('{0} - Cloning gist' -f $GitUser)
+        $Count = 0
+        $StartTime = Get-Date
         $UserGist | ForEach-Object -Process {
+          $Count++
+          Write-MyProgress -StartTime $StartTime -Object $UserGist -Count $Count
           $UGist = $PSItem
-          $Progress.CurrentOperation = ''
-          $Progress.Show($true)
           Start-Process -WorkingDirectory $TempGistDir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $UGist.git_pull_url) -WindowStyle Hidden -Wait
           $UGist = $null
           Start-Sleep -Milliseconds 100
         }
-        $Progress = $null
+
         ### Start Moving Gist from temp dir to $GistDir
         Get-ChildItem $TempGistDir | ForEach-Object {
           $TGDir = $_

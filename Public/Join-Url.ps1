@@ -1,4 +1,8 @@
 function Join-Url {
+<#
+  
+  
+#>
   [CmdletBinding()]
   param(
     [Parameter(Mandatory,ValueFromPipeline)]
@@ -11,7 +15,7 @@ function Join-Url {
     if (-not ($Base.ToString().EndsWith('/'))) {
       [uri]$Base = '{0}/' -f $Base.ToString()
     }
-    $Uri = [uri]::new($Base,$Child)
+    $Uri = [uri]::new($Base,$Child.TrimStart('/'))
     if ($OutUri) {
       return $Uri
     }

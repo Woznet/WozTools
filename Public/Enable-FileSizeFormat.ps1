@@ -1,4 +1,4 @@
-function Enable-FileSize {
+function Enable-FileSizeFormat {
   [CmdletBinding()]
   param()
 

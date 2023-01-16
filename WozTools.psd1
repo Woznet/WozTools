@@ -69,9 +69,9 @@ FormatsToProcess = 'Lib\Formatting\Show-LinkTarget.format.ps1xml'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Add-EnvPath','Add-ISEText','Add-PSModulePath','Convert-FileLength',
-'Convert-WSLPath','ConvertTo-TitleCase','Enable-FileSize','Get-ACLInfo',
-'Get-CommandParameters','Get-ComObjects','Get-CurrentUser','Get-EnumerateFiles',
+FunctionsToExport = 'Add-EnvPath','Add-Font','Add-ISEText','Add-PSModulePath',
+'Convert-FileLength','Convert-WSLPath','ConvertTo-TitleCase','Enable-FileSizeFormat',
+'Get-ACLInfo','Get-CommandParameters','Get-ComObjects','Get-CurrentUser','Get-EnumerateFiles',
 'Get-EnvPath','Get-FunctionCode','Get-GitHubUserRepos','Get-ItemFromClipboard',
 'Get-RedirectedUrl','Get-RelativePath','Get-StringFromSecureString','Invoke-Beep',
 'Invoke-GitClone','Invoke-InDirectory','Invoke-psEdit','Invoke-ReArmLicense',
