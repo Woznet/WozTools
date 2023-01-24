@@ -245,10 +245,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
               $TGFiles | Move-Item -Destination $GistDir -PassThru:$false -ErrorAction Stop
             }
             catch [System.IO.IOException] {
-              @'
-Shit happened trying to move - {0}
-Attempting to rename and try moving again
-'@ -f $TGFiles.Name | Write-Warning
+              'Shit happened! Attempting to rename and try moving again - {0}' -f $TGFiles.Name | Write-Warning
               $TGFiles | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name.Substring(0,6)))} -PassThru | Move-Item -Destination $GistDir -PassThru:$false -ErrorAction Stop
             }
             $MCheck = $TGDir | Get-ChildItem -Force:$false
