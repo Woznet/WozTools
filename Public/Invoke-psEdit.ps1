@@ -1,15 +1,15 @@
-﻿Function Invoke-psEdit {
+Function Invoke-psEdit {
   [Alias('psEdit')]
   param(
     [Parameter(
-        Mandatory,
+        ValueFromPipelineByPropertyName,
         ValueFromPipeline,
-        ValueFromPipelineByPropertyName
+        Mandatory
     )]
-    [Alias('FullName','FileNames')]
+    [Alias('FullName')]
     [ValidateScript({
           if (-not (Test-Path -Path $_)) {
-            throw '{1}Something went wrong.{1}Check Path - {0}' -f $_,[environment]::NewLine
+            throw '{1}Something went wrong.{1}Check Path - {0}' -f $_,"`n"
           }
           return $true
     })]
@@ -20,10 +20,9 @@
     Write-Verbose -Message ('Starting - {0}' -f $MyInvocation.MyCommand)
   }
   Process {
-    foreach ($FileName in $Path) {
-      $Resolved = Resolve-Path -Path $FileName
-      Write-Verbose -Message ('Opening - {0}' -f $Resolved)
-      $null = $psISE.CurrentPowerShellTab.Files.Add($Resolved)
+    foreach ($FileName in ($ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path))) {
+      Write-Verbose -Message ('Opening - {0}' -f $FileName)
+      $null = $psISE.CurrentPowerShellTab.Files.Add($FileName)
     }
   }
   End {

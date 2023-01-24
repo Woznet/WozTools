@@ -1,16 +1,17 @@
 function Open-NotepadPlusPlus {
   <#
       .Synopsis
-      Start NotepadPlusPlus and open any specified files
+      Open file in NotepadPlusPlus
 
       .EXAMPLE
       Open-NotepadPlusPlus -Path .\Path\of\a\File.ps1
 
       .EXAMPLE
-      Open-NotepadPlusPlus
+      ### BAD EXAMPLE - funciton is stupid and will open all resolved paths
+      gci .\* | Open-NotepadPlusPlus
 
       .INPUTS
-      String
+      FileInfo, String
 
       .OUTPUTS
       none
@@ -21,9 +22,9 @@ function Open-NotepadPlusPlus {
   #>
   [Alias('npp','Open-NPP')]
   param (
-    [Parameter(ValueFromPipeline)]
+    # [Parameter(ValueFromPipeline)]
+    [Parameter(ValueFromPipelineByPropertyName,ValueFromPipeline)]
     [Alias('FullName')]
-    [AllowNull()]
     [ValidateScript({
           if( -not ($_ | Test-Path -PathType Leaf) ) {
             throw 'File does not exist'
@@ -33,21 +34,15 @@ function Open-NotepadPlusPlus {
     [String[]]$Path
   )
   begin {
-    if (-not (Get-Command -Name 'notepad++.exe')) {
-      throw @'
-Install notepad++
-choco install notepadplusplus.install
-'@
-    }
-    if ($Path) {
-      $FileList = [System.Collections.Generic.List[string]]::new()
+    if (-not (Get-Command -Name 'notepad++.exe' -ErrorAction Ignore)) {
+      throw 'Install notepad++'
     }
   }
   process {
     if ($Path) {
       try {
-        foreach($File in $Path){
-          $FileList.Add((Resolve-Path -Path $File -ErrorAction Stop))
+        foreach($File in ($ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path))){
+          & notepad++.exe $File
         }
       }
       catch {
@@ -61,11 +56,8 @@ choco install notepadplusplus.install
           Line      = $e.InvocationInfo.ScriptLineNumber
           Column    = $e.InvocationInfo.OffsetInLine
         }
-        throw $_
+        Write-Warning $_
       }
     }
-  }
-  end {
-    & notepad++.exe $FileList
   }
 }

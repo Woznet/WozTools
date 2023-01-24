@@ -25,9 +25,7 @@ Modified formatting of directory output to include Symlinks and Hardlinks
               <Frame>
                 <LeftIndent>4</LeftIndent>
                 <CustomItem>
-                  <Text AssemblyName="System.Management.Automation"
-                        BaseName="FileSystemProviderStrings"
-                        ResourceId="DirectoryDisplayGrouping"/>
+                  <Text AssemblyName="System.Management.Automation" BaseName="FileSystemProviderStrings" ResourceId="DirectoryDisplayGrouping"/>
                   <ExpressionBinding>
                     <ScriptBlock>$_.PSParentPath.Replace('Microsoft.PowerShell.Core\FileSystem::', '')</ScriptBlock>
                   </ExpressionBinding>
@@ -60,11 +58,11 @@ Modified formatting of directory output to include Symlinks and Hardlinks
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>LastWriteTime</Label>
-            <Width>26</Width>
+            <Width>25</Width>
             <Alignment>right</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>LengthHR</Label>
+            <Label>Length</Label>
             <Width>14</Width>
             <Alignment>right</Alignment>
           </TableColumnHeader>
@@ -85,14 +83,20 @@ Modified formatting of directory output to include Symlinks and Hardlinks
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>LengthHR</PropertyName>
+                <ScriptBlock>
+                  if     ($_ -is [System.IO.DirectoryInfo]) {''}
+                  elseif ($_.Length) {(Convert-FileLength -Length $_.Length).ToString()}
+                  else   {$_.Length.ToString()}
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if (-not [string]::IsNullOrEmpty($_.Target))
-                  {('{0} --> {1} ({2})' -f $_.Name,[string]$_.Target,$_.LinkType)}
+ 								  if(-not [string]::IsNullOrEmpty($_.Target) -and -not [string]::IsNullOrEmpty($_.LinkType))
+                  {'{0} -({2})-> {1}' -f $_.Name,$_.Target,$_.LinkType}
+                  elseif(-not [string]::IsNullOrEmpty($_.ResolvedTarget) -and -not [string]::IsNullOrEmpty($_.LinkType))
+                  {'{0} -({2})-> {1}' -f $_.Name,$_.ResolvedTarget,$_.LinkType}
                   else {$_.Name}
-                </ScriptBlock>
+								</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
