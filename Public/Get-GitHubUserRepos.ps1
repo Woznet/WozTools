@@ -45,7 +45,7 @@ function Get-GitHubUserRepos {
   )
   Begin {
 
-    ##### Load Progress helper function
+    #####region Load Progress helper function
 
     function Write-MyProgress {
       <#
@@ -120,7 +120,7 @@ function Get-GitHubUserRepos {
 
       Write-Progress @Argument
     }
-    #####
+    #####endregion 
 
 
     try{
