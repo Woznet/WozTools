@@ -10,7 +10,7 @@
     [string]$Path,
     [switch]$PassThru
   )
-  $env:PSModulePath = ($env:PSModulePath.Split(';') + (Resolve-Path -Path $Path).Path).TrimEnd('\') -join ';'
+  $env:PSModulePath = ($env:PSModulePath.Split(';') + (Resolve-Path -Path $Path).ProviderPath).TrimEnd('\') -join ';'
   if ($PassThru) {
     return $env:PSModulePath.Split(';')
   }
