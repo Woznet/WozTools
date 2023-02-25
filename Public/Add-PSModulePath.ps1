@@ -1,4 +1,4 @@
-﻿function Add-PSModulePath {
+function Add-PSModulePath {
   param(
     [Parameter(Mandatory)]
     [ValidateScript({
@@ -10,7 +10,8 @@
     [string]$Path,
     [switch]$PassThru
   )
-  $env:PSModulePath = ($env:PSModulePath.Split(';') + (Resolve-Path -Path $Path).ProviderPath).TrimEnd('\') -join ';'
+  # $env:PSModulePath = ($env:PSModulePath.Split(';') + (Resolve-Path -Path $Path).ProviderPath).TrimEnd('\') -join ';'
+  $env:PSModulePath = ((Resolve-Path -Path $Path).ProviderPath , $env:PSModulePath.Split(';')).TrimEnd('\') -join ';'
   if ($PassThru) {
     return $env:PSModulePath.Split(';')
   }

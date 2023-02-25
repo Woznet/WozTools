@@ -22,7 +22,7 @@ Function Get-RedirectedUrl {
       $HttpRequestMessage = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Head, $Url)
       $ClientResult = $HttpClient.SendAsync($HttpRequestMessage).GetAwaiter().GetResult().EnsureSuccessStatusCode()
 
-      $ClientResult.RequestMessage.RequestUri.AbsoluteUri                            
+      $ClientResult.RequestMessage.RequestUri.AbsoluteUri
     }
     catch {
       [System.Management.Automation.ErrorRecord]$e = $_
@@ -45,14 +45,14 @@ Function Get-RedirectedUrl {
         $Response.Close()
         $Response.Dispose()
     #>
-    
+
   }
   end {
     $HttpClient.Dispose()
     $HttpRequestMessage.Dispose()
     $ClientResult.Dispose()
     [gc]::Collect()
-    
+
   }
 }
 
