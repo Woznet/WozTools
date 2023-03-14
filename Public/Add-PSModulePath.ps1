@@ -1,4 +1,27 @@
 function Add-PSModulePath {
+    <#
+      .SYNOPSIS
+        Add a folder to the PSModulePath variable
+
+      .DESCRIPTION
+        Add a folder to the PSModulePath variable for the current process
+
+      .PARAMETER Path
+
+      .PARAMETER PassThru
+
+      .INPUTS
+        None
+
+      .OUTPUTS
+        String if PassThru parameter is used
+
+      .EXAMPLE
+        Add-PSModulePath -Path D:\test\module-dir
+
+      .NOTES
+        
+    #>
   param(
     [Parameter(Mandatory)]
     [ValidateScript({
@@ -7,11 +30,12 @@ function Add-PSModulePath {
           }
           return $true
     })]
+    # Path of Directory that will be added to the PSModulePath
     [string]$Path,
+    # Output PSModulePath after changes have been applied
     [switch]$PassThru
   )
-  # $env:PSModulePath = ($env:PSModulePath.Split(';') + (Resolve-Path -Path $Path).ProviderPath).TrimEnd('\') -join ';'
-  $env:PSModulePath = ((Resolve-Path -Path $Path).ProviderPath , $env:PSModulePath.Split(';')).TrimEnd('\') -join ';'
+  $env:PSModulePath = '{0};{1}' -f $ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path).ProviderPath,$env:PSModulePath
   if ($PassThru) {
     return $env:PSModulePath.Split(';')
   }
