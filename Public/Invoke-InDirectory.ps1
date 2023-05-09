@@ -17,7 +17,7 @@ function Invoke-InDirectory {
     foreach($Loc in $Path) {
       try {
         Push-Location -Path $Loc
-        & $ScriptBlock
+        . $ScriptBlock
       }
       finally {
         Pop-Location

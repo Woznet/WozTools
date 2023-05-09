@@ -2,15 +2,19 @@ function Get-FunctionCode {
   <#
       .Synopsis
       Get the code of a powershell function or filter
+
       .EXAMPLE
       # Gets the code for New-Guid
       Get-FunctionCode New-Guid
+
       .EXAMPLE
       # Outputs the code for New-Guid into a new PowerShell ISE Tab
       Get-FunctionCode -Function New-Guid -OutISE
+
       .EXAMPLE
       # Gets the code for New-Guid and saves it to V:\temp\New-Guid.ps1
       Get-FunctionCode New-Guid -OutFile V:\temp\New-Guid.ps1
+
       .EXAMPLE
       # Outputs the code for New-Guid into a new PowerShell ISE Tab and saves it to V:\temp\New-Guid.ps1
       Get-FunctionCode -Function New-Guid -OutISE -OutFile V:\temp\New-Guid.ps1
