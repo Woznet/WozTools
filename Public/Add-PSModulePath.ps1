@@ -30,7 +30,7 @@ function Add-PSModulePath {
           }
           return $true
     })]
-    # Path of Directory that will be added to the PSModulePath
+    # Directory to add to PSModulePath
     [string]$Path,
     # Output PSModulePath after changes have been applied
     [switch]$PassThru
