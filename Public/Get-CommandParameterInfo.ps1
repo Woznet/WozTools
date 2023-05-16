@@ -26,6 +26,6 @@ Function Get-CommandParameterInfo {
     @{n='VF-Pipeline';e={$_.ValueFromPipeline}},
     @{n='VF-PipelineByPropName';e={$_.ValueFromPipelineByPropertyName}},
     @{n='VF-RemainingArgs';e={$_.ValueFromRemainingArguments}},
-    @{n='Aliases';e={$_.Aliases -join ','}} | Format-Table -RepeatHeader
+    @{n='Aliases';e={$_.Aliases -join ','}} #| Format-Table -RepeatHeader
   }
 }
