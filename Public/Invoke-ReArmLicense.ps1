@@ -1,5 +1,5 @@
 function Invoke-ReArmLicense {
-  [CmdletBinding(DefaultParameterSetName='Rearm')]
+  [CmdletBinding()]
   [Alias('ReArm')]
   param(
     [Parameter()]
@@ -10,47 +10,74 @@ function Invoke-ReArmLicense {
           return $true
     })]
     [string[]]$ComputerName = $env:COMPUTERNAME,
-    [Parameter(ParameterSetName='Grace')]
-    [switch]$GracePeriod,
-    [switch]$Restart,
-    [switch]$Force
+    [switch]$ReArm,
+    [switch]$Restart
   )
   foreach ($Computer in $ComputerName) {
-    $Cim = New-CimSession -ComputerName $Computer
-    $SLP = Get-CimInstance -ClassName 'SoftwareLicensingProduct' -CimSession $Cim
+
+    try {
+      $Cim = New-CimSession -ComputerName $Computer -ErrorAction Stop
+      $SLP = Get-CimInstance -ClassName 'SoftwareLicensingProduct' -CimSession $Cim -ErrorAction Stop | Where-Object {$_.Name -match 'Windows|Eval'}
+      $SLS = Get-CimInstance -ClassName 'SoftwareLicensingService' -CimSession $Cim -ErrorAction Stop
+    }
+    catch {
+      [System.Management.Automation.ErrorRecord]$e = $_
+      [PSCustomObject]@{
+        Type      = $e.Exception.GetType().FullName
+        Exception = $e.Exception.Message
+        Reason    = $e.CategoryInfo.Reason
+        Target    = $e.CategoryInfo.TargetName
+        Script    = $e.InvocationInfo.ScriptName
+        Line      = $e.InvocationInfo.ScriptLineNumber
+        Column    = $e.InvocationInfo.OffsetInLine
+      }
+      throw $_
+    }
+
     try {
       $GraceLeft = [DateTime]::Now.Add([TimeSpan]::FromMinutes($SLP.GracePeriodRemaining))
     }
     catch {
-	  Write-Warning -Message 'Grace peroid has ended, evaluation has expired! Using current date.'
-      $GraceLeft = Get-Date
+      Write-Warning -Message 'Grace peroid has ended, evaluation has expired!'
     }
-    switch ($PSCmdlet.ParameterSetName) {
-      'Grace' {
-        [pscustomobject] @{
-          ComputerName = $Computer
-          Date = $GraceLeft.ToShortDateString()
-          RemainingReArmCount = $SLP.RemainingSkuReArmCount
-        }
-        break
+    [pscustomobject] @{
+      ComputerName = $Computer
+      ReArmLeft = $SLP.RemainingSkuReArmCount
+      ExpirationDate = if ($GraceLeft) {
+        '({0} Days) {1}' -f [TimeSpan]::FromMinutes($SLP.GracePeriodRemaining).Days,$GraceLeft.ToShortDateString()
       }
-      default {
-        if (($GraceLeft.AddDays(-7) -le (Get-Date)) -or $Force) {
-          $SLS = Get-CimInstance -ClassName 'SoftwareLicensingService' -CimSession $Cim
-          if ($SLS.RemainingWindowsReArmCount -gt 0) {
-            $SLS | Invoke-CimMethod -MethodName 'ReArmWindows'
-            if ($Restart) { Restart-Computer -ComputerName $Computer -Force }
+    }
+    if ($ReArm) {
+      if ($SLS.RemainingWindowsReArmCount -gt 0) {
+        try {
+          $SLS | Invoke-CimMethod -MethodName 'ReArmWindows' -ErrorAction Stop
+        }
+        catch {
+          [System.Management.Automation.ErrorRecord]$e = $_
+          [PSCustomObject]@{
+            Type      = $e.Exception.GetType().FullName
+            Exception = $e.Exception.Message
+            Reason    = $e.CategoryInfo.Reason
+            Target    = $e.CategoryInfo.TargetName
+            Script    = $e.InvocationInfo.ScriptName
+            Line      = $e.InvocationInfo.ScriptLineNumber
+            Column    = $e.InvocationInfo.OffsetInLine
           }
-          else {
-            throw '{0} - Windows ReArm Count: 0' -f $Computer
-          }
+          throw $_
+        }
+        if ($Restart) {
+          Restart-Computer -ComputerName $Computer -Force
         }
         else {
-          Write-Output ('{0}: Evaluation License expires: {1}{2}Use -Force to ReArm now' -f $Computer,$GraceLeft.ToShortDateString(),("`n"))
+          Write-Output 'Restart required to complete the ReArm process.'
         }
-        break
       }
+      else {
+        throw 'Unable to extend the trial license, the ReArm Count has reached 0.'
+      }
+    }
+    else {
+      Write-Output ('{2}{2}{0}: Evaluation License expires: {1}{2}Use -ReArm to ReArm now' -f $Computer,$GraceLeft.ToShortDateString(),("`n"))
     }
   }
 }
-
