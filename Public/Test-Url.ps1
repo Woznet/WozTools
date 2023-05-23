@@ -1,18 +1,16 @@
-﻿filter Test-Url {
+filter Test-Url {
 [CmdletBinding(PositionalBinding)]
   param (
     [Parameter(Mandatory,ValueFromPipeline)]
-    [String[]]$Url,
+    [String]$Uri,
 	  [System.UriKind]$UriKind = [System.UriKind]::Absolute
   )
   Process {
-    foreach($U in $Url) {
-      if ([System.Uri]::IsWellFormedUriString($U, $UriKind)) {
+      if ([System.Uri]::IsWellFormedUriString($Uri, $UriKind)) {
         $true
       }
       else {
         $false
       }
-    }
   }
 }

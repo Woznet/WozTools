@@ -1,13 +1,13 @@
 function Get-RelativePath {
   param(
-    [Parameter(Mandatory)]
+    [Parameter(Position = 0)]
     [ValidateScript({
           if (-not ($_|Test-Path -PathType Container -IsValid)) {
             throw 'invalid directory path'
           }
           return $true
     })]
-    [string]$RelativeTo,
+    [string]$RelativeTo = $PWD.ProviderPath,
     [Parameter(ValueFromPipeline,Mandatory)]
     [ValidateScript({
           if (-not ($_|Test-Path -IsValid)) {
