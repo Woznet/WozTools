@@ -10,7 +10,7 @@ function Invoke-Parser {
   #>
   [CmdletBinding()]
   param(
-    [Parameter(
+	[Parameter(
         Mandatory,
         ParameterSetName = 'File'
     )]
@@ -31,12 +31,12 @@ function Invoke-Parser {
         ParameterSetName = 'FunctionName'
     )]
     [ValidateScript({
-          $script:vals = Get-Command -Name $_ -CommandType Alias,Function,Filter -ErrorAction SilentlyContinue
-          if ($script:vals.CommandType -in ('Function','Filter')) {
+          $vals = Get-Command -Name $_ -CommandType Alias,Function,Filter -ErrorAction SilentlyContinue
+          if ($vals.CommandType -in ('Function','Filter')) {
             return $true
           }
-          elseif ($script:vals.CommandType -eq 'Alias') {
-            if ($script:vals.ReferencedCommand.CommandType -in ('Function','Filter')) {
+          elseif ($vals.CommandType -eq 'Alias') {
+            if ($vals.ReferencedCommand.CommandType -in ('Function','Filter')) {
               return $true
             }
             else {

@@ -20,7 +20,7 @@ filter Get-HostEntry {
   begin {
     if (-not ($PSBoundParameters.ContainsKey('ErrorAction'))){
       Write-Verbose -Message ' ----- Setting ErrorActionPreference to SilentlyContinue ----- '
-      $script:ErrorActionPreference = 'SilentlyContinue'
+      $ErrorActionPreference = 'SilentlyContinue'
     }
     $R = [System.Collections.Generic.List[System.Net.IPHostEntry]]@()
   }

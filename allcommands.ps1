@@ -16,7 +16,7 @@ Function Add-EnvPath {
       .PARAMETER VariableTarget
       Which Env Path the directory gets added to.
       Machine, User or Process
-	  
+
       .PARAMETER PassThru
       Display updated PATH variable
 
@@ -63,7 +63,7 @@ Function Add-EnvPath {
       return $Confirm
     }
   }
-} 
+}
 #.ExternalHelp woztools-Help.xml
 function Add-Font {
   <#
@@ -497,7 +497,7 @@ namespace FontResource
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Add-ISEText {
   <#
@@ -539,7 +539,7 @@ function Add-ISEText {
   }
 }
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function Add-PSModulePath {
   param(
@@ -558,7 +558,7 @@ function Add-PSModulePath {
     return $env:PSModulePath.Split(';')
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Convert-FileLength {
 	[CmdletBinding()]
@@ -604,7 +604,7 @@ int bufferSize
   }
 }
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function Convert-WSLPath {
   <#
@@ -673,7 +673,7 @@ function Convert-WSLPath {
     return $Results
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function ConvertTo-TitleCase {
   <#
@@ -705,14 +705,14 @@ function ConvertTo-TitleCase {
       [CultureInfo]::CurrentCulture.TextInfo.ToTitleCase($Line)
     }
   }
-} 
+}
 #.ExternalHelp woztools-Help.xml
 function Enable-FileSizeFormat {
   [CmdletBinding()]
   param()
   Update-FormatData -PrependPath ([System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent),'Lib\Formatting\MyCustomFileInfo.format.ps1xml'))
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Get-ACLInfo {
   <#
@@ -849,11 +849,11 @@ function Get-ACLInfo {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 Function Get-CommandParameters {
 	<#
-	To Do: 
+	To Do:
 	Output formating
 	Include command name in output
 	#>
@@ -875,7 +875,7 @@ Function Get-CommandParameters {
   (Get-Command -Name $Command).ParameterSets.Parameters | Where-Object {$_.Name -notin $CPara} |
   Select-Object -Property Name,@{n='ParameterType';e={$_.ParameterType.Name}},IsMandatory,Value*,@{n='Aliases';e={$_.Aliases -join ','}} -Unique | Format-Table -RepeatHeader
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Get-ComObjects {
   [CmdletBinding()]
@@ -894,7 +894,7 @@ function Get-ComObjects {
     $ListofObjects
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 Function Get-CurrentUser {
   [CmdletBinding()]
@@ -903,7 +903,7 @@ Function Get-CurrentUser {
   [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 }
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function Get-EnumerateFiles {
   Param(
@@ -913,7 +913,7 @@ function Get-EnumerateFiles {
     [switch]$Recurse
   )
   begin {
-    try {  
+    try {
       $AlphaFSDll = [System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent),'Lib\AlphaFS\Net452\AlphaFS.dll')
       $null = [System.Reflection.Assembly]::LoadFile($AlphaFSDll)
     }
@@ -950,8 +950,8 @@ function Get-EnumerateFiles {
       }
     }
     $AlphaFiles = [System.Collections.ArrayList]@()
-    
-    
+
+
     if ($Recurse) {
       $DirectoryEnumerationOptions = [Alphaleonis.Win32.Filesystem.DirectoryEnumerationOptions]'FilesAndFolders, Recursive, SkipReparsePoints, ContinueOnException'
     }
@@ -960,7 +960,7 @@ function Get-EnumerateFiles {
     }
   }
   process {
-  
+
     $SplattAlpha = @{
       Instance = ([Alphaleonis.Win32.Filesystem.Directory])
       MethodName = 'EnumerateFileSystemEntryInfos'
@@ -982,7 +982,7 @@ function Get-EnumerateFiles {
 
 
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function Get-EnvPath {
   [CmdletBinding()]
@@ -992,7 +992,7 @@ function Get-EnvPath {
   $PathSort = ([System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget)).Split(';').TrimEnd('\') | Sort-Object
   Return $PathSort
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Get-FunctionCode {
   <#
@@ -1056,7 +1056,7 @@ function Get-FunctionCode {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Get-GitHubUserRepos {
   <#
@@ -1180,7 +1180,7 @@ function Get-GitHubUserRepos {
 
       Write-Progress @Argument
     }
-    #####endregion 
+    #####endregion
 
 
     try{
@@ -1350,7 +1350,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
   }
 }
 
- 
+
 filter Get-HostEntry {
   [CmdletBinding(PositionalBinding)]
   [OutputType([System.Net.IPHostEntry])]
@@ -1372,7 +1372,7 @@ filter Get-HostEntry {
   begin {
     if (-not ($PSBoundParameters.ContainsKey('ErrorAction'))){
       Write-Verbose -Message ' ----- Setting ErrorActionPreference to SilentlyContinue ----- '
-      $script:ErrorActionPreference = 'SilentlyContinue'
+      $ErrorActionPreference = 'SilentlyContinue'
     }
     $R = [System.Collections.Generic.List[System.Net.IPHostEntry]]@()
   }
@@ -1396,7 +1396,7 @@ filter Get-HostEntry {
 
 
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function Get-ItemFromClipboard {
   <#
@@ -1424,7 +1424,7 @@ function Get-ItemFromClipboard {
     # throw $_
   }
 }
- 
+
 Function Get-RedirectedUrl {
   Param(
     [Parameter(Mandatory,ValueFromPipeline)]
@@ -1451,7 +1451,7 @@ Function Get-RedirectedUrl {
   }
 }
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function Get-RelativePath {
   param(
@@ -1478,7 +1478,7 @@ function Get-RelativePath {
 }
 
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function Get-StringFromSecureString {
   <#
@@ -1519,7 +1519,7 @@ function Get-StringFromSecureString {
     [Microsoft.PowerShell.DesiredStateConfiguration.Internal.DscClassCache]::GetStringFromSecureString($SecureString)
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Invoke-Beep {
   <#
@@ -1544,7 +1544,7 @@ function Invoke-Beep {
   )
   [System.Console]::Beep($Freqency,$Duration)
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Invoke-GitClone {
   <#
@@ -1592,7 +1592,7 @@ function Invoke-GitClone {
     $RepoDir
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Invoke-InDirectory {
   # https://gist.github.com/chriskuech/a32f86ad2609719598b073293d09ca03#file-tryfinally-2-ps1
@@ -1621,7 +1621,7 @@ function Invoke-InDirectory {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 Function Invoke-psEdit {
   [Alias('psEdit')]
@@ -1654,7 +1654,7 @@ Function Invoke-psEdit {
     Write-Verbose -Message ('Ending - {0}' -f $MyInvocation.Mycommand)
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Invoke-ReArmLicense {
   [CmdletBinding(DefaultParameterSetName='Rearm')]
@@ -1712,12 +1712,12 @@ function Invoke-ReArmLicense {
   }
 }
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function Join-Url {
 <#
-  
-  
+
+
 #>
   [CmdletBinding()]
   param(
@@ -1740,7 +1740,7 @@ function Join-Url {
     }
   }
 }
- 
+
 function New-ANSIString {
   <#
       .Synopsis
@@ -1829,10 +1829,10 @@ function New-ANSIString {
   )
   Process {
     switch ($PSCmdlet.ParameterSetName) {
-      'Foreground' { 
+      'Foreground' {
         return ('{0}[38;2;{1};{2};{3}m' -f ([char]27), $Red, $Green, $Blue)
       }
-      'Background' { 
+      'Background' {
         return ('{0}[48;2;{1};{2};{3}m' -f ([char]27), $Red, $Green, $Blue)
       }
       'Reset' {
@@ -1846,7 +1846,7 @@ function New-ANSIString {
 }
 
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function New-DirandEnter {
   [CmdletBinding()]
@@ -1864,7 +1864,7 @@ function New-DirandEnter {
   New-Item -Path $Path -ItemType Directory -Force | Set-Location
 }
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function New-Shortcut{
   param(
@@ -1911,7 +1911,7 @@ function New-Shortcut{
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Open-NotepadPlusPlus {
   <#
@@ -1976,7 +1976,7 @@ function Open-NotepadPlusPlus {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Open-Script {
   [CmdletBinding()]
@@ -2000,7 +2000,7 @@ function Open-Script {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 Function Out-ISETab {
   Param(
@@ -2031,7 +2031,7 @@ Function Out-ISETab {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Push-GitChanges {
   Param(
@@ -2055,7 +2055,7 @@ function Push-GitChanges {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 Function Remove-EnvPath {
   param(
@@ -2091,7 +2091,7 @@ Function Remove-EnvPath {
     return $Confirm
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 Function Save-ISEFile {
   [CmdletBinding()]
@@ -2145,7 +2145,7 @@ Function Save-ISEFile {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Search-WinCatalog {
   [CmdletBinding()]
@@ -2168,7 +2168,7 @@ function Search-WinCatalog {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 Function Select-GitHubLanguage {
   [CmdletBinding()]
@@ -2183,7 +2183,7 @@ Function Select-GitHubLanguage {
   }
 }
 
- 
+
 #.ExternalHelp woztools-Help.xml
 function Set-AutoLogin {
   [CmdletBinding(DefaultParameterSetName = 'Enable')]
@@ -2227,7 +2227,7 @@ function Set-AutoLogin {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Set-ConsoleSize {
   [CmdletBinding()]
@@ -2240,7 +2240,7 @@ function Set-ConsoleSize {
   if ($Host.Name -notmatch 'ConsoleHost') {break}
   [console]::SetWindowSize($Width,$Height)
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Set-ConsoleWindow {
   param(
@@ -2303,7 +2303,7 @@ function Set-ConsoleWindow {
     $null = [Console.Window]::ShowWindow([Console.Window]::GetConsoleWindow(), $sval)
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Set-MaxPartitionSize {
   [CmdletBinding()]
@@ -2332,7 +2332,7 @@ function Set-MaxPartitionSize {
     Get-Volume -DriveLetter $Letter
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 Function Start-ConsoleCommand {
   [CmdletBinding()]
@@ -2349,7 +2349,7 @@ Function Start-ConsoleCommand {
     Start-Process -FilePath powershell -ArgumentList ('-NoExit -Command {0}' -f $ConsoleCommand)
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Start-PSLogging {
   [CmdletBinding(DefaultParameterSetName = 'Default')]
@@ -2380,7 +2380,7 @@ function Start-PSLogging {
     }
   }
   $null = Import-Module -Global PSReadline -MinimumVersion 2.2.2 -ErrorAction Stop
-  
+
   try {
     Set-PSReadLineOption -PredictionSource HistoryAndPlugin
     Import-Module -Global Az.Tools.Predictor -PassThru:$false
@@ -2399,7 +2399,7 @@ function Start-PSLogging {
     $null = New-Item -Path $PSLogPath -ItemType File -Force
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 Function Test-IfAdmin {
     ([System.Security.Principal.WindowsPrincipal][System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -2422,7 +2422,7 @@ Function Test-IfAdmin {
     }
   }
 }
- 
+
 #.ExternalHelp woztools-Help.xml
 function Write-MyProgress {
   <#
