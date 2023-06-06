@@ -1,9 +1,8 @@
-
-filter Get-HostEntry {
+function Get-HostEntry {
   [CmdletBinding(PositionalBinding)]
   [OutputType([System.Net.IPHostEntry])]
   param(
-    [Parameter(Mandatory,ValueFromPipeline)]
+    [Parameter(ValueFromPipeline)]
     [ValidateScript({
           if ($_ -as [uri]) {
             return $true
@@ -15,12 +14,12 @@ filter Get-HostEntry {
             throw 'Must be an ipaddress ([address]) or hostname ([uri])'
           }
     })]
-    [string[]]$Address
+    [string[]]$Address = '127.0.0.1'
   )
   begin {
     if (-not ($PSBoundParameters.ContainsKey('ErrorAction'))){
       Write-Verbose -Message ' ----- Setting ErrorActionPreference to SilentlyContinue ----- '
-      $ErrorActionPreference = 'SilentlyContinue'
+      $script:ErrorActionPreference = 'SilentlyContinue'
     }
     $R = [System.Collections.Generic.List[System.Net.IPHostEntry]]@()
   }

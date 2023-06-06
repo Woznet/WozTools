@@ -17,9 +17,16 @@ function New-DevPad {
 
   Write-Verbose -Message ('Creating DevPad folder if it does not exist and set the current working location - {0}' -f $Path)
   New-Item -ItemType Directory -Force -Path $DevPad | Set-Location
-  
+
   if (-not ($NoEnvVariable)) {
-    Write-Verbose -Message ('Settings env variable DevPad to - {0}' -f $Path)
-    [environment]::SetEnvironmentVariable('DevPad',$DevPad,[EnvironmentVariableTarget]::Machine)
+
+    $EVDevPad = [environment]::GetEnvironmentVariable('DevPad',[EnvironmentVariableTarget]::Machine)
+		if ($EVDevPad -ne $DevPad) {
+			Write-Verbose -Message ('Settings env variable DevPad to - {0}' -f $Path)
+			[environment]::SetEnvironmentVariable('DevPad',$DevPad,[EnvironmentVariableTarget]::Machine)
+		}
+		else {
+		  Write-Verbose -Message 'Skipping SetEnvironmentVariable'
+		}
   }
 }
