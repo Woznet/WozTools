@@ -59,8 +59,8 @@ function Get-GitHubUserRepos {
           File Name   : Write-MyProgress.ps1
           Author      : Woz
           Date        : 2017-05-10
-          Last Update : 2023-01-14
-          Version     : 2.0.0
+          Last Update : 2023-06-12
+          Version     : 2.1.0
 
           .PARAMETER id
           Specifies an ID that distinguishes each progress bar from the others.
@@ -77,6 +77,9 @@ function Get-GitHubUserRepos {
           .PARAMETER Count
           Foreach Count variable
 
+          .PARAMETER Cleanup
+          Cleanup Write-Progress display in console
+
           .EXAMPLE
           $GetProcess = Get-Process
 
@@ -91,35 +94,65 @@ function Get-GitHubUserRepos {
           }
 
           .LINK
+
           Source
           https://github.com/Netboot-France/Write-MyProgress
       #>
       Param(
-        [Parameter(Mandatory)]
+        [CmdletBinding(DefaultParameterSetName = 'Normal')]
+        [Parameter(
+            Mandatory,
+            ParameterSetName = 'Normal'
+        )]
         [Array]$Object,
-        [Parameter(Mandatory)]
+        [Parameter(
+            Mandatory,
+            ParameterSetName = 'Normal'
+        )]
         [DateTime]$StartTime,
-        [Parameter(Mandatory)]
+        [Parameter(
+            Mandatory,
+            ParameterSetName = 'Normal'
+        )]
         [Int]$Count,
-        [Int]$Id=1,
-        [Int]$ParentId=-1
+        [Int]$Id = $null,
+        [Int]$ParentId = -1,
+        [Parameter(
+            Mandatory,
+            ParameterSetName = 'Cleanup'
+        )]
+        [switch]$Cleanup
       )
 
-      $SecondsElapsed = ((Get-Date) - $StartTime).TotalSeconds
-      $SecondsRemaining = ($SecondsElapsed / ($Count / $Object.Count)) - $SecondsElapsed
-      $PercentComplete = ($Count/$($Object.Count)) * 100
+      switch ($PSCmdlet.ParameterSetName) {
+        'Normal' {
+          $SecondsElapsed = ([datetime]::Now - $StartTime).TotalSeconds
+          $PercentComplete = ($Count / ($Object.Count)) * 100
 
-      $Argument = @{}
-      $Argument.Add('Activity', ('Processing {0} of {1}' -f $Count, $Object.Count))
-      $Argument.Add('PercentComplete', $PercentComplete)
-      $Argument.Add('CurrentOperation', ('{0:N2}% Complete' -f $PercentComplete))
-      $Argument.Add('SecondsRemaining', $SecondsRemaining)
+          $Argument = @{}
+          $Argument.Add('Activity', ('Processing {0} of {1}' -f $Count, $Object.Count))
+          $Argument.Add('PercentComplete', $PercentComplete)
+          $Argument.Add('CurrentOperation', ('{0:N2}% Complete' -f $PercentComplete))
+          $Argument.Add('SecondsRemaining', ($SecondsElapsed / ($Count / $Object.Count)) - $SecondsElapsed)
 
-      if($Id -ne $null) { $Argument.Add('Id', $Id) }
-      if($ParentId -ne $null) { $Argument.Add('ParentId', $ParentId) }
+          if ($Id -ne $null) { $Argument.Add('Id', $Id) }
+          if ($ParentId -ne $null) { $Argument.Add('ParentId', $ParentId) }
+      
+          break
+        }
+        'Cleanup' {
+          $Argument = @{}
+          $Argument.Add('Completed', $true)
+          $Argument.Add('Activity', 'Write-MyProgress Cleanup')
+      
+          break
+        }
+      }
 
       Write-Progress @Argument
+  
     }
+
     #####endregion 
 
 
@@ -233,6 +266,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
           $UGist = $null
           Start-Sleep -Milliseconds 100
         }
+        Write-MyProgress -Cleanup
 
         ### Start Moving Gist from temp dir to $GistDir
         Get-ChildItem $TempGistDir | ForEach-Object {
