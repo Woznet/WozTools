@@ -1,30 +1,23 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
 ---
 
-# Start-PSLogging
+# Get-ElementName
 
 ## SYNOPSIS
-Start-PSLogging \[-Default\] \[\<CommonParameters\>\]
-
-Start-PSLogging \[-Path \<string\>\] \[\<CommonParameters\>\]
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
-### Default (Default)
 ```
-Start-PSLogging [-Default] [<CommonParameters>]
-```
-
-### Path
-```
-Start-PSLogging [-Path <String>] [<CommonParameters>]
+Get-ElementName [-Expression] <ScriptBlock> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -37,31 +30,16 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -Default
-@{Text=}
+### -Expression
+{{ Fill Expression Description }}
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: Default
+Type: ScriptBlock
+Parameter Sets: (All)
 Aliases:
 
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Path
-@{Text=}
-
-```yaml
-Type: String
-Parameter Sets: Path
-Aliases:
-
-Required: False
-Position: Named
+Required: True
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -73,6 +51,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
+
 ## OUTPUTS
 
 ### System.Object

@@ -18,9 +18,7 @@ function Get-ItemFromClipboard {
       Reason    = $e.CategoryInfo.Reason
       Target    = $e.CategoryInfo.TargetName
       Script    = $e.InvocationInfo.ScriptName
-      Line      = $e.InvocationInfo.ScriptLineNumber
-      Column    = $e.InvocationInfo.OffsetInLine
+      Message   = $e.InvocationInfo.PositionMessage
     }
-    # throw $_
   }
 }

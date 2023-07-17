@@ -5,55 +5,45 @@ online version:
 schema: 2.0.0
 ---
 
-# Invoke-GitClone
+# Get-PSWinUpdates
 
 ## SYNOPSIS
-Clone a Git Repository
+Get available Windows Updates
 
 ## SYNTAX
 
 ```
-Invoke-GitClone [-Repo] <String[]> [[-Path] <String>] [<CommonParameters>]
+Get-PSWinUpdates [-Reboot] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+Uses PSWindowsUpdate to install available Windows Updates via this fuction - Get-WindowsUpdate
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Invoke-GitClone -Repo https://github.com/Woznet/WozTools.git -Path D:\git\repos
+Get-PSWinUpdates
+```
+
+### EXAMPLE 2
+```
+Get-PSWinUpdates -Reboot
 ```
 
 ## PARAMETERS
 
-### -Repo
-Git Repository to Clone
+### -Reboot
+Reboot Computer if needed to finish installed the Windows Updates
 
 ```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 1
-Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -Path
-Location the repository folder will be saved to
-
-```yaml
-Type: String
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 2
-Default value: None
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -63,8 +53,15 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
+### None. You cannot pipe objects to Get-PSWinUpdates.
 ## OUTPUTS
 
+### Table - Get-PSWinUpdates outputs the properties X,ComputerName,Result,KB,Size,Title from the Get-WindowsUpdate function
 ## NOTES
 
 ## RELATED LINKS
+
+[Online version: https://github.com/Woznet/WozTools/blob/main/docs/Get-PSWinUpdates.md]()
+
+[Get-PSWinUpdates]()
+

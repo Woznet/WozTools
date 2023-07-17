@@ -1,75 +1,83 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
 ---
 
-# Invoke-ReArmLicense
+# Invoke-Parser
 
 ## SYNOPSIS
-Invoke-ReArmLicense \[-ComputerName \<string\[\]\>\] \[-Restart\] \[-Force\] \[\<CommonParameters\>\]
-
-Invoke-ReArmLicense \[-ComputerName \<string\[\]\>\] \[-GracePeriod\] \[-Restart\] \[-Force\] \[\<CommonParameters\>\]
+Get the Commands and Variables used in a script (ps1,psm1,etc), code/scriptblock or, function definition.
 
 ## SYNTAX
 
+### File
 ```
-Invoke-ReArmLicense [-ComputerName <String[]>] [-ReArm] [-Restart] [<CommonParameters>]
+Invoke-Parser -Path <String> [<CommonParameters>]
+```
+
+### Code
+```
+Invoke-Parser -Code <String> [<CommonParameters>]
+```
+
+### FunctionName
+```
+Invoke-Parser -FunctionName <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
 ```
-
-{{ Add example description here }}
+Invoke-Parser -Path C:\temp\random-script.ps1
+```
 
 ## PARAMETERS
 
-### -ComputerName
-@{Text=}
+### -Path
+{{ Fill Path Description }}
 
 ```yaml
-Type: String[]
-Parameter Sets: (All)
+Type: String
+Parameter Sets: File
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Restart
-@{Text=}
+### -Code
+{{ Fill Code Description }}
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
+Type: String
+Parameter Sets: Code
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReArm
-{{ Fill ReArm Description }}
+### -FunctionName
+{{ Fill FunctionName Description }}
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
+Type: String
+Parameter Sets: FunctionName
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -81,10 +89,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### None
 ## OUTPUTS
 
-### System.Object
 ## NOTES
 
 ## RELATED LINKS

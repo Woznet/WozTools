@@ -1,27 +1,27 @@
 function Add-PSModulePath {
-    <#
+  <#
       .SYNOPSIS
-        Add a folder to the PSModulePath variable
+      Add a folder to the PSModulePath variable
 
       .DESCRIPTION
-        Add a folder to the PSModulePath variable for the current process
+      Add a folder to the PSModulePath variable for the current process
 
       .PARAMETER Path
 
       .PARAMETER PassThru
 
       .INPUTS
-        None
+      None
 
       .OUTPUTS
-        String if PassThru parameter is used
+      String if PassThru parameter is used
 
       .EXAMPLE
-        Add-PSModulePath -Path D:\test\module-dir
+      Add-PSModulePath -Path D:\test\module-dir
 
       .NOTES
         
-    #>
+  #>
   param(
     [Parameter(Mandatory)]
     [ValidateScript({

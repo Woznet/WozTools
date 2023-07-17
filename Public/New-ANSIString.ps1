@@ -1,4 +1,3 @@
-
 function New-ANSIString {
   <#
       .Synopsis
@@ -42,7 +41,7 @@ function New-ANSIString {
   [Alias('Get-ANSI')]
   [OutputType([String])]
   Param(
-    # Param1 help description
+    # Red value
     [Parameter(
         ParameterSetName = 'Foreground',
         Position = 0
@@ -53,7 +52,7 @@ function New-ANSIString {
     )]
     [ValidateRange(0,255)]
     [int]$Red = (Get-Random -Minimum 0 -Maximum 255),
-    # Param2 help description
+    # Green value
     [Parameter(
         ParameterSetName = 'Foreground',
         Position = 1
@@ -64,7 +63,7 @@ function New-ANSIString {
     )]
     [ValidateRange(0,255)]
     [int]$Green = (Get-Random -Minimum 0 -Maximum 255),
-    # Param3 help description
+    # Blue value
     [Parameter(
         ParameterSetName = 'Foreground',
         Position = 2
@@ -75,22 +74,22 @@ function New-ANSIString {
     )]
     [ValidateRange(0,255)]
     [int]$Blue = (Get-Random -Minimum 0 -Maximum 255),
-    # Param4 help description
+    # Apply RGB value to foreground
     [Parameter(ParameterSetName='Foreground')]
     [switch]$Foreground,
-    # Param5 help description
+    # Apply RGB value to background
     [Parameter(ParameterSetName='Background')]
     [switch]$Background,
-    # Param6 help description
+    # Reset ANSI effects
     [Parameter(ParameterSetName='Reset')]
     [switch]$Reset
   )
   Process {
     switch ($PSCmdlet.ParameterSetName) {
-      'Foreground' { 
+      'Foreground' {
         return ('{0}[38;2;{1};{2};{3}m' -f ([char]27), $Red, $Green, $Blue)
       }
-      'Background' { 
+      'Background' {
         return ('{0}[48;2;{1};{2};{3}m' -f ([char]27), $Red, $Green, $Blue)
       }
       'Reset' {
@@ -102,5 +101,3 @@ function New-ANSIString {
     }
   }
 }
-
-

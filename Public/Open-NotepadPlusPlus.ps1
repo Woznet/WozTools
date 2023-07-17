@@ -21,8 +21,7 @@ function Open-NotepadPlusPlus {
       Install with chocolatey if needed
   #>
   [Alias('npp','Open-NPP')]
-  param (
-    # [Parameter(ValueFromPipeline)]
+  param(
     [Parameter(ValueFromPipelineByPropertyName,ValueFromPipeline)]
     [Alias('FullName')]
     [ValidateScript({
@@ -53,8 +52,7 @@ function Open-NotepadPlusPlus {
           Reason    = $e.CategoryInfo.Reason
           Target    = $e.CategoryInfo.TargetName
           Script    = $e.InvocationInfo.ScriptName
-          Line      = $e.InvocationInfo.ScriptLineNumber
-          Column    = $e.InvocationInfo.OffsetInLine
+          Message   = $e.InvocationInfo.PositionMessage
         }
         Write-Warning $_
       }

@@ -69,6 +69,7 @@ FormatsToProcess = 'Lib\Formatting\MyCustomFileInfo.format.ps1xml'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
+<#
 FunctionsToExport = 'Add-EnvPath','Add-Font','Add-ISEText','Add-PSModulePath',
 'Convert-FileLength','Convert-WSLPath','ConvertTo-TitleCase','Enable-FileSizeFormat',
 'Get-ACLInfo','Get-CommandParameters','Get-ComObjects','Get-CurrentUser',
@@ -81,6 +82,18 @@ FunctionsToExport = 'Add-EnvPath','Add-Font','Add-ISEText','Add-PSModulePath',
 'Search-WinCatalog','Select-GitHubLanguage','Set-AutoLogin',
 'Set-ConsoleSize','Set-ConsoleWindow','Set-MaxPartitionSize','Start-ConsoleCommand',
 'Start-PSLogging','Test-IfAdmin','Test-Url','Write-MyProgress'
+#>
+FunctionsToExport = 'Add-EnvPath','Add-Font','Add-PSModulePath','Convert-FileLength',
+'Convert-WSLPath','ConvertTo-TitleCase','Enable-FileSizeFormat',
+'Format-CatchError','Get-ACLInfo','Get-CommandParameterInfo','Get-CurrentUser',
+'Get-ElementName','Get-EnumerateFiles','Get-EnvPath','Get-GitHubUserRepos',
+'Get-HostEntry','Get-ItemFromClipboard','Get-PSWinUpdates',
+'Get-RedirectedUrl','Get-RelativePath','Get-StringFromSecureString',
+'Invoke-GitClone','Invoke-InDirectory','Invoke-Parser','Invoke-psEdit',
+'Invoke-ReArmLicense','Join-Url','New-ANSIString','New-DevPad',
+'New-DirandEnter','Open-NotepadPlusPlus','Remove-EnvPath',
+'Select-GitHubLanguage','Set-MaxPartitionSize','Start-PSLogging',
+'Test-IfAdmin','Test-Url','Write-MyProgress','Write-PSLog'
 
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

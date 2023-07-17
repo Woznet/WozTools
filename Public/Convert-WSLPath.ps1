@@ -39,8 +39,8 @@
   )
   Begin {
     if (-not (Get-Command -Name wsl.exe -ErrorAction SilentlyContinue)) {
-        throw 'Cannot locate WSL'
-      }
+      throw 'Cannot locate WSL'
+    }
     $ArgList = [System.Collections.ArrayList]@()
     $Results = [System.Collections.Generic.List[string]]@()
     $ConvertTo = switch ($PSCmdlet.ParameterSetName) {

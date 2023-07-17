@@ -1,24 +1,23 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
 ---
 
-# Invoke-ReArmLicense
+# New-DevPad
 
 ## SYNOPSIS
-Invoke-ReArmLicense \[-ComputerName \<string\[\]\>\] \[-Restart\] \[-Force\] \[\<CommonParameters\>\]
-
-Invoke-ReArmLicense \[-ComputerName \<string\[\]\>\] \[-GracePeriod\] \[-Restart\] \[-Force\] \[\<CommonParameters\>\]
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ```
-Invoke-ReArmLicense [-ComputerName <String[]>] [-ReArm] [-Restart] [<CommonParameters>]
+New-DevPad [[-Path] <String>] [-NoEnvVariable] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -31,23 +30,8 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -ComputerName
-@{Text=}
-
-```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Restart
-@{Text=}
+### -NoEnvVariable
+{{ Fill NoEnvVariable Description }}
 
 ```yaml
 Type: SwitchParameter
@@ -61,16 +45,16 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReArm
-{{ Fill ReArm Description }}
+### -Path
+{{ Fill Path Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -82,6 +66,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
+
 ## OUTPUTS
 
 ### System.Object

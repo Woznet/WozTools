@@ -1,41 +1,58 @@
-Invoke-psEdit
--------------
-### Synopsis
-Invoke-psEdit [-Path] <string[]> [<CommonParameters>]
-
 ---
-### Description
-
-
-
+external help file: Woztools-Help.xml
+Module Name: WozTools
+online version:
+schema: 2.0.0
 ---
-### Parameters
-#### **Path**
 
+# Invoke-psEdit
 
+## SYNOPSIS
+Invoke-psEdit \[-Path\] \<string\[\]\> \[\<CommonParameters\>\]
 
+## SYNTAX
 
-
-|Type               |Required|Position|PipelineInput|
-|-------------------|--------|--------|-------------|
-|`[System.String[]]`|false   |named   |False        |
-
-
-
----
-### Inputs
-System.String[]
-
----
-### Outputs
-* [Object](https://learn.microsoft.com/en-us/dotnet/api/System.Object)
-
-
-
-
----
-### Syntax
-```PowerShell
-Invoke-psEdit [-Path] <System.String[]> [<CommonParameters>]
 ```
----
+Invoke-psEdit -Path <String[]> [<CommonParameters>]
+```
+
+## DESCRIPTION
+
+## EXAMPLES
+
+### Example 1
+```powershell
+PS C:\> {{ Add example code here }}
+```
+
+{{ Add example description here }}
+
+## PARAMETERS
+
+### -Path
+@{Text=}
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases: FullName
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+### System.String[]
+## OUTPUTS
+
+### System.Object
+## NOTES
+
+## RELATED LINKS

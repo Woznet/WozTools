@@ -1,16 +1,16 @@
 function Invoke-Parser {
   <#
-  .SYNOPSIS
-  Get the Commands and Variables used in a script (ps1,psm1,etc), code/scriptblock or, function definition.
+      .SYNOPSIS
+      Get the Commands and Variables used in a script (ps1,psm1,etc), code/scriptblock or, function definition.
 
 
-  .EXAMPLE
-  Invoke-Parser -Path C:\temp\random-script.ps1
+      .EXAMPLE
+      Invoke-Parser -Path C:\temp\random-script.ps1
 
   #>
   [CmdletBinding()]
   param(
-	[Parameter(
+    [Parameter(
         Mandatory,
         ParameterSetName = 'File'
     )]

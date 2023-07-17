@@ -1,93 +1,90 @@
-Add-EnvPath
------------
-### Synopsis
+---
+external help file: WozTools-help.xml
+Module Name: WozTools
+online version:
+schema: 2.0.0
+---
+
+# Add-EnvPath
+
+## SYNOPSIS
 Add a Folder to Environment Variable PATH
 
----
-### Description
+## SYNTAX
 
+```
+Add-EnvPath [-Path] <String[]> [[-VariableTarget] <EnvironmentVariableTarget>] [-PassThru] [<CommonParameters>]
+```
+
+## DESCRIPTION
 Add Folders to Environment Variable PATH for Machine, User or Process scope
 And removes missing PATH locations
 
----
-### Examples
-#### EXAMPLE 1
-```PowerShell
+## EXAMPLES
+
+### EXAMPLE 1
+```
 Add-EnvPath -Path 'C:\temp' -VariableTarget Machine
 ```
 
----
-### Parameters
-#### **Path**
+## PARAMETERS
 
+### -Path
 Folder or Folders to add to PATH
 
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
 
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
 
-
-
-
-|Type        |Required|Position|PipelineInput |
-|------------|--------|--------|--------------|
-|`[String[]]`|true    |1       |true (ByValue)|
-
-
-
----
-#### **VariableTarget**
-
+### -VariableTarget
 Which Env Path the directory gets added to.
 Machine, User or Process
 
+```yaml
+Type: EnvironmentVariableTarget
+Parameter Sets: (All)
+Aliases:
+Accepted values: Process, User, Machine
 
+Required: False
+Position: 2
+Default value: Machine
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
-Valid Values:
-
-* Process
-* User
-* Machine
-
-
-
-
-
-
-|Type                         |Required|Position|PipelineInput|
-|-----------------------------|--------|--------|-------------|
-|`[EnvironmentVariableTarget]`|false   |2       |false        |
-
-
-
----
-#### **PassThru**
-
+### -PassThru
 Display updated PATH variable
 
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
 
-
-
-
-
-|Type      |Required|Position|PipelineInput|
-|----------|--------|--------|-------------|
-|`[Switch]`|false   |named   |false        |
-
-
-
----
-### Inputs
-[String] - Folder Path, accepts multiple folders
-
----
-### Outputs
-* [String](https://learn.microsoft.com/en-us/dotnet/api/System.String)
-
-
-
-
----
-### Syntax
-```PowerShell
-Add-EnvPath [-Path] <String[]> [[-VariableTarget] {Process | User | Machine}] [-PassThru] [<CommonParameters>]
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
 ```
----
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+### [String] - Folder Path, accepts multiple folders
+## OUTPUTS
+
+### String - List of the New Path Variable
+## NOTES
+
+## RELATED LINKS

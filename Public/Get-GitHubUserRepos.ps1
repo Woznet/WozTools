@@ -48,56 +48,6 @@ function Get-GitHubUserRepos {
     #####region Load Progress helper function
 
     function Write-MyProgress {
-      <#
-          .SYNOPSIS
-          Displays a progress bar within a Windows PowerShell command window.
-
-          .DESCRIPTION
-          The Write-Progress cmdlet displays a progress bar in a Windows PowerShell command window that depicts the status of a running command or script.
-
-          .NOTES
-          File Name   : Write-MyProgress.ps1
-          Author      : Woz
-          Date        : 2017-05-10
-          Last Update : 2023-06-12
-          Version     : 2.1.0
-
-          .PARAMETER id
-          Specifies an ID that distinguishes each progress bar from the others.
-
-          .PARAMETER ParentId
-          Specifies the parent activity of the current activity.
-
-          .PARAMETER StartTime
-          StartTime of the foreach processing
-
-          .PARAMETER Object
-          Object use in your foreach processing
-
-          .PARAMETER Count
-          Foreach Count variable
-
-          .PARAMETER Cleanup
-          Cleanup Write-Progress display in console
-
-          .EXAMPLE
-          $GetProcess = Get-Process
-
-          $Count = 0
-          $StartTime = Get-Date
-          foreach($Process in $GetProcess) {
-          $Count++
-          Write-MyProgress -StartTime $StartTime -Object $GetProcess -Count $Count
-
-          Write-Host "-> $($Process.ProcessName)"
-          Start-Sleep -Seconds 1
-          }
-
-          .LINK
-
-          Source
-          https://github.com/Netboot-France/Write-MyProgress
-      #>
       Param(
         [CmdletBinding(DefaultParameterSetName = 'Normal')]
         [Parameter(
@@ -123,7 +73,6 @@ function Get-GitHubUserRepos {
         )]
         [switch]$Cleanup
       )
-
       switch ($PSCmdlet.ParameterSetName) {
         'Normal' {
           $SecondsElapsed = ([datetime]::Now - $StartTime).TotalSeconds
@@ -148,9 +97,7 @@ function Get-GitHubUserRepos {
           break
         }
       }
-
       Write-Progress @Argument
-  
     }
 
     #####endregion 
@@ -175,8 +122,7 @@ function Get-GitHubUserRepos {
         Reason    = $e.CategoryInfo.Reason
         Target    = $e.CategoryInfo.TargetName
         Script    = $e.InvocationInfo.ScriptName
-        Line      = $e.InvocationInfo.ScriptLineNumber
-        Column    = $e.InvocationInfo.OffsetInLine
+        Message   = $e.InvocationInfo.PositionMessage
       }
       throw $_
     }
@@ -265,22 +211,21 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
           Start-Process -WorkingDirectory $TempGistDir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $UGist.git_pull_url) -WindowStyle Hidden -Wait
           $UGist = $null
           Start-Sleep -Milliseconds 100
-        }
-        Write-MyProgress -Cleanup
+        } -End { Write-MyProgress -Cleanup }
 
         ### Start Moving Gist from temp dir to $GistDir
         Get-ChildItem $TempGistDir | ForEach-Object {
           $TGDir = $_
-          Join-Path -Path $TGDir -ChildPath '.git' -Resolve | Remove-Item -Recurse -Force
+          Join-Path -Path $TGDir.FullName -ChildPath '.git' -Resolve | Remove-Item -Recurse -Force
           $TGFiles = $TGDir | Get-ChildItem -Force:$false
-          $TGFileCount = $TGFiles.Count
-          if ($TGFileCount -eq 1) {
+          if ($TGFiles.Count -eq 1) {
             try {
               $TGFiles | Move-Item -Destination $GistDir -PassThru:$false -ErrorAction Stop
             }
             catch [System.IO.IOException] {
               'Shit happened! Attempting to rename and try moving again - {0}' -f $TGFiles.Name | Write-Warning
-              $TGFiles | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name.Substring(0,6)))} -PassThru | Move-Item -Destination $GistDir -PassThru:$false -ErrorAction Stop
+              $TGFRenamed = $TGFiles | Rename-Item -NewName {$_.Name.Replace($_.BaseName,('{0}-{1}' -f $_.BaseName,$_.Directory.Name.Substring(0,6)))} -PassThru
+              $TGFRenamed | Move-Item -Destination $GistDir -PassThru:$false -ErrorAction Stop
             }
             $MCheck = $TGDir | Get-ChildItem -Force:$false
             if ($MCheck.Count -eq 0) { Remove-Item -Path $TGDir -Recurse -Force }

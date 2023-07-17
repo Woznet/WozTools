@@ -1,49 +1,58 @@
-Get-EnvPath
------------
-### Synopsis
-Get-EnvPath [[-VariableTarget] <EnvironmentVariableTarget>] [<CommonParameters>]
-
 ---
-### Description
-
-
-
+external help file: Woztools-Help.xml
+Module Name: WozTools
+online version:
+schema: 2.0.0
 ---
-### Parameters
-#### **VariableTarget**
 
+# Get-EnvPath
 
-Valid Values:
+## SYNOPSIS
+Get-EnvPath \[\[-VariableTarget\] \<EnvironmentVariableTarget\>\] \[\<CommonParameters\>\]
 
-* Process
-* User
-* Machine
+## SYNTAX
 
-
-
-
-
-
-|Type                                |Required|Position|PipelineInput|
-|------------------------------------|--------|--------|-------------|
-|`[System.EnvironmentVariableTarget]`|false   |named   |False        |
-
-
-
----
-### Inputs
-None
-
----
-### Outputs
-* [Object](https://learn.microsoft.com/en-us/dotnet/api/System.Object)
-
-
-
-
----
-### Syntax
-```PowerShell
-Get-EnvPath [[-VariableTarget] <System.EnvironmentVariableTarget>] [<CommonParameters>]
 ```
----
+Get-EnvPath [-VariableTarget <EnvironmentVariableTarget>] [<CommonParameters>]
+```
+
+## DESCRIPTION
+
+## EXAMPLES
+
+### Example 1
+```powershell
+PS C:\> {{ Add example code here }}
+```
+
+{{ Add example description here }}
+
+## PARAMETERS
+
+### -VariableTarget
+@{Text=}
+
+```yaml
+Type: EnvironmentVariableTarget
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+### None
+## OUTPUTS
+
+### System.Object
+## NOTES
+
+## RELATED LINKS

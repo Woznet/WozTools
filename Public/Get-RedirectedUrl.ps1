@@ -1,4 +1,3 @@
-
 Function Get-RedirectedUrl {
   Param(
     [Parameter(Mandatory,ValueFromPipeline)]
@@ -32,20 +31,10 @@ Function Get-RedirectedUrl {
         Reason    = $e.CategoryInfo.Reason
         Target    = $e.CategoryInfo.TargetName
         Script    = $e.InvocationInfo.ScriptName
-        Line      = $e.InvocationInfo.ScriptLineNumber
-        Column    = $e.InvocationInfo.OffsetInLine
+        Message   = $e.InvocationInfo.PositionMessage
       }
       throw $e
     }
-
-    <#
-        $Request = [System.Net.WebRequest]::Create($Url)
-        $Response = $Request.GetResponse()
-        $RUrls.Add($Response.ResponseUri.ToString())
-        $Response.Close()
-        $Response.Dispose()
-    #>
-
   }
   end {
     $HttpClient.Dispose()

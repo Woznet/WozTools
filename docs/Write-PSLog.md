@@ -1,24 +1,24 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
 ---
 
-# Invoke-ReArmLicense
+# Write-PSLog
 
 ## SYNOPSIS
-Invoke-ReArmLicense \[-ComputerName \<string\[\]\>\] \[-Restart\] \[-Force\] \[\<CommonParameters\>\]
-
-Invoke-ReArmLicense \[-ComputerName \<string\[\]\>\] \[-GracePeriod\] \[-Restart\] \[-Force\] \[\<CommonParameters\>\]
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ```
-Invoke-ReArmLicense [-ComputerName <String[]>] [-ReArm] [-Restart] [<CommonParameters>]
+Write-PSLog [[-Severity] <String>] [-Message] <String> [[-LogDirectory] <String>] [[-LogFileName] <String>]
+ [[-LastException] <ErrorRecord>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -31,46 +31,77 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -ComputerName
-@{Text=}
+### -LastException
+{{ Fill LastException Description }}
 
 ```yaml
-Type: String[]
+Type: ErrorRecord
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 4
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Restart
-@{Text=}
+### -LogDirectory
+{{ Fill LogDirectory Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReArm
-{{ Fill ReArm Description }}
+### -LogFileName
+{{ Fill LogFileName Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 3
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Message
+{{ Fill Message Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Severity
+{{ Fill Severity Description }}
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+Accepted values: Info, Warn, Error, Start, End
+
+Required: False
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -82,6 +113,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
+
 ## OUTPUTS
 
 ### System.Object

@@ -20,13 +20,13 @@ function New-DevPad {
 
   if (-not ($NoEnvVariable)) {
 
-    $EVDevPad = [environment]::GetEnvironmentVariable('DevPad',[EnvironmentVariableTarget]::Machine)
-		if ($EVDevPad -ne $DevPad) {
-			Write-Verbose -Message ('Settings env variable DevPad to - {0}' -f $Path)
-			[environment]::SetEnvironmentVariable('DevPad',$DevPad,[EnvironmentVariableTarget]::Machine)
-		}
-		else {
-		  Write-Verbose -Message 'Skipping SetEnvironmentVariable'
-		}
+    # $EVDevPad = [environment]::GetEnvironmentVariable('DevPad',[EnvironmentVariableTarget]::Machine)
+    if ($env:DevPad -ne $DevPad) {
+      Write-Verbose -Message ('Settings env variable DevPad to - {0}' -f $Path)
+      [environment]::SetEnvironmentVariable('DevPad',$DevPad,[EnvironmentVariableTarget]::Machine)
+    }
+    else {
+      Write-Verbose -Message 'Skipping SetEnvironmentVariable'
+    }
   }
 }
