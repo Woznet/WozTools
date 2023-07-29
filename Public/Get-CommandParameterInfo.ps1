@@ -1,9 +1,4 @@
 Function Get-CommandParameterInfo {
-  <#
-      To Do: 
-      Output formating
-      Include command name in output
-  #>
   Param(
     [Parameter(Mandatory)]
     [ValidateScript({

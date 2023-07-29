@@ -1,4 +1,4 @@
-filter Format-CatchError {
+function Format-CatchError {
   param(
     [Parameter(ValueFromPipeline)]
     [System.Management.Automation.ErrorRecord]$e = $_,

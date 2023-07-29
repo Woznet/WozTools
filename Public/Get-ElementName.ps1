@@ -1,6 +1,20 @@
 function Get-ElementName {
-  [Alias('nameof')]
+  <#
+      .SYNOPSIS
+      Get the name of an element.
+
+      .DESCRIPTION
+      This function returns the name of an element.
+
+      .PARAMETER Expression
+      The expression to get the name of.
+
+      .EXAMPLE
+      Get-ElementName { $PSVersionTable }
+      PSVersionTable
+  #>
   [CmdletBinding()]
+  [Alias('nameof')]
   param(
     [Parameter(Position=0, Mandatory)]
     [ValidateNotNull()]
