@@ -13,7 +13,7 @@ Function Add-EnvPath {
       .PARAMETER VariableTarget
       Which Env Path the directory gets added to.
       Machine, User or Process
-	  
+
       .PARAMETER PassThru
       Display updated PATH variable
 
