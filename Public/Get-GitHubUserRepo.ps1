@@ -1,12 +1,12 @@
-function Get-GitHubUserRepos {
+function Get-GitHubUserRepo {
   <#
       .Synopsis
-      Download GitHub User Gists & Repositories
+      Download GitHub User Gists & Repositories using REST API
 
       .DESCRIPTION
       Uses git.exe to clone the gists and repositories of a github user.
       Can Exclude repositories with names that match the string/strings defined with -Exclude
-      Requires Module - PowerShellForGitHub
+
       Requires git.exe
 
       I included the source file for PForEach because it is no longer visible in the powershellgallery and github
@@ -14,10 +14,10 @@ function Get-GitHubUserRepos {
       PForEach - https://www.powershellgallery.com/packages/PForEach
 
       .EXAMPLE
-      Get-GitHubUserRepos -UserName WozNet -Path 'V:\git\users' -Exclude 'docs'
+      Get-GitHubUserRepo -UserName WozNet -Path 'V:\git\users' -Exclude 'docs'
 
       .EXAMPLE
-      'WozNet','PowerShell','Microsoft' | Get-GitHubUserRepos -Path 'V:\git\users' -Exclude 'azure,'office365'
+      'WozNet','PowerShell','Microsoft' | Get-GitHubUserRepo -Path 'V:\git\users' -Exclude 'azure,'office365'
   #>
   [CmdletBinding()]
   [Alias('dlgit')]
@@ -45,7 +45,64 @@ function Get-GitHubUserRepos {
   )
   Begin {
 
-    #####region Load Progress helper function
+    #####region Load helper functions
+
+
+
+    function Get-GitHubApiData {
+      param(
+        [Parameter(Mandatory, Position = 0)]
+        [String]$URI,
+        [string]$UserAgent = ([Microsoft.PowerShell.Commands.PSUserAgent].GetMembers('Static, NonPublic').Where{$_.Name -eq 'UserAgent'}.GetValue($null,$null))
+      )
+      process {
+        try {
+          $Headers = @{
+            'User-Agent' = $UserAgent
+          }
+          $Data = Invoke-RestMethod -Uri $URI -Headers $Headers -ErrorAction Stop
+          if ($Data.Count -gt 0) { $Data } else { $null }
+        }
+        catch [System.Net.WebException] {
+          Write-Error $_
+        }
+      }
+    }
+
+
+    function Get-GitHubApiRepository {
+      param(
+        [Parameter(Mandatory, Position = 0)]
+        [String]$UserName
+      )
+      process {
+        $Page = 1
+        do {
+          $Repo = Get-GitHubApiData -URI ('https://api.github.com/users/{0}/repos?page={1}&per_page=100' -f $UserName, $Page)
+          if ($Repo) { $Repo } else { break }
+          $Page++
+        } while ($Repo.Count -gt 0)
+      }
+    }
+
+
+
+    function Get-GitHubApiGist {
+      param(
+        [Parameter(Mandatory, Position = 0)]
+        [String]$UserName
+      )
+      process {
+        $Page = 1
+        do {
+          $Gist = Get-GitHubApiData -URI ('https://api.github.com/users/{0}/gists?page={1}&per_page=100' -f $UserName, $Page)
+          if ($Gist) { $Gist } else { break }
+          $Page++
+        } while ($Gist.Count -gt 0)
+      }
+    }
+
+
 
     function Write-MyProgress {
       Param(
@@ -86,33 +143,33 @@ function Get-GitHubUserRepos {
 
           if ($Id -ne $null) { $Argument.Add('Id', $Id) }
           if ($ParentId -ne $null) { $Argument.Add('ParentId', $ParentId) }
-      
+
           break
         }
         'Cleanup' {
           $Argument = @{}
           $Argument.Add('Completed', $true)
           $Argument.Add('Activity', 'Write-MyProgress Cleanup')
-      
+
           break
         }
       }
       Write-Progress @Argument
     }
 
-    #####endregion 
-
+    #####endregion
+    Push-Location -Path $PWD.ProviderPath -StackName StartingPath
+    Push-Location -Path $Path
 
     try{
       if (-not (Get-Command -Name git.exe)) { throw 'git.exe is missing' }
-      if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) { throw 'Install Module - PowerShellForGitHub' }
-      Import-Module -Name PowerShellForGitHub -PassThru:$false
-      if (-not (Get-Command -Name Invoke-ForEachParallel -ErrorAction SilentlyContinue)) {
-        # Import-Module -Name (Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath 'Lib\PForEach\PForEach.dll' -Resolve) -PassThru:$false -ErrorAction Stop
+      if (-not (Get-Command -Name Invoke-ForEachParallel -ErrorAction Ignore)) {
         Import-Module -Name ([System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent),'Lib\PForEach\PForEach.dll')) -PassThru:$false -ErrorAction Stop
       }
-      if (-not (Get-GitHubConfiguration -Name DisableTelemetry)) { Set-GitHubConfiguration -DisableTelemetry }
-      if (-not (Test-GitHubAuthenticationConfigured)) { $Host.UI.WriteErrorLine('PowerShellForGitHub is not Authenticated') }
+      # if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) { throw 'Install Module - PowerShellForGitHub' }
+      # Import-Module -Name PowerShellForGitHub -PassThru:$false
+      # if (-not (Get-GitHubConfiguration -Name DisableTelemetry)) { Set-GitHubConfiguration -DisableTelemetry }
+      # if (-not (Test-GitHubAuthenticationConfigured)) { $Host.UI.WriteErrorLine('PowerShellForGitHub is not Authenticated') }
     }
     catch {
       [System.Management.Automation.ErrorRecord]$e = $_
@@ -162,7 +219,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
     foreach ($GitUser in $UserName) {
       $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
       if (Test-Path -Path $UserPath -PathType Container) {
-        Get-GitHubRepository -OwnerName $GitUser | Sort-Object -Property updated_at -Descending | ForEach-Object -Process {
+        Get-GitHubApiRepository -UserName $GitUser | Sort-Object -Property updated_at -Descending | ForEach-Object -Process {
           if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item ) {
             [PSCustomObject]@{
               Name = $_.Name
@@ -187,20 +244,22 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
       $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
       $UserPathList.Add($UserPath)
 
-      if (-not (Test-Path -Path $UserPath)) { New-Item -Path $UserPath -ItemType Directory }
-
+      if (-not (Test-Path -Path $UserPath)) { $null = New-Item -Path $UserPath -ItemType Directory }
+      Push-Location -Path $UserPath -StackName UserPath
       # Get Gist
-      $UserGist = Get-GitHubGist -UserName $GitUser
+      # $UserGist = Get-GitHubGist -UserName $GitUser
+      $UserGist = Get-GitHubApiGist -UserName $GitUser
       if ($UserGist) {
         $GistDir = [System.IO.Path]::Combine($UserPath,'_gist')
         $TempGistDir = [System.IO.Path]::Combine($UserPath,'_tempgist')
-        if (-not (Test-Path -Path $GistDir)) { New-Item -Path $GistDir -ItemType Directory }
-        if (-not (Test-Path -Path $TempGistDir)) { New-Item -Path $TempGistDir -ItemType Directory }
+        if (-not (Test-Path -Path $GistDir)) { $null = New-Item -Path $GistDir -ItemType Directory }
+        if (-not (Test-Path -Path $TempGistDir)) { $null = New-Item -Path $TempGistDir -ItemType Directory }
 
         Get-ChildItem -Path $GistDir | Remove-Item -Recurse -Force
         Set-Content -Value ($HTML.Replace('---',$GitUser)) -Path ([System.IO.Path]::Combine($UserPath,'_gist.html')) -Force
         Write-Output ('{2}{0} Gists - {1}' -f $GitUser,$UserGist.Count,("`n"))
 
+        Push-Location -Path $TempGistDir
         ### Start Downloading Gist to temp dir
         $Count = 0
         $StartTime = Get-Date
@@ -209,14 +268,24 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
           Write-MyProgress -StartTime $StartTime -Object $UserGist -Count $Count
           $UGist = $PSItem
           Start-Process -WorkingDirectory $TempGistDir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $UGist.git_pull_url) -WindowStyle Hidden -Wait
-          $UGist = $null
-          Start-Sleep -Milliseconds 100
+          $UGistDir = Join-Path -Path $TempGistDir -ChildPath $UGist.id
+          (Join-Path -Path $UGistDir -ChildPath . -Resolve),(Join-Path -Path $UGistDir -ChildPath * -Resolve) | Get-Item | ForEach-Object {
+            Write-Verbose ('Changing LastWriteTime to Gist updated_at value - {0}' -f $_.Name)
+            $_.LastWriteTime = $UGist.updated_at
+          }
+
+
+          $UGist,$UGistDir = $null
+          Start-Sleep -Milliseconds 50
         } -End { Write-MyProgress -Cleanup }
 
+        ### Delete .git folders from cloned gist
+        Get-ChildItem -Path $TempGistDir | ForEach-Object {Join-Path -Path $_ -ChildPath '.git' -Resolve} | Remove-Item -Recurse -Force
+
         ### Start Moving Gist from temp dir to $GistDir
-        Get-ChildItem $TempGistDir | ForEach-Object {
+        Get-ChildItem -Path $TempGistDir | ForEach-Object {
           $TGDir = $_
-          Join-Path -Path $TGDir.FullName -ChildPath '.git' -Resolve | Remove-Item -Recurse -Force
+          # Join-Path -Path $TGDir.FullName -ChildPath '.git' -Resolve | Remove-Item -Recurse -Force
           $TGFiles = $TGDir | Get-ChildItem -Force:$false
           if ($TGFiles.Count -eq 1) {
             try {
@@ -229,6 +298,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
             }
             $MCheck = $TGDir | Get-ChildItem -Force:$false
             if ($MCheck.Count -eq 0) { Remove-Item -Path $TGDir -Recurse -Force }
+            else {Write-Warning ('{0} is not empty.{1}Files left - {2}' -f $TGDir.Name,"`n",$MCheck.Count)}
           }
           else {
             try {
@@ -239,12 +309,14 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
             }
           }
         }
+        Pop-Location -StackName UserPath
         ### Cleaning up Temp Gist Dir
         Remove-Item -Path $TempGistDir -Recurse -Force
       }
 
       # Get Repo
-      $UserRepo = Get-GitHubRepository -OwnerName $GitUser
+      # $UserRepo = Get-GitHubRepository -OwnerName $GitUser
+      $UserRepo = Get-GitHubApiRepository -UserName $GitUser
       $FilteredUserRepo = switch ($Exclude.Count) {
         {$_ -ge 1} { $UserRepo | Where-Object {$_.name -notmatch ($Exclude -join '|')} ; break }
         default { $UserRepo ; break }
@@ -266,6 +338,8 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
     'Time - {0:m\:ss}{1}' -f $StopWatch.Elapsed,("`n")
     'Updated User Directories:'
     $UserPathList
+
+    Pop-Location -StackName StartingPath
   }
 }
 
