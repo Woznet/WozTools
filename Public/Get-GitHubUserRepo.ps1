@@ -215,29 +215,33 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
   }
   Process {
 
-    $DelDir = [System.Collections.Generic.List[string]]@()
-    foreach ($GitUser in $UserName) {
-      $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
-      if (Test-Path -Path $UserPath -PathType Container) {
+    <#
+        # Delete old repos
+        $DelDir = [System.Collections.Generic.List[string]]@()
+        foreach ($GitUser in $UserName) {
+        $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
+        if (Test-Path -Path $UserPath -PathType Container) {
         Get-GitHubApiRepository -UserName $GitUser | Sort-Object -Property updated_at -Descending | ForEach-Object -Process {
-          if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item ) {
-            [PSCustomObject]@{
-              Name = $_.Name
-              Git_Updated = $_.updated_at
-              Local_Updated = $LPath.LastWriteTime
-              GetItem = $LPath
-            }
-          }
-        } | Where-Object {$_.Git_Updated -ge $_.Local_Updated} | Select-Object -ExpandProperty GetItem | ForEach-Object {
-          $DelDir.Add($PSItem)
+        if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item ) {
+        [PSCustomObject]@{
+        Name = $_.Name
+        Git_Updated = $_.updated_at
+        Local_Updated = $LPath.LastWriteTime
+        GetItem = $LPath
         }
-      }
-    }
-    if ($DelDir) {
-      Remove-Item -Path $DelDir -Recurse -Force
-      if (Resolve-Path -Path $DelDir -ErrorAction Ignore) { Remove-Item -Path $DelDir -Recurse -Force }
-    }
-    Remove-Variable -Name DelDir -ErrorAction Ignore
+        }
+        } | Where-Object {$_.Git_Updated -ge $_.Local_Updated} | Select-Object -ExpandProperty GetItem | ForEach-Object {
+        $DelDir.Add($PSItem)
+        }
+        }
+        }
+        if ($DelDir) {
+        Remove-Item -Path $DelDir -Recurse -Force
+        if (Resolve-Path -Path $DelDir -ErrorAction Ignore) { Remove-Item -Path $DelDir -Recurse -Force }
+        }
+        Remove-Variable -Name DelDir -ErrorAction Ignore
+    #>
+
 
     # Download
     foreach ($GitUser in $UserName) {
@@ -246,6 +250,12 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
       if (-not (Test-Path -Path $UserPath)) { $null = New-Item -Path $UserPath -ItemType Directory }
       Push-Location -Path $UserPath -StackName UserPath
+      
+      # Update GitHub repo using in each existing repo - git pull --all
+      Get-ChildItem -Directory -Path $UserPath -Exclude '_gist' | Invoke-InDirectory -ScriptBlock {
+        if (Test-Path -Path .git) {$null = git pull --all *>&1}
+      }
+      
       # Get Gist
       # $UserGist = Get-GitHubGist -UserName $GitUser
       $UserGist = Get-GitHubApiGist -UserName $GitUser
