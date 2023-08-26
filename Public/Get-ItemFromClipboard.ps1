@@ -8,7 +8,7 @@ function Get-ItemFromClipboard {
       Designed for taking the clipboard contents from Windows Explorer "Copy Path" into PowerShell.
   #>
   try {
-    (Get-Clipboard).Trim('"',"'") | Where-Object {(Test-Path -Path $_ ) -eq $true} | Get-Item -ErrorAction Ignore
+    (Get-Clipboard).Trim('"', "'") | Where-Object { (Test-Path -Path $_ ) -eq $true } | Get-Item -ErrorAction SilentlyContinue
   }
   catch {
     [System.Management.Automation.ErrorRecord]$e = $_
