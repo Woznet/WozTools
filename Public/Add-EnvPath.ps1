@@ -27,36 +27,49 @@ Function Add-EnvPath {
       Add-EnvPath -Path 'C:\temp' -VariableTarget Machine
   #>
   param(
-    [Parameter(Mandatory,ValueFromPipeline)]
+    [Parameter(Mandatory, ValueFromPipeline)]
     [ValidateScript({
-          if (-not (Test-Path -Path $_ -PathType Container)) {
-            throw 'Path must be a Folder'
-          }
-          return $true
-    })]
+        if (-not (Test-Path -Path $_ -PathType Container -IsValid)) {
+          throw 'Invalid Folder Path'
+        }
+
+        if (-not [System.IO.Path]::IsPathRooted($_)) {
+          throw 'Path must be rooted!'
+        }
+
+        if (-not (Test-Path -Path $_ -PathType Container)) {
+          Write-Warning -Message 'Unable to locate path.  Use $KeepUnavailablePaths'
+        }
+
+        return $true
+      })]
     [String[]]$Path,
-    [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::Machine,
-    [switch]$PassThru
+    [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::User,
+    [switch]$PassThru,
+    [switch]$KeepUnavailablePaths
   )
   begin {
-    if (-not (Test-IfAdmin)) { throw 'RUN AS ADMINISTRATOR' }
-    $OldPath = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';').TrimEnd('\') | Convert-Path -ErrorAction SilentlyContinue
-    $NewPath = [System.Collections.ArrayList]::new()
+    if (-not (Test-IfAdmin)) {
+      $MyParamValues = Get-ParameterValues
+      if ($MyParamValues.VariableTarget -eq 'Machine') {
+        throw 'Run as admin or change VariableTarget to "User"'
+      }
+    }
+    $OldPath = [string[]][System.Environment]::GetEnvironmentVariable('PATH', $VariableTarget).Split(';').TrimEnd([System.IO.Path]::DirectorySeparatorChar).Where({ $_ -ne '' })
+    $NewPath = [System.Collections.Generic.List[string]]::new()
     $NewPath.AddRange($OldPath)
   }
-  process{
-    foreach($NDir in $Path) {
-      $NDir = (Convert-Path -Path $NDir -ErrorAction SilentlyContinue).TrimEnd('\')
+  process {
+    foreach ($NDir in $Path) {
+      $NDir = [System.IO.Path]::TrimEndingDirectorySeparator($NDir)
       if ($NewPath -notcontains $NDir) { $null = $NewPath.Add($NDir) }
-      else {
-        Write-Warning -Message ('SKIPPING:{0} - duplicates not included' -f $NDir)
-      }
+      else { Write-Warning -Message ('SKIPPING DUPLICATE: {0}' -f $NDir) }
     }
   }
   end {
-    [System.Environment]::SetEnvironmentVariable('PATH',(($NewPath | Sort-Object -Unique) -join ';'),$VariableTarget)
+    [System.Environment]::SetEnvironmentVariable('PATH', (($NewPath | Sort-Object -Unique) -join ';'), $VariableTarget)
     if ($PassThru) {
-      $Confirm = [System.Environment]::GetEnvironmentVariable('PATH',$VariableTarget).Split(';')
+      $Confirm = [System.Environment]::GetEnvironmentVariable('PATH', $VariableTarget).Split(';')
       return $Confirm
     }
   }
