@@ -2,7 +2,7 @@ function Import-Prompt {
   # Prompt
 
   # Function to check wheter current Console support ANSI codes
-  function global:Test-Ansi {
+  function Test-Ansi {
     if ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOptions') {
       return $false
     }
