@@ -35,7 +35,7 @@ function Get-GitHubUserRepo {
     [ValidateScript({
           Test-Path -Path $_ -PathType Container
     })]
-    [String]$Path = 'V:\git\users',
+    [String]$Path = 'D:\vlab\git\users',
 
     # Param3 help - Exclude Repositories with Names matching these strings
     [String[]]$Exclude = 'docs',
@@ -47,7 +47,7 @@ function Get-GitHubUserRepo {
 
     #####region Load helper functions
 
-
+    Add-Type -AssemblyName Microsoft.PowerShell.Commands.Utility
 
     function Get-GitHubApiData {
       param(
@@ -256,12 +256,12 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
       if (-not (Test-Path -Path $UserPath)) { $null = New-Item -Path $UserPath -ItemType Directory }
       Push-Location -Path $UserPath -StackName UserPath
-      
+
       # Update GitHub repo using in each existing repo - git pull --all
       Get-ChildItem -Directory -Path $UserPath -Exclude '_gist' | Invoke-InDirectory -ScriptBlock {
         if (Test-Path -Path .git) {$null = git pull --all *>&1}
       }
-      
+
       # Get Gist
       # $UserGist = Get-GitHubGist -UserName $GitUser
       $UserGist = Get-GitHubApiGist -UserName $GitUser
