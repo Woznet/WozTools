@@ -40,9 +40,10 @@ function Remove-BadCharacters {
     [string]$String
   )
   Begin {
-    $BadChars = [string]::join('',([System.IO.Path]::GetInvalidFileNameChars())) -replace '\\','\\'
+    $BadChars = [string]::Join('',([System.IO.Path]::GetInvalidFileNameChars())) -replace '\\','\\'
+    $BadChars2 = [string]::Join('',([System.IO.Path]::GetInvalidPathChars())) -replace '\\','\\'
   }
   Process {
-    $String -replace "[$BadChars]"
+    $String -replace "[$BadChars]" -replace "[$BadChars2]"
   }
 }
