@@ -39,41 +39,21 @@ function Invoke-ChocoUpgradeAll {
     throw $_
   }
 
-  Write-Verbose 'Getting list of choco installed apps using "choco list"'
-  $CList = choco.exe list
-  $CurrentApps = $CList.ForEach({
-      $csplit = $_.Split(' ')
-      if (($csplit.Count -eq 2) -and ($csplit[1] -as [version])) {
-        [pscustomobject]@{
-          Name = $csplit[0]
-          Version = $csplit[1]
-        }
-      }
-  })
-
-  Write-Verbose 'Checking available upgrades using output from "choco upgrade all -whatif"'
-  $CWhatIf = choco.exe upgrade all -whatif
-  $SkipNum = $CWhatIf.IndexOf('Can upgrade:')
-  $SkipNum++
-  $CupApps = $CWhatIf | Select-Object -Skip $SkipNum
-  $CupApps = $CupApps.Trim(' - ')
-  $UpgradeApps = $CupApps.ForEach({
-      $UpVer = $_.Split(' ')
-      [pscustomobject]@{
-        Name       = $UpVer[0]
-        Version    = ($CurrentApps | Where-Object {$_.Name -eq $UpVer[0]}).Version
-        NewVersion = $UpVer[1]
-      }
-      $UpVer = $null
-  })
-  if ($CheckOnly) {
-    Write-Host ('Chocolatey can upgrade {0} packages.' -f $UpgradeApps.Count)
-    return $UpgradeApps
+  Write-Verbose 'Checking outdated choco apps using "choco outdated --limit-output"'
+  $UpgradeApps = choco outdated --limit-output | ConvertFrom-Csv -Delimiter '|' -Header Name,Version,NewVersion,Pinned | Select-Object -Property Name,@{n='Version';e={$_.Version -as [version]}},@{n='NewVersion';e={$_.NewVersion -as [version]}}
+  if ($UpgradeApps.Count) {
+    if ($CheckOnly) {
+      Write-Host ('Chocolatey can upgrade {0} packages.' -f $UpgradeApps.Count)
+      return $UpgradeApps
+    }
+    else {
+      Write-Host ('Chocolatey can upgrade {0} packages.' -f $UpgradeApps.Count)
+      $UpgradeApps
+      Write-Verbose 'Installing choco upgrades using "choco upgrade --limit-output $UpgradeApps.Name"'
+      return (choco.exe upgrade --limit-output $UpgradeApps.Name)
+    }
   }
   else {
-    Write-Host ('Chocolatey can upgrade {0} packages.' -f $UpgradeApps.Count)
-    $UpgradeApps
-    Write-Verbose 'Installing choco upgrades using "choco upgrade $UpgradeApps.Name --limit-output --no-progress"'
-    return (choco.exe upgrade $UpgradeApps.Name --limit-output --no-progress)
+    Write-Host 'All choco apps are up to date'
   }
 }

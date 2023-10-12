@@ -172,10 +172,7 @@ function Get-GitHubUserRepo {
       if (-not (Get-Command -Name Invoke-ForEachParallel -ErrorAction Ignore)) {
         Import-Module -Name ([System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent),'Lib\PForEach\PForEach.dll')) -PassThru:$false -ErrorAction Stop
       }
-      # if (-not (Get-Module -ListAvailable -Name PowerShellForGitHub)) { throw 'Install Module - PowerShellForGitHub' }
-      # Import-Module -Name PowerShellForGitHub -PassThru:$false
-      # if (-not (Get-GitHubConfiguration -Name DisableTelemetry)) { Set-GitHubConfiguration -DisableTelemetry }
-      # if (-not (Test-GitHubAuthenticationConfigured)) { $Host.UI.WriteErrorLine('PowerShellForGitHub is not Authenticated') }
+
     }
     catch {
       [System.Management.Automation.ErrorRecord]$e = $_
@@ -221,34 +218,6 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
   }
   Process {
 
-    <#
-        # Delete old repos
-        $DelDir = [System.Collections.Generic.List[string]]@()
-        foreach ($GitUser in $UserName) {
-        $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
-        if (Test-Path -Path $UserPath -PathType Container) {
-        Get-GitHubApiRepository -UserName $GitUser | Sort-Object -Property updated_at -Descending | ForEach-Object -Process {
-        if ( $LPath = Join-Path -Path $UserPath -ChildPath $_.Name -Resolve -ErrorAction SilentlyContinue | Get-Item ) {
-        [PSCustomObject]@{
-        Name = $_.Name
-        Git_Updated = $_.updated_at
-        Local_Updated = $LPath.LastWriteTime
-        GetItem = $LPath
-        }
-        }
-        } | Where-Object {$_.Git_Updated -ge $_.Local_Updated} | Select-Object -ExpandProperty GetItem | ForEach-Object {
-        $DelDir.Add($PSItem)
-        }
-        }
-        }
-        if ($DelDir) {
-        Remove-Item -Path $DelDir -Recurse -Force
-        if (Resolve-Path -Path $DelDir -ErrorAction Ignore) { Remove-Item -Path $DelDir -Recurse -Force }
-        }
-        Remove-Variable -Name DelDir -ErrorAction Ignore
-    #>
-
-
     # Download
     foreach ($GitUser in $UserName) {
       $UserPath = [System.IO.Path]::Combine($Path,$GitUser)
@@ -263,7 +232,6 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
       }
 
       # Get Gist
-      # $UserGist = Get-GitHubGist -UserName $GitUser
       $UserGist = Get-GitHubApiGist -UserName $GitUser
       if ($UserGist) {
         $GistDir = [System.IO.Path]::Combine($UserPath,'_gist')

@@ -51,9 +51,21 @@ Function Get-RedirectedUrl {
     $Awaiter = @()
   }
   process {
+    
+    $HttpRequestMessage = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Head, $Uri)
+    $Awaiter += $HttpClient.SendAsync($HttpRequestMessage).GetAwaiter()
+
+  }
+  end {
     try{
-      $HttpRequestMessage = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Head, $Uri)
-      $Awaiter += $HttpClient.SendAsync($HttpRequestMessage).GetAwaiter()
+      $ClientResultAll = $Awaiter.GetResult()
+      $AbsoluteUri = $ClientResultAll.RequestMessage.RequestUri.AbsoluteUri
+
+      $HttpClient.Dispose()
+      $HttpRequestMessage.Dispose()
+      $ClientResultAll.Dispose()
+      [gc]::Collect()
+
     }
     catch {
       [System.Management.Automation.ErrorRecord]$e = $_
@@ -65,19 +77,9 @@ Function Get-RedirectedUrl {
         Script    = $e.InvocationInfo.ScriptName
         Message   = $e.InvocationInfo.PositionMessage
       }
+      throw $_
     }
-  }
-  end {
 
-    $ClientResultAll = $Awaiter.GetResult()
-    $AbsoluteUri = $ClientResultAll.RequestMessage.RequestUri.AbsoluteUri
-
-    $HttpClient.Dispose()
-    $HttpRequestMessage.Dispose()
-    $ClientResultAll.Dispose()
-    [gc]::Collect()
-
-		return $AbsoluteUri
+    return $AbsoluteUri
   }
 }
-
