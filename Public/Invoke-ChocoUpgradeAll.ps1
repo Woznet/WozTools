@@ -15,7 +15,7 @@ function Invoke-ChocoUpgradeAll {
       .NOTES
       FunctionName : Invoke-ChocoUpgradeAll
       Created by   : Woz
-      Date Coded   : 09/07/2023
+      Date Coded   : 10/16/2023
   #>
   [CmdletBinding()]
   param(
@@ -49,8 +49,8 @@ function Invoke-ChocoUpgradeAll {
     else {
       Write-Host ('Chocolatey can upgrade {0} packages.' -f $UpgradeApps.Count)
       $UpgradeApps
-      Write-Verbose 'Installing choco upgrades using "choco upgrade --limit-output $UpgradeApps.Name"'
-      return (choco.exe upgrade --limit-output $UpgradeApps.Name)
+      Write-Verbose ('Installing choco upgrades using "choco upgrade --no-progress --limit-output {0}"' -f ($UpgradeApps.Name -join ' '))
+      return (choco.exe upgrade --no-progress --limit-output $UpgradeApps.Name)
     }
   }
   else {
