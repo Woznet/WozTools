@@ -31,7 +31,8 @@ function Get-PSWinUpdates {
   param(
     # Reboot Computer if needed to finish installed the Windows Updates
     [Parameter()]
-    [switch]$Reboot
+    [switch]$Reboot,
+    [switch]$AddServiceManager
   )
 
   try {
@@ -47,14 +48,13 @@ function Get-PSWinUpdates {
       Script    = $e.InvocationInfo.ScriptName
       Message   = $e.InvocationInfo.PositionMessage
     }
-
     Write-Warning -Message 'Unable to import PSWindowsUpdate, has this module been installed?'
-
-
     throw $_
   }
+  if ($AddServiceManager) {
+    $null = Add-WUServiceManager -ServiceID '7971f918-a847-4430-9279-4a52d1efe18d' -AddServiceFlag 7 -Confirm:$false
+  }
 
-  $null = Add-WUServiceManager -ServiceID '7971f918-a847-4430-9279-4a52d1efe18d' -AddServiceFlag 7 -Confirm:$false
 
   $WUParams = @{
     Criteria  = 'IsInstalled=0 and DeploymentAction=*'
