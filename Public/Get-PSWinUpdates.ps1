@@ -32,11 +32,12 @@ function Get-PSWinUpdates {
     # Reboot Computer if needed to finish installed the Windows Updates
     [Parameter()]
     [switch]$Reboot,
+    # Enable Microsoft Updates
     [switch]$AddServiceManager
   )
 
   try {
-    Import-Module -Name PSWindowsUpdate -ErrorAction Stop
+    Import-Module -Name PSWindowsUpdate -ErrorAction Stop -PassThru:$false
   }
   catch {
     [System.Management.Automation.ErrorRecord]$e = $_
