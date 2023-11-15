@@ -20,29 +20,30 @@ function Write-MyProgress {
       Specifies the parent activity of the current activity.
 
       .PARAMETER StartTime
-      StartTime of the foreach processing
+      StartTime of the process
 
       .PARAMETER Object
-      Object use in your foreach processing
+      Objects used in your foreach processing
 
-      .PARAMETER Count
-      Foreach Count variable
+      .PARAMETER CounterValue
+      Current position within the loop
 
-      .PARAMETER Cleanup
-      Cleanup Write-Progress display in console
+      .PARAMETER Completed
+      Cleanup any uncleared Progress bars
 
       .EXAMPLE
       $GetProcess = Get-Process
 
-      $Count = 0
+      $CounterValue = 0
       $StartTime = Get-Date
       foreach($Process in $GetProcess) {
-      $Count++
-      Write-MyProgress -StartTime $StartTime -Object $GetProcess -Count $Count
+      $CounterValue++
+      Write-MyProgress -StartTime $StartTime -Object $GetProcess -CounterValue $CounterValue
 
       Write-Host "-> $($Process.ProcessName)"
       Start-Sleep -Seconds 1
       }
+      Write-MyProgress -Completed
 
       .NOTES
       https://github.com/Netboot-France/Write-MyProgress
@@ -63,36 +64,36 @@ function Write-MyProgress {
         Mandatory,
         ParameterSetName = 'Normal'
     )]
-    [Int]$Count,
+    [Int]$CounterValue,
     [Int]$Id = $null,
     [Int]$ParentId = -1,
     [Parameter(
         Mandatory,
-        ParameterSetName = 'Cleanup'
+        ParameterSetName = 'Completed'
     )]
-    [switch]$Cleanup
+    [switch]$Completed
   )
 
   switch ($PSCmdlet.ParameterSetName) {
     'Normal' {
       $SecondsElapsed = ([datetime]::Now - $StartTime).TotalSeconds
-      $PercentComplete = ($Count / ($Object.Count)) * 100
+      $PercentComplete = ($CounterValue / ($Object.Count)) * 100
 
       $Argument = @{}
-      $Argument.Add('Activity', ('Processing {0} of {1}' -f $Count, $Object.Count))
+      $Argument.Add('Activity', ('Processing {0} of {1}' -f $CounterValue, $Object.Count))
       $Argument.Add('PercentComplete', $PercentComplete)
       $Argument.Add('CurrentOperation', ('{0:N2}% Complete' -f $PercentComplete))
-      $Argument.Add('SecondsRemaining', ($SecondsElapsed / ($Count / $Object.Count)) - $SecondsElapsed)
+      $Argument.Add('SecondsRemaining', ($SecondsElapsed / ($CounterValue / $Object.Count)) - $SecondsElapsed)
 
       if ($Id -ne $null) { $Argument.Add('Id', $Id) }
       if ($ParentId -ne $null) { $Argument.Add('ParentId', $ParentId) }
 
       break
     }
-    'Cleanup' {
+    'Completed' {
       $Argument = @{}
       $Argument.Add('Completed', $true)
-      $Argument.Add('Activity', 'Write-MyProgress Cleanup')
+      $Argument.Add('Activity', 'Write-MyProgress Completed')
 
       break
     }
