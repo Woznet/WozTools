@@ -9,7 +9,7 @@ function Get-GitHubUserRepo {
 
       Requires git.exe
 
-      I included the source file for PForEach because it is no longer visible in the powershellgallery and github
+I included the source file for PForEach because it is no longer visible in the powershellgallery and github
       Vasily Larionov - https://www.powershellgallery.com/profiles/vlariono | https://github.com/vlariono
       PForEach - https://www.powershellgallery.com/packages/PForEach
 
@@ -38,10 +38,12 @@ function Get-GitHubUserRepo {
     [String]$Path = 'D:\vlab\git\users',
 
     # Param3 help - Exclude Repositories with Names matching these strings
-    [String[]]$Exclude = 'docs',
+    [String[]]$Exclude = @('docs'),
 
     # Param4 help - ThrottleLimit for Invoke-ForEachParallel
-    [int]$ThrottleLimit = 5
+    [int]$ThrottleLimit = 5,
+		[switch]$FilterByLanguage,
+		[string[]]$Languages = @('PowerShell','C#')
   )
   Begin {
 
@@ -108,6 +110,26 @@ function Get-GitHubUserRepo {
       }
     }
 
+
+		function Get-GitHubApiRepositoryLanguage {
+  param(
+    [Parameter(Mandatory, Position = 0, ParameterSetName = 'Def')]
+    [String]$UserName,
+    [Parameter(Mandatory, Position = 1, ParameterSetName = 'Def')]
+    [string]$Repository,
+    [Parameter(Mandatory, Position = 0, ParameterSetName = 'InputObject', ValueFromPipelineByPropertyName)]
+    [string]$languages_url
+  )
+  process {
+    if ($languages_url) {
+      $RepoLang = Get-GitHubApiData -URI $languages_url
+    }
+    else {
+      $RepoLang = Get-GitHubApiData -URI ('https://api.github.com/repos/{0}/{1}/languages' -f $UserName, $Repository)
+    }
+    if ($RepoLang) { $RepoLang } else { break }
+  }
+}
 
 
     function Write-MyProgress {
@@ -300,20 +322,32 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
       # Get Repo
       # $UserRepo = Get-GitHubRepository -OwnerName $GitUser
-      $UserRepo = Get-GitHubApiRepository -UserName $GitUser
-      $FilteredUserRepo = switch ($Exclude.Count) {
-        {$_ -ge 1} { $UserRepo | Where-Object {$_.name -notmatch ($Exclude -join '|')} ; break }
-        default { $UserRepo ; break }
-      }
-      Write-Output ('{0}{1} Repositories - {2} (excluded - {3})' -f "`n",$GitUser,$FilteredUserRepo.Count,($UserRepo.Count - $FilteredUserRepo.Count))
+      $FilteredUserRepo = $UserRepo = Get-GitHubApiRepository -UserName $GitUser
+      # $FilteredUserRepo = switch ($Exclude.Count) {
+      #   {$_ -ge 1} { $UserRepo | Where-Object {$_.name -notmatch ($Exclude -join '|')} ; break }
+      #   default { $UserRepo ; break }
+      # }
+			if ($Exclude) {
+			  $FilteredUserRepo = $FilteredUserRepo.Where({$_.name -notmatch ($Exclude -join '|')})
+			}
+			if ($FilterByLanguage) {
+			  $FilteredUserRepo = $FilteredUserRepo.Where({($_|Get-GitHubApiRepositoryLanguage).psobject.Properties.Name -match ($Languages -join '|') })
+			}
+
+			Write-Output ('{0}{1} Repositories - {2} (excluded - {3})' -f "`n",$GitUser,$FilteredUserRepo.Count,($UserRepo.Count - $FilteredUserRepo.Count))
       $FilteredUserRepo.name| Select-Object -Property @{e={if ($_.Length -gt 27) {$_.Substring(0,24) + '...'} else{$_}}} | Format-Wide -AutoSize
       $FilteredUserRepo | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
         Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem.clone_url) -WindowStyle Hidden -Wait
 
         Start-Sleep -Milliseconds 150
 
-        $RepoDir = Get-Item -Path (Join-Path -Path $UserPath -ChildPath $PSItem.name -Resolve)
-        $RepoDir.LastWriteTime = $PSItem.updated_at
+        ## Test - Have LastWriteTime set for all files in cloned repo
+				# $RepoDir = Get-Item -Path (Join-Path -Path $UserPath -ChildPath $PSItem.name -Resolve)
+        # $RepoDir.LastWriteTime = $PSItem.updated_at
+				$RepoUpdatedDate = $PSItem.updated_at
+				$RepoDir = Get-Item -Path (Join-Path -Path $UserPath -ChildPath $PSItem.name -Resolve) | Get-ChildItem -Recurse -Force:$false -ErrorAction SilentlyContinue
+        $RepoDir.ForEach({$_.LastWriteTime = $RepoUpdatedDate})
+
       }
     }
   }
