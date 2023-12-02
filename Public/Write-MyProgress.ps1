@@ -10,7 +10,7 @@ function Write-MyProgress {
       File Name   : Write-MyProgress.ps1
       Author      : Woz
       Date        : 2017-05-10
-      Last Update : 2023-06-12
+      Last Update : 2023-11-29
       Version     : 2.1.0
 
       .PARAMETER id
