@@ -14,7 +14,7 @@ schema: 2.0.0
 
 ```
 Write-PSLog [[-Severity] <String>] [-Message] <String> [[-LogDirectory] <String>] [[-LogFileName] <String>]
- [[-LastException] <ErrorRecord>] [<CommonParameters>]
+ [[-LastException] <ErrorRecord>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,7 +35,7 @@ PS C:\> {{ Add example code here }}
 {{ Fill LastException Description }}
 
 ```yaml
-Type: ErrorRecord
+Type: System.Management.Automation.ErrorRecord
 Parameter Sets: (All)
 Aliases:
 
@@ -50,7 +50,7 @@ Accept wildcard characters: False
 {{ Fill LogDirectory Description }}
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: (All)
 Aliases:
 
@@ -65,7 +65,7 @@ Accept wildcard characters: False
 {{ Fill LogFileName Description }}
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: (All)
 Aliases:
 
@@ -80,7 +80,7 @@ Accept wildcard characters: False
 {{ Fill Message Description }}
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: (All)
 Aliases:
 
@@ -95,13 +95,28 @@ Accept wildcard characters: False
 {{ Fill Severity Description }}
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: (All)
 Aliases:
 Accepted values: Info, Warn, Error, Start, End
 
 Required: False
 Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

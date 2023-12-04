@@ -1,22 +1,22 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
 ---
 
-# Set-MaxPartitionSize
+# Get-InstalledSoftware
 
 ## SYNOPSIS
-Set-MaxPartitionSize -DriveLetter \<string\> \[\<CommonParameters\>\]
 
 ## SYNTAX
 
 ```
-Set-MaxPartitionSize -DriveLetter <String> [<CommonParameters>]
+Get-InstalledSoftware [[-Name] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -29,15 +29,30 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### -DriveLetter
-{{ Fill DriveLetter Description }}
+### -Name
+{{ Fill Name Description }}
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: True
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -49,10 +64,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### None
 ## OUTPUTS
 
-### System.Object
 ## NOTES
+https://gist.github.com/SeeminglyScience/d7be8c59875bd389df820c8356f137f9
 
 ## RELATED LINKS

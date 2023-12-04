@@ -13,10 +13,12 @@ $SizeConverter = Add-Type -Name SizeConverter -Namespace 'WozDev.Win32API' -Memb
 
 
 $Public  = @(Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue)
-# $Private = @(Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue)
+$Private = @(Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue)
+$Lib =     @(Get-ChildItem -Path $PSScriptRoot\Lib\*.ps1 -Recurse -ErrorAction SilentlyContinue)
 # Dot source the files
+foreach ($Import in @($Public + $Private + $Lib)) {
 # foreach ($Import in @($Public + $Private)) {
-foreach ($Import in $Public) {
+# foreach ($Import in $Public) {
   try {
   Write-Verbose -Message ('Importing - {0}' -f $Import.Name)
     . $Import.FullName
@@ -27,4 +29,4 @@ foreach ($Import in $Public) {
 }
 
 # Export-ModuleMember -Function $Public.Basename -Alias *
-Export-ModuleMember -Function * -Alias * -Cmdlet * -Variable *
+Export-ModuleMember -Function * -Alias *

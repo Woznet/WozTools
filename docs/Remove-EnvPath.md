@@ -1,5 +1,5 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
@@ -8,15 +8,17 @@ schema: 2.0.0
 # Remove-EnvPath
 
 ## SYNOPSIS
-Remove-EnvPath \[-Path\] \<string\[\]\> \[\[-VariableTarget\] \<EnvironmentVariableTarget\>\] \[\<CommonParameters\>\]
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ```
-Remove-EnvPath -Path <String[]> [-VariableTarget <EnvironmentVariableTarget>] [<CommonParameters>]
+Remove-EnvPath [-Path] <String[]> [[-VariableTarget] <EnvironmentVariableTarget>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -30,27 +32,43 @@ PS C:\> {{ Add example code here }}
 ## PARAMETERS
 
 ### -Path
-@{Text=}
+{{ Fill Path Description }}
 
 ```yaml
-Type: String[]
+Type: System.String[]
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
 ### -VariableTarget
-@{Text=}
+{{ Fill VariableTarget Description }}
 
 ```yaml
-Type: EnvironmentVariableTarget
+Type: System.EnvironmentVariableTarget
 Parameter Sets: (All)
 Aliases:
+Accepted values: Process, User, Machine
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
 
 Required: False
 Position: Named
@@ -65,6 +83,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### System.String[]
+
 ## OUTPUTS
 
 ### System.Object

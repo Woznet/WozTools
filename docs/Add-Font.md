@@ -13,7 +13,7 @@ Add fonts to system
 ## SYNTAX
 
 ```
-Add-Font [-Path] <String[]> [-Remove] [<CommonParameters>]
+Add-Font [-Path] <String[]> [-Remove] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,7 +33,7 @@ Path of Font File, can accept multiple font files
 Supported File Types - .ttc, .ttf, .fnt, .otf, .fon
 
 ```yaml
-Type: String[]
+Type: System.String[]
 Parameter Sets: (All)
 Aliases:
 
@@ -48,13 +48,28 @@ Accept wildcard characters: False
 {{ Fill Remove Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

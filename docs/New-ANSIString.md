@@ -8,64 +8,69 @@ schema: 2.0.0
 # New-ANSIString
 
 ## SYNOPSIS
-Generate ANSI escape code string for outputing text with color
+Generate ANSI escape code string for outputting text with color.
 
 ## SYNTAX
 
 ### Foreground (Default)
 ```
-New-ANSIString [[-Red] <Int32>] [[-Green] <Int32>] [[-Blue] <Int32>] [-Foreground] [<CommonParameters>]
+New-ANSIString [[-Red] <Int32>] [[-Green] <Int32>] [[-Blue] <Int32>] [-Foreground]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Background
 ```
-New-ANSIString [[-Red] <Int32>] [[-Green] <Int32>] [[-Blue] <Int32>] [-Background] [<CommonParameters>]
+New-ANSIString [[-Red] <Int32>] [[-Green] <Int32>] [[-Blue] <Int32>] [-Background]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Reset
 ```
-New-ANSIString [-Reset] [<CommonParameters>]
+New-ANSIString [-Reset] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Create ANSI color escape code using a RGB color value
+Create ANSI color escape code using a RGB color value.
+This function can generate strings to set text color (foreground), background color, or to reset text style to default.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-# Create variable with desired color
 $ANSI1 = New-ANSIString
-# Create variable to reset ANSI effects
 $Reset = New-ANSIString -Reset
-# String getting colored
 $Text = 'This is a test.  More testing... and testing'
+'{0}{1}{2}' -f $ANSI1, $Text, $Reset
+This example demonstrates setting a random text color for a string and then resetting it.
 ```
-
-'{0}{1}{2}' -f $ANSI1,$Text,$Reset
 
 ### EXAMPLE 2
 ```
-# Create variable with desired foreground color
 $ANSIFG1 = New-ANSIString -Red 55 -Green 120 -Blue 190 -Foreground
-# Create variable with desired background color
 $ANSIBG1 = New-ANSIString -Green 100 -Background
-# Create variable to reset ANSI effects
 $Reset = New-ANSIString -Reset
-# String getting colored
 $Text = 'This is a test.  More testing... and testing'
 $Text2 = 'More and more and more!'
+'{0}{1}{2}{3}{4}' -f $ANSIFG1, $Text, $ANSIBG1, $Text2, $Reset
+This example sets both the foreground and background colors for different parts of a text.
 ```
 
-'{0}{1}{2}{3}{4}' -f $ANSIFG1,$Text,$ANSIBG1,$Text2,$Reset
+### EXAMPLE 3
+```
+$RedText = New-ANSIString -Red 255 -Foreground
+$Reset = New-ANSIString -Reset
+$Text = 'This text is red'
+'{0}{1}{2}' -f $RedText, $Text, $Reset
+This example shows creating a red text string.
+```
 
 ## PARAMETERS
 
 ### -Red
-Param1 help description
+{{ Fill Red Description }}
 
 ```yaml
-Type: Int32
+Type: System.Int32
 Parameter Sets: Foreground, Background
 Aliases:
 
@@ -77,10 +82,10 @@ Accept wildcard characters: False
 ```
 
 ### -Green
-Param2 help description
+{{ Fill Green Description }}
 
 ```yaml
-Type: Int32
+Type: System.Int32
 Parameter Sets: Foreground, Background
 Aliases:
 
@@ -92,10 +97,10 @@ Accept wildcard characters: False
 ```
 
 ### -Blue
-Param3 help description
+{{ Fill Blue Description }}
 
 ```yaml
-Type: Int32
+Type: System.Int32
 Parameter Sets: Foreground, Background
 Aliases:
 
@@ -107,10 +112,10 @@ Accept wildcard characters: False
 ```
 
 ### -Foreground
-Param4 help description
+{{ Fill Foreground Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: Foreground
 Aliases:
 
@@ -122,10 +127,10 @@ Accept wildcard characters: False
 ```
 
 ### -Background
-Param5 help description
+{{ Fill Background Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: Background
 Aliases:
 
@@ -137,16 +142,31 @@ Accept wildcard characters: False
 ```
 
 ### -Reset
-Param6 help description
+{{ Fill Reset Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: Reset
 Aliases:
 
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -159,7 +179,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ### [string]
+### The function outputs a string containing the ANSI escape code.
 ## NOTES
-FYI: Remeber to reset the text style after every stylized text, otherwise the ANSI effects will continue to be applied to all that get output later.
+Remember to reset the text style after every stylized text, otherwise the ANSI effects will continue to be applied to all that get output later.
 
 ## RELATED LINKS

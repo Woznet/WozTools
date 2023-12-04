@@ -1,5 +1,5 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
@@ -8,15 +8,17 @@ schema: 2.0.0
 # Get-RelativePath
 
 ## SYNOPSIS
-Get-RelativePath \[-RelativeTo\] \<string\> \[-Path\] \<string\> \[\<CommonParameters\>\]
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ```
-Get-RelativePath [-RelativeTo <String>] -Path <String> [<CommonParameters>]
+Get-RelativePath [-Path] <String> [[-RelativeTo] <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -30,27 +32,42 @@ PS C:\> {{ Add example code here }}
 ## PARAMETERS
 
 ### -Path
-@{Text=}
+{{ Fill Path Description }}
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
+Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
 ### -RelativeTo
-@{Text=}
+{{ Fill RelativeTo Description }}
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: (All)
 Aliases:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
 
 Required: False
 Position: Named
@@ -65,6 +82,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### System.String
+
 ## OUTPUTS
 
 ### System.Object

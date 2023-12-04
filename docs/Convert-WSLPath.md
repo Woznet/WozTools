@@ -14,12 +14,12 @@ Covert a path in between the Windows and the WSL path formats
 
 ### WSL (Default)
 ```
-Convert-WSLPath -Path <String[]> [-ToWSL] [<CommonParameters>]
+Convert-WSLPath -Path <String[]> [-ToWSL] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Win
 ```
-Convert-WSLPath -Path <String[]> [-ToWindows] [<CommonParameters>]
+Convert-WSLPath -Path <String[]> [-ToWindows] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,7 +45,7 @@ Convert-WSLPath -Path '/usr/bin/ssh' -ToWindows
 Path to be converted
 
 ```yaml
-Type: String[]
+Type: System.String[]
 Parameter Sets: (All)
 Aliases:
 
@@ -60,7 +60,7 @@ Accept wildcard characters: False
 Convert Path from WSL format to Windows format
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: Win
 Aliases:
 
@@ -75,13 +75,28 @@ Accept wildcard characters: False
 Convert Path from Windows format to WSL format - Default
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: WSL
 Aliases:
 
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

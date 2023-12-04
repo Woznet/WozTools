@@ -1,5 +1,5 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
@@ -8,23 +8,22 @@ schema: 2.0.0
 # Start-PSLogging
 
 ## SYNOPSIS
-Start-PSLogging \[-Default\] \[\<CommonParameters\>\]
-
-Start-PSLogging \[-Path \<string\>\] \[\<CommonParameters\>\]
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ### Default (Default)
 ```
-Start-PSLogging [-Default] [<CommonParameters>]
+Start-PSLogging [-Default] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Path
 ```
-Start-PSLogging [-Path <String>] [<CommonParameters>]
+Start-PSLogging [-Path <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -38,10 +37,10 @@ PS C:\> {{ Add example code here }}
 ## PARAMETERS
 
 ### -Default
-@{Text=}
+{{ Fill Default Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: Default
 Aliases:
 
@@ -53,12 +52,27 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-@{Text=}
+{{ Fill Path Description }}
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: Path
 Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
 
 Required: False
 Position: Named
@@ -73,6 +87,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
+
 ## OUTPUTS
 
 ### System.Object

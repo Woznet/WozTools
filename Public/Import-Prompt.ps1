@@ -44,26 +44,6 @@ public static extern IntPtr GetStdHandle(int nStdHandle);
   $global:HasAnsi = Test-Ansi
 
 
-  function global:Get-ShortPath {
-    if (-not ($null -eq $Host.UI.RawUI.WindowSize.Width)) {
-      $MaxPromptPath = [int]($Host.UI.RawUI.WindowSize.Width/3);
-      $CurrPath = $PWD.Path -replace '^[^:]+::';
-      if ($CurrPath.Length -ge $MaxPromptPath) {
-        $PathParts = $CurrPath.Split([System.IO.Path]::DirectorySeparatorChar);
-        $MyPath = $PathParts[0],'...',$PathParts[$PathParts.Length - 1] -join [System.IO.Path]::DirectorySeparatorChar;
-        $Counter = $PathParts.Length - 2;
-        while(($MyPath.Replace('...',('...',$PathParts[$Counter] -join [System.IO.Path]::DirectorySeparatorChar)).Length -lt $MaxPromptPath) -and ($Counter -ne 0)) {
-          $MyPath = $MyPath.Replace('...',('...',$PathParts[$Counter] -join [System.IO.Path]::DirectorySeparatorChar));
-          $Counter--;
-        }
-      }
-      else {
-        $MyPath = $CurrPath;
-      }
-      return $MyPath;
-    }
-  }
-
 
   function global:prompt {
     if ((Get-Item -Path .).PSProvider.Name -eq 'FileSystem') {

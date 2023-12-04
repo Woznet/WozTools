@@ -13,7 +13,7 @@ Convert Text to TitleCase
 ## SYNTAX
 
 ```
-ConvertTo-TitleCase [-Text] <String[]> [<CommonParameters>]
+ConvertTo-TitleCase [-Text] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,7 +37,7 @@ Get-ChildItem -Path D:\temp | Select-Object -ExpandProperty Name | ConvertTo-Tit
 {{ Fill Text Description }}
 
 ```yaml
-Type: String[]
+Type: System.String[]
 Parameter Sets: (All)
 Aliases:
 
@@ -45,6 +45,21 @@ Required: True
 Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

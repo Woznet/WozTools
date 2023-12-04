@@ -8,38 +8,52 @@ schema: 2.0.0
 # Get-ElementName
 
 ## SYNOPSIS
-{{ Fill in the Synopsis }}
+Get the name of an element.
 
 ## SYNTAX
 
 ```
-Get-ElementName [-Expression] <ScriptBlock> [<CommonParameters>]
+Get-ElementName [-Expression] <ScriptBlock> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+This function returns the name of an element.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
 ```
-
-{{ Add example description here }}
+Get-ElementName { $PSVersionTable }
+PSVersionTable
+```
 
 ## PARAMETERS
 
 ### -Expression
-{{ Fill Expression Description }}
+The expression to get the name of.
 
 ```yaml
-Type: ScriptBlock
+Type: System.Management.Automation.ScriptBlock
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 0
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -50,11 +64,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### None
-
 ## OUTPUTS
 
-### System.Object
 ## NOTES
 
 ## RELATED LINKS

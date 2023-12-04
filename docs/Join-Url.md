@@ -1,5 +1,5 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
@@ -8,64 +8,91 @@ schema: 2.0.0
 # Join-Url
 
 ## SYNOPSIS
-Join-Url \[-Base\] \<uri\> \[-Child\] \<string\> \[-OutUri\] \[\<CommonParameters\>\]
+Joins a base URI with a child path segment.
 
 ## SYNTAX
 
 ```
-Join-Url -Base <Uri> -Child <String> [-OutUri] [<CommonParameters>]
+Join-Url [-Base] <Uri> [-Child] <String> [-OutUri] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+The Join-Url function takes a base URI and a child path segment, and combines them into a single well-formed URI.
+It handles the proper inclusion of slashes between the base and child segments.
+By default, it outputs the combined URI as a string, but it can also return a URI object.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
+```
+Join-Url -Base 'http://example.com' -Child 'path/segment'
 ```
 
-{{ Add example description here }}
+Returns 'http://example.com/path/segment'.
+
+### EXAMPLE 2
+```
+Join-Url -Base 'http://example.com' -Child '/path/segment' -OutUri
+```
+
+Returns a URI object for 'http://example.com/path/segment'.
 
 ## PARAMETERS
 
 ### -Base
-@{Text=}
+The base URI to which the child path will be appended.
+It must be a valid URI.
 
 ```yaml
-Type: Uri
+Type: System.Uri
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
 ### -Child
-@{Text=}
+The child path segment to append to the base URI.
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
+Position: 2
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -OutUri
-@{Text=}
+If specified, the function returns the result as a \[uri\] object.
+Otherwise, it returns a string.
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: (All)
 Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
 
 Required: False
 Position: Named
@@ -79,10 +106,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.Uri
+### [uri], [string]
 ## OUTPUTS
 
-### System.Object
+### [uri] or [string]
 ## NOTES
 
 ## RELATED LINKS

@@ -1,66 +1,71 @@
 function Invoke-InDirectory {
-  <#
-      .SYNOPSIS
-      Invoke a scriptblock from within one or more directories
+    <#
+.SYNOPSIS
+Executes a script block within the context of specified directories.
 
-      .DESCRIPTION
-      A longer description.
+.DESCRIPTION
+The Invoke-InDirectory function is designed to execute a provided script block in one or more specified directories. This functionality is particularly useful for commands that are dependent on the current directory context, such as file system operations, git commands, or running scripts that use relative paths.
 
-      .PARAMETER Path
-      Path of one or more directories which the scriptblock will be invoked in
+.PARAMETER Path
+Specifies one or more directories in which the script block will be executed. The function changes to each directory and executes the script block. This parameter accepts pipeline input and can be specified by property name. A validation script ensures that each path provided is an existing directory.
 
-      .PARAMETER ScriptBlock
-      Specifies the commands to run
+.PARAMETER ScriptBlock
+Defines the script block that will be executed in the context of each specified directory. The script block should contain the commands that you want to run. This parameter is mandatory and cannot be empty.
 
-      .INPUTS
-      System.IO.DirectoryInfo
-      System.String
+.EXAMPLE
+Invoke-InDirectory -Path 'C:\Projects\Project1' -ScriptBlock { Get-ChildItem }
 
-      You can pipe the output from Get-Item,
-      DirectoryInfo object,
-      A string that contains a path
+This example executes 'Get-ChildItem' in the 'C:\Projects\Project1' directory.
 
-      .OUTPUTS
-      This function will output whatever is returned from the scriptblock each time it is run.
+.EXAMPLE
+Get-ChildItem -Path 'C:\Projects\' -Directory | Invoke-InDirectory -ScriptBlock { git status }
 
-      .EXAMPLE
-      Invoke-InDirectory -Path 'X:\git\WozTools' -ScriptBlock { git fetch --all }
+This example fetches all directories under 'C:\Projects\' and runs 'git status' in each of them.
 
-      .EXAMPLE
-      Get-ChildItem -Path 'X:\git\' -Directory  | Invoke-InDirectory  -ScriptBlock { git fetch --all }
+.EXAMPLE
+'C:\Projects\Project1', 'C:\Projects\Project2' | Invoke-InDirectory -ScriptBlock { git pull }
 
-      .EXAMPLE
-      'X:\git\WozTools','.\Git Stuff'  | Invoke-InDirectory  -ScriptBlock { git fetch --all }
+This example demonstrates using the function with pipeline input to execute 'git pull' in both 'C:\Projects\Project1' and 'C:\Projects\Project2'.
 
-      .NOTES
-      Original Source:
-      https://gist.github.com/chriskuech/a32f86ad2609719598b073293d09ca03#file-tryfinally-2-ps1
-  #>
-  Param(
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ValueFromPipeline)]
-    [ValidateScript({
-          if(-not (Test-Path -Path $_ -PathType Container)) {
-            throw 'Folder does not exist'
-          }
-          return $true
-    })]
-    [Alias('FullName')]
-    # Path of one or more directories which the scriptblock will be invoked in
-    [String[]]$Path,
-    [Parameter(Mandatory)]
-    [ValidateNotNullOrEmpty()]
-    # Specifies the commands to run
-    [scriptblock]$ScriptBlock
-  )
-  process {
-    foreach($Loc in $Path) {
-      try {
-        Push-Location -Path $Loc
-        . $ScriptBlock
-      }
-      finally {
-        Pop-Location
-      }
+.INPUTS
+System.String, System.IO.DirectoryInfo
+You can pipe string paths or directory objects to Invoke-InDirectory.
+
+.OUTPUTS
+Depends on the script block's output. The function outputs whatever the script block returns for each directory.
+
+.NOTES
+Remember to ensure that the script block commands are appropriate for the directory context and that they handle any relative path dependencies correctly.
+
+.LINK
+https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-pscustomobject
+#>
+    param(
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName, ValueFromPipeline)]
+        [ValidateScript({
+                if (-not (Test-Path -Path $_ -PathType Container)) {
+                    throw 'Folder does not exist'
+                }
+                return $true
+            })]
+        [Alias('FullName')]
+        # Specifies one or more directories in which the script block will be executed.
+        [String[]]$Path,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        # Defines the script block that will be executed in the context of each specified directory.
+        [scriptblock]$ScriptBlock
+    )
+    process {
+        foreach ($Loc in $Path) {
+            try {
+                Push-Location -Path $Loc
+                . $ScriptBlock
+            }
+            finally {
+                Pop-Location
+            }
+        }
     }
-  }
 }

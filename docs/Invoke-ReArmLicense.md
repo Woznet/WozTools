@@ -1,5 +1,5 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
@@ -8,17 +8,17 @@ schema: 2.0.0
 # Invoke-ReArmLicense
 
 ## SYNOPSIS
-Invoke-ReArmLicense \[-ComputerName \<string\[\]\>\] \[-Restart\] \[-Force\] \[\<CommonParameters\>\]
-
-Invoke-ReArmLicense \[-ComputerName \<string\[\]\>\] \[-GracePeriod\] \[-Restart\] \[-Force\] \[\<CommonParameters\>\]
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ```
-Invoke-ReArmLicense [-ComputerName <String[]>] [-ReArm] [-Restart] [<CommonParameters>]
+Invoke-ReArmLicense [[-ComputerName] <String[]>] [-ReArm] [-Restart] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -32,10 +32,25 @@ PS C:\> {{ Add example code here }}
 ## PARAMETERS
 
 ### -ComputerName
-@{Text=}
+{{ Fill ComputerName Description }}
 
 ```yaml
-Type: String[]
+Type: System.String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ReArm
+{{ Fill ReArm Description }}
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
@@ -47,10 +62,10 @@ Accept wildcard characters: False
 ```
 
 ### -Restart
-@{Text=}
+{{ Fill Restart Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
@@ -61,13 +76,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReArm
-{{ Fill ReArm Description }}
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.ActionPreference
 Parameter Sets: (All)
-Aliases:
+Aliases: proga
 
 Required: False
 Position: Named
@@ -82,6 +97,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
+
 ## OUTPUTS
 
 ### System.Object

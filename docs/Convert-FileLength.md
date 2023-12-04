@@ -1,5 +1,5 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
@@ -8,39 +8,62 @@ schema: 2.0.0
 # Convert-FileLength
 
 ## SYNOPSIS
-Convert-FileLength \[-Length\] \<long\> \[\<CommonParameters\>\]
+Converts a file length to a human readable format.
 
 ## SYNTAX
 
 ```
-Convert-FileLength -Length <Int64> [<CommonParameters>]
+Convert-FileLength [-Length] <Int64> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+Converts a file length to a human readable format.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
+```
+Convert-FileLength -Length 123456789
 ```
 
-{{ Add example description here }}
+Converts the file length 123456789 to a human readable format.
+
+### EXAMPLE 2
+```
+Get-ChildItem | Select-Object -ExpandProperty Length | Convert-FileLength
+```
+
+Converts the file lengths of all files in the current directory to a human readable format.
 
 ## PARAMETERS
 
 ### -Length
-@{Text=}
+The file length to convert.
 
 ```yaml
-Type: Int64
+Type: System.Int64
 Parameter Sets: (All)
 Aliases: Size
 
 Required: True
+Position: 1
+Default value: 0
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
 Position: Named
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -49,10 +72,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.Int64
 ## OUTPUTS
 
-### System.Object
 ## NOTES
+Author: Woz
 
 ## RELATED LINKS

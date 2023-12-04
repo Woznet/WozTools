@@ -13,7 +13,8 @@ Add a Folder to Environment Variable PATH
 ## SYNTAX
 
 ```
-Add-EnvPath [-Path] <String[]> [[-VariableTarget] <EnvironmentVariableTarget>] [-PassThru] [<CommonParameters>]
+Add-EnvPath [-Path] <String[]> [[-VariableTarget] <EnvironmentVariableTarget>] [-PassThru]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,7 +34,7 @@ Add-EnvPath -Path 'C:\temp' -VariableTarget Machine
 Folder or Folders to add to PATH
 
 ```yaml
-Type: String[]
+Type: System.String[]
 Parameter Sets: (All)
 Aliases:
 
@@ -49,14 +50,14 @@ Which Env Path the directory gets added to.
 Machine, User or Process
 
 ```yaml
-Type: EnvironmentVariableTarget
+Type: System.EnvironmentVariableTarget
 Parameter Sets: (All)
 Aliases:
 Accepted values: Process, User, Machine
 
 Required: False
 Position: 2
-Default value: Machine
+Default value: User
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -65,13 +66,28 @@ Accept wildcard characters: False
 Display updated PATH variable
 
 ```yaml
-Type: SwitchParameter
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

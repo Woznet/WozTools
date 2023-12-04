@@ -1,46 +1,70 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
-online version:
+online version: https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient
 schema: 2.0.0
 ---
 
 # Get-RedirectedUrl
 
 ## SYNOPSIS
-Get-RedirectedUrl \[-Url\] \<string\> \[\<CommonParameters\>\]
+Retrieves the final redirected URL(s) of the given URI(s).
 
 ## SYNTAX
 
 ```
-Get-RedirectedUrl -Url <String> [<CommonParameters>]
+Get-RedirectedUrl [-Uri] <String[]> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+The Get-RedirectedUrl function performs synchronous HTTP HEAD requests to the specified URI(s) and retrieves the final redirected URL(s).
+It can handle multiple URIs and is designed to be used in scenarios where you need to resolve the final destination of URL redirections.
 
 ## EXAMPLES
 
-### Example 1
-```powershell
-PS C:\> {{ Add example code here }}
+### EXAMPLE 1
+```
+Get-RedirectedUrl 'https://aka.ms/ad/list'
+This example retrieves the final redirected URL for 'https://aka.ms/ad/list'.
 ```
 
-{{ Add example description here }}
+### EXAMPLE 2
+```
+'https://aka.ms/admin', 'https://aka.ms/ad/list' | Get-RedirectedUrl
+This example demonstrates using the function with pipeline input to retrieve redirected URLs for multiple URIs.
+```
 
 ## PARAMETERS
 
-### -Url
-@{Text=}
+### -Uri
+Specifies the URI(s) for which to retrieve the final redirected URL.
+The URI must be an absolute URI.
+This parameter accepts multiple URIs and supports pipeline input.
 
 ```yaml
-Type: String
+Type: System.String[]
 Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: Named
+Position: 1
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -49,10 +73,17 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.String
+### System.String[]
+### You can pipe a string array of absolute URIs to Get-RedirectedUrl.
 ## OUTPUTS
 
-### System.Object
+### System.String
+### Outputs the final redirected URL for each input URI.
 ## NOTES
+This function uses the System.Net.Http.HttpClient class to perform web requests.
+Each URI is processed synchronously, and the function disposes of all resources properly upon completion.
 
 ## RELATED LINKS
+
+[https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient](https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient)
+

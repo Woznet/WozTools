@@ -14,13 +14,14 @@ Displays a progress bar within a Windows PowerShell command window.
 
 ### Normal
 ```
-Write-MyProgress -Object <Array> -StartTime <DateTime> -Count <Int32> [-Id <Int32>] [-ParentId <Int32>]
- [<CommonParameters>]
+Write-MyProgress -Object <Array> -StartTime <DateTime> -CounterValue <Int32> [-Id <Int32>] [-ParentId <Int32>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
-### Cleanup
+### Completed
 ```
-Write-MyProgress [-Id <Int32>] [-ParentId <Int32>] [-Cleanup] [<CommonParameters>]
+Write-MyProgress [-Id <Int32>] [-ParentId <Int32>] [-Completed] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -33,23 +34,24 @@ The Write-Progress cmdlet displays a progress bar in a Windows PowerShell comman
 $GetProcess = Get-Process
 ```
 
-$Count = 0
+$CounterValue = 0
 $StartTime = Get-Date
 foreach($Process in $GetProcess) {
-$Count++
-Write-MyProgress -StartTime $StartTime -Object $GetProcess -Count $Count
+$CounterValue++
+Write-MyProgress -StartTime $StartTime -Object $GetProcess -CounterValue $CounterValue
 
 Write-Host "-\> $($Process.ProcessName)"
 Start-Sleep -Seconds 1
 }
+Write-MyProgress -Completed
 
 ## PARAMETERS
 
 ### -Object
-Object use in your foreach processing
+Objects used in your foreach processing
 
 ```yaml
-Type: Array
+Type: System.Array
 Parameter Sets: Normal
 Aliases:
 
@@ -61,10 +63,10 @@ Accept wildcard characters: False
 ```
 
 ### -StartTime
-StartTime of the foreach processing
+StartTime of the process
 
 ```yaml
-Type: DateTime
+Type: System.DateTime
 Parameter Sets: Normal
 Aliases:
 
@@ -75,11 +77,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Count
-Foreach Count variable
+### -CounterValue
+Current position within the loop
 
 ```yaml
-Type: Int32
+Type: System.Int32
 Parameter Sets: Normal
 Aliases:
 
@@ -94,7 +96,7 @@ Accept wildcard characters: False
 Specifies an ID that distinguishes each progress bar from the others.
 
 ```yaml
-Type: Int32
+Type: System.Int32
 Parameter Sets: (All)
 Aliases:
 
@@ -109,7 +111,7 @@ Accept wildcard characters: False
 Specifies the parent activity of the current activity.
 
 ```yaml
-Type: Int32
+Type: System.Int32
 Parameter Sets: (All)
 Aliases:
 
@@ -120,17 +122,32 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Cleanup
-Cleanup Write-Progress display in console
+### -Completed
+Cleanup any uncleared Progress bars
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: Cleanup
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: Completed
 Aliases:
 
 Required: True
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

@@ -37,16 +37,11 @@ Function Add-EnvPath {
           throw 'Path must be rooted!'
         }
 
-        if (-not (Test-Path -Path $_ -PathType Container)) {
-          Write-Warning -Message 'Unable to locate path.  Use $KeepUnavailablePaths'
-        }
-
         return $true
       })]
     [String[]]$Path,
     [System.EnvironmentVariableTarget]$VariableTarget = [System.EnvironmentVariableTarget]::User,
-    [switch]$PassThru,
-    [switch]$KeepUnavailablePaths
+    [switch]$PassThru
   )
   begin {
     if (-not (Test-IfAdmin)) {

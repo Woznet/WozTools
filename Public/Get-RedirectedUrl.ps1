@@ -1,85 +1,64 @@
 Function Get-RedirectedUrl {
-  <#
-      .SYNOPSIS
-      Get the redirected url from the Uri entered in the Uri parameter
+    <#
+.SYNOPSIS
+Retrieves the final redirected URL(s) of the given URI(s).
 
-      .DESCRIPTION
-      Uses HttpClient and the Head method to reterieve the RequestMessage.RequestUri.AbsoluteUri from the submitted Uri
+.DESCRIPTION
+The Get-RedirectedUrl function performs synchronous HTTP HEAD requests to the specified URI(s) and retrieves the final redirected URL(s). It can handle multiple URIs and is designed to be used in scenarios where you need to resolve the final destination of URL redirections.
 
-      .PARAMETER Uri
-      The url that is to be checked for a redirected url
+.PARAMETER Uri
+Specifies the URI(s) for which to retrieve the final redirected URL. The URI must be an absolute URI. This parameter accepts multiple URIs and supports pipeline input.
 
-      .INPUTS
-      [string] - Url, accepts multiple Urls
+.EXAMPLE
+Get-RedirectedUrl 'https://aka.ms/ad/list'
+This example retrieves the final redirected URL for 'https://aka.ms/ad/list'.
 
-      .OUTPUTS
-      [string] - returns the redirected url
+.EXAMPLE
+'https://aka.ms/admin', 'https://aka.ms/ad/list' | Get-RedirectedUrl
+This example demonstrates using the function with pipeline input to retrieve redirected URLs for multiple URIs.
 
-      .EXAMPLE
-      Get-RedirectedUrl https://aka.ms/ad/list
+.INPUTS
+System.String[]
+You can pipe a string array of absolute URIs to Get-RedirectedUrl.
 
-      https://github.com/microsoft/aka#readme
+.OUTPUTS
+System.String
+Outputs the final redirected URL for each input URI.
 
-      .EXAMPLE
-      'https://aka.ms/admin',
-      'https://aka.ms/azad',
-      'https://aka.ms/intune',
-      'https://aka.ms/in',
-      'https://aka.ms/entratemplates' | Get-RedirectedUrl
+.NOTES
+This function uses the System.Net.Http.HttpClient class to perform web requests. Each URI is processed synchronously, and the function disposes of all resources properly upon completion.
 
-      https://admin.microsoft.com/
-      https://portal.azure.com/Error/UE_404?aspxerrorpath=/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/Overview
-      https://intune.microsoft.com/Error/UE_404?aspxerrorpath=/
-      https://intune.microsoft.com/Error/UE_404?aspxerrorpath=/
-      https://www.microsoft.com/en-us/download/details.aspx?id=57600
-  #>
-  Param(
-    [Parameter(Mandatory,ValueFromPipeline,Position = 0)]
-    [ValidateScript({
-          if (-not ([uri]::IsWellFormedUriString($_,[System.UriKind]::Absolute))) {
-            throw ('{0}{1} - An invalid request URI was provided. Either the request URI must be an absolute URI or BaseAddress must be set.' -f "`n",$_)
-          }
-          return $true
-    })]
-    # Uri to get the redirected uri
-    [string]$Uri
-  )
-  begin {
-    Add-Type -AssemblyName System.Net.Http -ErrorAction Stop
-    $HttpClient = [System.Net.Http.HttpClient]::new()
-
-    $Awaiter = @()
-  }
-  process {
-    
-    $HttpRequestMessage = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Head, $Uri)
-    $Awaiter += $HttpClient.SendAsync($HttpRequestMessage).GetAwaiter()
-
-  }
-  end {
-    try{
-      $ClientResultAll = $Awaiter.GetResult()
-      $AbsoluteUri = $ClientResultAll.RequestMessage.RequestUri.AbsoluteUri
-
-      $HttpClient.Dispose()
-      $HttpRequestMessage.Dispose()
-      $ClientResultAll.Dispose()
-      [gc]::Collect()
-
+.LINK
+https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient
+#>
+    param(
+        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
+        [ValidateScript({
+                if (-not ([uri]::IsWellFormedUriString($_, [System.UriKind]::Absolute))) {
+                    throw ('Invalid URI: {0}. The URI must be an absolute URI.' -f $_)
+                }
+                return $true
+            })]
+        [string[]]$Uri
+    )
+    begin {
+        Add-Type -AssemblyName System.Net.Http -PassThru:$false -ErrorAction Stop
+        $HttpClient = [System.Net.Http.HttpClient]::new()
     }
-    catch {
-      [System.Management.Automation.ErrorRecord]$e = $_
-      [PSCustomObject]@{
-        Type      = $e.Exception.GetType().FullName
-        Exception = $e.Exception.Message
-        Reason    = $e.CategoryInfo.Reason
-        Target    = $e.CategoryInfo.TargetName
-        Script    = $e.InvocationInfo.ScriptName
-        Message   = $e.InvocationInfo.PositionMessage
-      }
-      throw $_
+    process {
+        foreach ($Url in $Uri) {
+            try {
+                $HttpRequestMessage = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Head, $Url)
+                $Response = $HttpClient.SendAsync($HttpRequestMessage).GetAwaiter().GetResult()
+                $Response.RequestMessage.RequestUri.AbsoluteUri
+            }
+            finally {
+                $HttpRequestMessage.Dispose()
+                $Response.Dispose()
+            }
+        }
     }
-
-    return $AbsoluteUri
-  }
+    end {
+        $HttpClient.Dispose()
+    }
 }

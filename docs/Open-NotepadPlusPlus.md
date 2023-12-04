@@ -13,7 +13,7 @@ Open file in NotepadPlusPlus
 ## SYNTAX
 
 ```
-Open-NotepadPlusPlus [[-Path] <String[]>] [<CommonParameters>]
+Open-NotepadPlusPlus [[-Path] <String[]>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,10 +35,10 @@ gci .\* | Open-NotepadPlusPlus
 ## PARAMETERS
 
 ### -Path
-\[Parameter(ValueFromPipeline)\]
+{{ Fill Path Description }}
 
 ```yaml
-Type: String[]
+Type: System.String[]
 Parameter Sets: (All)
 Aliases: FullName
 
@@ -46,6 +46,21 @@ Required: False
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

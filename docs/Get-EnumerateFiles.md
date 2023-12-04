@@ -1,5 +1,5 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
@@ -8,15 +8,17 @@ schema: 2.0.0
 # Get-EnumerateFiles
 
 ## SYNOPSIS
-Get-EnumerateFiles \[-Path\] \<string\> \[\[-Filter\] \<string\>\] \[-Recurse\] \[\<CommonParameters\>\]
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ```
-Get-EnumerateFiles -Path <String> [-Filter <String>] [-Recurse] [<CommonParameters>]
+Get-EnumerateFiles [-Path] <String> [[-Filter] <String>] [-Recurse] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -30,10 +32,40 @@ PS C:\> {{ Add example code here }}
 ## PARAMETERS
 
 ### -Filter
-@{Text=}
+{{ Fill Filter Description }}
 
 ```yaml
-Type: String
+Type: System.String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+{{ Fill Path Description }}
+
+```yaml
+Type: System.String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Recurse
+{{ Fill Recurse Description }}
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
@@ -44,28 +76,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Path
-@{Text=}
+### -ProgressAction
+{{ Fill ProgressAction Description }}
 
 ```yaml
-Type: String
+Type: System.Management.Automation.ActionPreference
 Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Recurse
-@{Text=}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
+Aliases: proga
 
 Required: False
 Position: Named
@@ -80,6 +97,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
+
 ## OUTPUTS
 
 ### System.Object

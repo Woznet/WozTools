@@ -1,5 +1,5 @@
 ---
-external help file: Woztools-Help.xml
+external help file: WozTools-help.xml
 Module Name: WozTools
 online version:
 schema: 2.0.0
@@ -8,7 +8,7 @@ schema: 2.0.0
 # Test-IfAdmin
 
 ## SYNOPSIS
-Test-IfAdmin
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
@@ -17,6 +17,7 @@ Test-IfAdmin
 ```
 
 ## DESCRIPTION
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
@@ -32,6 +33,7 @@ PS C:\> {{ Add example code here }}
 ## INPUTS
 
 ### None
+
 ## OUTPUTS
 
 ### System.Object

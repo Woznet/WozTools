@@ -86,6 +86,16 @@ function Test-PendingReboot {
       IsRebootPending                  : True
 
       .LINK
+
+      .NOTES
+      Author:  Woz
+      Updated: 12-4-2023
+
+      Original Author:  Brian Wilhite
+      Email:   bcwilhite (at) live.com
+			
+			
+			
       Background:
       https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/10/determine-pending-reboot-statuspowershell-style-part-1/
       https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/11/determine-pending-reboot-statuspowershell-style-part-2/
@@ -100,13 +110,7 @@ function Test-PendingReboot {
 
       CCM_ClientSDK:
       http://msdn.microsoft.com/en-us/library/jj902723.aspx
-
-      .NOTES
-      Author:  Woz
-      Updated: 8-14-2023
-
-      Original Author:  Brian Wilhite
-      Email:   bcwilhite (at) live.com
+			
   #>
   [CmdletBinding()]
   param(

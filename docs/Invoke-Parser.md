@@ -8,42 +8,58 @@ schema: 2.0.0
 # Invoke-Parser
 
 ## SYNOPSIS
-Get the Commands and Variables used in a script (ps1,psm1,etc), code/scriptblock or, function definition.
+Parses a PowerShell script, scriptblock, or function definition to extract used commands and variables.
 
 ## SYNTAX
 
 ### File
 ```
-Invoke-Parser -Path <String> [<CommonParameters>]
+Invoke-Parser -Path <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Code
 ```
-Invoke-Parser -Code <String> [<CommonParameters>]
+Invoke-Parser -Code <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### FunctionName
 ```
-Invoke-Parser -FunctionName <String> [<CommonParameters>]
+Invoke-Parser -FunctionName <String> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+The Invoke-Parser function analyzes PowerShell code from a file, a code snippet, or a function definition.
+It extracts and lists all the commands and variables used in the input.
+It supports three modes of input: File, Code, and FunctionName.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Invoke-Parser -Path C:\temp\random-script.ps1
+Invoke-Parser -Path 'C:\temp\random-script.ps1'
+Parses the PowerShell script at the specified path and returns the commands and variables used in the script.
+```
+
+### EXAMPLE 2
+```
+Invoke-Parser -Code '$a = 1; Write-Output $a'
+Parses the provided code snippet and returns the commands and variables used in it.
+```
+
+### EXAMPLE 3
+```
+Invoke-Parser -FunctionName 'Get-Process'
+Parses the definition of the 'Get-Process' function and returns the commands and variables used in it.
 ```
 
 ## PARAMETERS
 
 ### -Path
-{{ Fill Path Description }}
+Specifies the path to a PowerShell script file.
+The function parses the file and extracts commands and variables used in it.
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: File
 Aliases:
 
@@ -55,10 +71,11 @@ Accept wildcard characters: False
 ```
 
 ### -Code
-{{ Fill Code Description }}
+Specifies a string containing a block of PowerShell code.
+The function parses the code to extract commands and variables.
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: Code
 Aliases:
 
@@ -70,14 +87,30 @@ Accept wildcard characters: False
 ```
 
 ### -FunctionName
-{{ Fill FunctionName Description }}
+Specifies the name of a PowerShell function.
+The function parses the function definition to extract commands and variables.
 
 ```yaml
-Type: String
+Type: System.String
 Parameter Sets: FunctionName
 Aliases:
 
 Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: System.Management.Automation.ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -89,8 +122,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
+### String
 ## OUTPUTS
 
+### PSCustomObject
 ## NOTES
 
 ## RELATED LINKS
