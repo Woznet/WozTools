@@ -226,8 +226,3 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
         Pop-Location -StackName StartingPath
     }
 }
-        $UserPathList
-
-        Pop-Location -StackName StartingPath
-    }
-}
