@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version: https://gist.github.com/Jaykul/72f30dce2cca55e8cd73e97670db0b09/
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Get-ParameterValues.md
 schema: 2.0.0
 ---
 

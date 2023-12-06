@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version:
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Get-InstalledSoftware.md
 schema: 2.0.0
 ---
 

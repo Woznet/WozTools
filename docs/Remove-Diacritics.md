@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version: https://github.com/jasoth/Utility.PS
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Remove-Diacritics.md
 schema: 2.0.0
 ---
 

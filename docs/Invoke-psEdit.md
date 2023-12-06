@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version: https://docs.microsoft.com/en-us/powershell/scripting/windows-powershell/ise/the-windows-powershell-ise?view=powershell-7.1
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Invoke-psEdit.md
 schema: 2.0.0
 ---
 

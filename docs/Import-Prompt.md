@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version:
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Import-Prompt.md
 schema: 2.0.0
 ---
 
@@ -22,7 +22,7 @@ Import-Prompt
 ## EXAMPLES
 
 ### Example 1
-```powershell
+```
 PS C:\> {{ Add example code here }}
 ```
 
@@ -33,10 +33,12 @@ PS C:\> {{ Add example code here }}
 ## INPUTS
 
 ### None
-
 ## OUTPUTS
 
 ### System.Object
 ## NOTES
 
 ## RELATED LINKS
+
+[Online Version:](https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-paths)
+

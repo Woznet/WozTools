@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version: https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-pscustomobject
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Invoke-InDirectory.md
 schema: 2.0.0
 ---
 

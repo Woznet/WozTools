@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version: https://chocolatey.org/docs/commands-upgrade
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Invoke-ChocoUpgradeAll.md
 schema: 2.0.0
 ---
 

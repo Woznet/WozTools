@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version: https://docs.microsoft.com/en-us/dotnet/api/system.security.securestring
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Convert-SecureString.md
 schema: 2.0.0
 ---
 

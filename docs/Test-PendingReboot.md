@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version:
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Test-PendingReboot.md
 schema: 2.0.0
 ---
 
@@ -209,18 +209,21 @@ Email:   bcwilhite (at) live.com
 
 
 Background:
-https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/10/determine-pending-reboot-statuspowershell-style-part-1/
-https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/11/determine-pending-reboot-statuspowershell-style-part-2/
+[https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/10/determine-pending-reboot-statuspowershell-style-part-1/](https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/10/determine-pending-reboot-statuspowershell-style-part-1/)
+[https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/11/determine-pending-reboot-statuspowershell-style-part-2/](https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/11/determine-pending-reboot-statuspowershell-style-part-2/)
 
 Component-Based Servicing:
-http://technet.microsoft.com/en-us/library/cc756291(v=WS.10).aspx
+[http://technet.microsoft.com/en-us/library/cc756291(v=WS.10).aspx](http://technet.microsoft.com/en-us/library/cc756291(v=WS.10).aspx)
 
 PendingFileRename/Auto Update:
-http://support.microsoft.com/kb/2723674
-http://technet.microsoft.com/en-us/library/cc960241.aspx
-http://blogs.msdn.com/b/hansr/archive/2006/02/17/patchreboot.aspx
+[http://support.microsoft.com/kb/2723674](http://support.microsoft.com/kb/2723674)
+[http://technet.microsoft.com/en-us/library/cc960241.aspx](http://technet.microsoft.com/en-us/library/cc960241.aspx)
+[http://blogs.msdn.com/b/hansr/archive/2006/02/17/patchreboot.aspx](http://blogs.msdn.com/b/hansr/archive/2006/02/17/patchreboot.aspx)
 
 CCM_ClientSDK:
-http://msdn.microsoft.com/en-us/library/jj902723.aspx
+[http://msdn.microsoft.com/en-us/library/jj902723.aspx](http://msdn.microsoft.com/en-us/library/jj902723.aspx)
 
 ## RELATED LINKS
+
+
+

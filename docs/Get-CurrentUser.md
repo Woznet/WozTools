@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version:
+online version: https://github.com/Woznet/WozTools/blob/main/docs/Get-CurrentUser.md
 schema: 2.0.0
 ---
 
@@ -22,7 +22,7 @@ Get-CurrentUser [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ## EXAMPLES
 
 ### Example 1
-```powershell
+```
 PS C:\> {{ Add example code here }}
 ```
 
@@ -51,10 +51,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### None
-
 ## OUTPUTS
 
 ### System.Object
 ## NOTES
 
 ## RELATED LINKS
+
+[Online Version:](https://docs.microsoft.com/en-us/dotnet/api/system.security.securestring)
+

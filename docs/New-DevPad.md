@@ -1,7 +1,7 @@
----
+﻿---
 external help file: WozTools-help.xml
 Module Name: WozTools
-online version: https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/environment-provider
+online version: https://github.com/Woznet/WozTools/blob/main/docs/New-DevPad.md
 schema: 2.0.0
 ---
 
