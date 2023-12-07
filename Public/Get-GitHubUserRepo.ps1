@@ -61,15 +61,23 @@ function Get-GitHubUserRepo {
         # Param4 help - ThrottleLimit for Invoke-ForEachParallel
         [int]$ThrottleLimit = 5,
         [switch]$FilterByLanguage,
-        [string[]]$Languages = @('PowerShell', 'C#')
+        [string[]]$Languages = @('PowerShell', 'C#'),
+				# Param5 help - GitHub Api token
+				[string]$Token = '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'
     )
     Begin {
+		
+		Join-Path -Path $PSScriptRoot -ChildPath '..\Private' -Resolve | Get-ChildItem -Filter '*.ps1' | ForEach-Object { . $_.FullName }
+		
         if (-not [System.IO.Path]::IsPathRooted($Path)) {
             Write-Warning 'Odd errors when -Path parameter is not a rooted path.'
             Write-Warning ('Attempting to get complete path using [System.IO.Path]::GetFullPath({0}).' -f $Path)
             $Path = [System.IO.Path]::GetFullPath($Path)
         }
-
+if ($Token) {
+$PSDefaultParameterValues.GetEnumerator().Where({$_.Key -match 'GitHubApi'}).ForEach({$PSDefaultParameterValues.Remove($_.Key)})
+$PSDefaultParameterValues.Add('Get-GitHubApi*:Token', $Token)
+}
         Push-Location -Path $PWD.ProviderPath -StackName StartingPath
         Push-Location -Path $Path
 
