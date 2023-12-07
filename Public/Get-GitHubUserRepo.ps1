@@ -62,22 +62,22 @@ function Get-GitHubUserRepo {
         [int]$ThrottleLimit = 5,
         [switch]$FilterByLanguage,
         [string[]]$Languages = @('PowerShell', 'C#'),
-				# Param5 help - GitHub Api token
-				[string]$Token = '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'
+        # Param5 help - GitHub Api token
+        [string]$Token
     )
     Begin {
-		
-		Join-Path -Path $PSScriptRoot -ChildPath '..\Private' -Resolve | Get-ChildItem -Filter '*.ps1' | ForEach-Object { . $_.FullName }
-		
+
+        Join-Path -Path $PSScriptRoot -ChildPath '..\Private' -Resolve | Get-ChildItem -Filter '*.ps1' | ForEach-Object { . $_.FullName }
+
         if (-not [System.IO.Path]::IsPathRooted($Path)) {
             Write-Warning 'Odd errors when -Path parameter is not a rooted path.'
             Write-Warning ('Attempting to get complete path using [System.IO.Path]::GetFullPath({0}).' -f $Path)
             $Path = [System.IO.Path]::GetFullPath($Path)
         }
-if ($Token) {
-$PSDefaultParameterValues.GetEnumerator().Where({$_.Key -match 'GitHubApi'}).ForEach({$PSDefaultParameterValues.Remove($_.Key)})
-$PSDefaultParameterValues.Add('Get-GitHubApi*:Token', $Token)
-}
+        if ($Token) {
+            $PSDefaultParameterValues.GetEnumerator().Where({ $_.Key -match 'GitHubApi' }).ForEach({ $PSDefaultParameterValues.Remove($_.Key) })
+            $PSDefaultParameterValues.Add('Get-GitHubApi*:Token', $Token)
+        }
         Push-Location -Path $PWD.ProviderPath -StackName StartingPath
         Push-Location -Path $Path
 
@@ -156,9 +156,17 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                     $Count++
                     Write-MyProgress -StartTime $StartTime -Object $UserGist -Count $Count
                     $UGist = $PSItem
-                    Start-Process -WorkingDirectory $TempGistDir -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $UGist.git_pull_url) -WindowStyle Hidden -Wait
+                    $StartProcesParams = @{
+                        WorkingDirectory = $TempGistDir
+                        FilePath = 'git.exe'
+                        ArgumentList = ('clone --recursive {0}' -f $UGist.git_pull_url)
+                        WindowStyle = 'Hidden'
+                        Wait = $true
+                    }
+                    Start-Process @StartProcesParams
                     $UGistDir = Join-Path -Path $TempGistDir -ChildPath $UGist.id
-          (Join-Path -Path $UGistDir -ChildPath . -Resolve), (Join-Path -Path $UGistDir -ChildPath * -Resolve) | Get-Item | ForEach-Object {
+                        ((Join-Path -Path $UGistDir -ChildPath . -Resolve),
+                        (Join-Path -Path $UGistDir -ChildPath * -Resolve)) | Get-Item | ForEach-Object {
                         Write-Verbose ('Changing LastWriteTime to Gist updated_at value - {0}' -f $_.Name)
                         $_.LastWriteTime = $UGist.updated_at
                     }
