@@ -36,7 +36,8 @@
         'PSUseProcessBlockForPipelineCommand',
         'PSUsePSCredentialType',
         'PSUseShouldProcessForStateChangingFunctions',
-        'PSUseSingularNouns'
+        'PSUseSingularNouns',
+        'UseUTF8EncodingForHelpFile'
     )
 
     Rules = @{
@@ -83,7 +84,7 @@
             CheckPipeForRedundantWhitespace = $true
             CheckSeparator = $true
             CheckParameter = $true
-            IgnoreAssignmentOperatorInsideHashTable = $true
+            IgnoreAssignmentOperatorInsideHashTable = $false
         }
 
         PSAlignAssignmentStatement = @{
