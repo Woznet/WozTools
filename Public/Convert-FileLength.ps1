@@ -25,32 +25,32 @@ function Convert-FileLength {
   [CmdletBinding()]
   [Alias('Convert-Size')]
   param(
-    [Parameter(Mandatory,ValueFromPipelineByPropertyName,ValueFromPipeline)]
+    [Parameter(
+      Mandatory,
+      ValueFromPipelineByPropertyName,
+      ValueFromPipeline
+    )]
     [Alias('Size')]
     [long]$Length
   )
   begin {
     try {
-      $null = [WozDev.Win32API.LengthConverter]
+      $null = [WozDev.LengthFormatter]
     }
     catch {
       Write-Verbose ' ~ Required Type not loaded, starting Add-Type process ~' -Verbose
       $MemberDef =  @'
 [DllImport("Shlwapi.dll", CharSet = CharSet.Auto)]
-public static extern long StrFormatByteSize(
-long fileSize,
-System.Text.StringBuilder buffer,
-int bufferSize
-);
+public static extern long StrFormatByteSize(long fileSize, System.Text.StringBuilder buffer, int bufferSize);
 '@
       $LengthConverter = Add-Type -Name LengthConverter -Namespace 'WozDev.Win32API' -MemberDefinition $MemberDef
     }
 
   }
   process {
-    if ('WozDev.Win32API.LengthConverter' -as [type]) {
-      $StringBuilder = [System.Text.StringBuilder]::new(1024)
-      $null = [WozDev.Win32API.LengthConverter]::StrFormatByteSize(
+    if ('WozDev.LengthFormatter' -as [type]) {
+      if (-not ($StringBuilder)) { $global:StringBuilder = [System.Text.StringBuilder]::new(1024) }
+      $null = [WozDev.LengthFormatter]::StrFormatByteSize(
         $Length,
         $StringBuilder,
         $StringBuilder.Capacity
@@ -58,7 +58,7 @@ int bufferSize
       return $StringBuilder.ToString()
     }
     else {
-      # Add ANSI color for missing LengthConverter
+      # Add ANSI color for missing LengthFormatter
       return $Length
     }
   }

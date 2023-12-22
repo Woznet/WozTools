@@ -186,6 +186,47 @@ if (-not ($psISE)) {
 
   #######################################################
 
+  Set-PSReadLineKeyHandler -Key Alt+@,Ctrl+@ -BriefDescription InsertPairedHereString -LongDescription 'Insert matching here string' -ScriptBlock {
+    param($Key, $Arg)
+
+    switch($Key.Modifiers) {
+      'Alt' {
+    $OpenChar = "@`"" + "`n"
+    $CloseChar = "`n" + "`"@"
+    break
+      }
+      'Control' {
+    $OpenChar = "@'" + "`n"
+    $CloseChar = "`n" + "'@"
+    break
+      }
+      default {
+    $OpenChar = "@`"" + "`n"
+    $CloseChar = "`n" + "`"@"
+    break
+      }
+    }
+
+    $SelectionStart = $null
+    $SelectionLength = $null
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetSelectionState([ref]$SelectionStart, [ref]$SelectionLength)
+    $Line = $null
+    $Cursor = $null
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$Line, [ref]$Cursor)
+    if ($SelectionStart -ne -1) {
+      # Text is selected, wrap it in here string
+      [Microsoft.PowerShell.PSConsoleReadLine]::Replace($SelectionStart, $SelectionLength, $OpenChar + $Line.SubString($SelectionStart, $SelectionLength) + $CloseChar)
+      [Microsoft.PowerShell.PSConsoleReadLine]::SetCursorPosition($SelectionStart + $SelectionLength + 6)
+    }
+    else {
+      # No text is selected, insert a here string
+      [Microsoft.PowerShell.PSConsoleReadLine]::Insert("$($OpenChar)$CloseChar")
+      [Microsoft.PowerShell.PSConsoleReadLine]::SetCursorPosition($Cursor + 3)
+    }
+  }
+
+  #######################################################
+
   # F1 for help on the command line - naturally
   Set-PSReadLineKeyHandler -Key F1 -BriefDescription CommandHelp -LongDescription 'Open the help window for the current command' -ScriptBlock {
     [CmdletBinding()]
@@ -261,7 +302,6 @@ if (-not ($psISE)) {
   }
 
   #######################################################
-
 
 
   Set-PSReadLineKeyHandler -Chord Ctrl+w -ScriptBlock {

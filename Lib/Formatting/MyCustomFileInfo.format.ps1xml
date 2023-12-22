@@ -85,7 +85,7 @@ Modified formatting of directory output to include Symlinks and Hardlinks
               <TableColumnItem>
                 <ScriptBlock>
                   if     ($_ -is [System.IO.DirectoryInfo]) {''}
-                  elseif ($_.Length) {(Convert-FileLength -Length $_.Length).ToString()}
+                  elseif ($_.Length -as [int]) {(Convert-FileLength -Length $_.Length).ToString()}
                   else   {$_.Length.ToString()}
                 </ScriptBlock>
               </TableColumnItem>
