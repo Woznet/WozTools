@@ -36,7 +36,8 @@
         'PSUseProcessBlockForPipelineCommand',
         'PSUsePSCredentialType',
         'PSUseShouldProcessForStateChangingFunctions',
-        'PSUseSingularNouns'
+        'PSUseSingularNouns',
+        'UseUTF8EncodingForHelpFile'
     )
 
     Rules = @{
