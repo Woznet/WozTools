@@ -7,7 +7,7 @@ foreach ($Import in @($Public + $Private + $Lib)) {
 # foreach ($Import in @($Public + $Private)) {
 # foreach ($Import in $Public) {
   try {
-    switch $Import.Extension) {
+    switch ($Import.Extension) {
       '.ps1' {
         Write-Verbose -Message ('Importing - {0}' -f $Import.Name)
         . $Import.FullName
@@ -25,5 +25,5 @@ foreach ($Import in @($Public + $Private + $Lib)) {
   }
 }
 
-Export-ModuleMember -Function $Public.Basename -Alias *
-# Export-ModuleMember -Function * -Alias *
+# Export-ModuleMember -Function $Public.Basename -Alias *
+Export-ModuleMember -Function * -Alias *
