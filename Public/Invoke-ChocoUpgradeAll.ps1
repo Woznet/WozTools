@@ -4,7 +4,8 @@ function Invoke-ChocoUpgradeAll {
 Upgrades all outdated Chocolatey packages.
 
 .DESCRIPTION
-The Invoke-ChocoUpgradeAll function checks for outdated Chocolatey packages and optionally upgrades them. It requires Chocolatey to be installed and accessible in the system PATH.
+The Invoke-ChocoUpgradeAll function checks for outdated Chocolatey packages and optionally upgrades them. It requires Chocolatey to be
+installed and accessible in the system PATH.
 
 .PARAMETER CheckOnly
 If specified, the function will only check for outdated packages without performing any upgrades.
@@ -50,14 +51,14 @@ https://chocolatey.org/docs/commands-upgrade
   $UpgradeApps = choco outdated --limit-output | ConvertFrom-Csv -Delimiter '|' -Header Name, Version, NewVersion, Pinned | Select-Object -Property Name, @{n = 'Version'; e = { $_.Version -as [version] } }, @{n = 'NewVersion'; e = { $_.NewVersion -as [version] } }
 
   if ($UpgradeApps.Count) {
-    $message = "Chocolatey can upgrade $($UpgradeApps.Count) packages."
-    Write-Output $message
+    $Message = "Chocolatey can upgrade $($UpgradeApps.Count) packages."
+    Write-Output $Message
 
     if ($CheckOnly) {
       return $UpgradeApps
     }
     else {
-      if ($PSCmdlet.ShouldProcess($message, 'Perform upgrades')) {
+      if ($PSCmdlet.ShouldProcess($Message, 'Perform upgrades')) {
         Write-Verbose "Installing choco upgrades using 'choco upgrade --no-progress --limit-output $($UpgradeApps.Name -join ' ')'"
         $CounterValue = 0
         $StartTime = [DateTime]::Now
@@ -65,7 +66,10 @@ https://chocolatey.org/docs/commands-upgrade
           $CounterValue++
           Write-MyProgress -StartTime $StartTime -Object $UpgradeApps.Name -CounterValue $CounterValue
 
-          choco.exe upgrade --no-progress --limit-output $UpApp
+          $ChocoCommand = '& {1}choco.exe upgrade --no-progress --limit-output {0}{2}' -f $UpApp,([char][int]123),([char][int]125)
+
+		  Start-Process -Wait -WindowStyle Minimized -FilePath powershell -ArgumentList "-NoProfile -NoLogo -Command $ChocoCommand"
+		  $ChocoCommand = $null
         }
         Write-MyProgress -Completed
       }
