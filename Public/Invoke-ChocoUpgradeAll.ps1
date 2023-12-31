@@ -51,7 +51,7 @@ https://chocolatey.org/docs/commands-upgrade
   $UpgradeApps = choco outdated --limit-output | ConvertFrom-Csv -Delimiter '|' -Header Name, Version, NewVersion, Pinned | Select-Object -Property Name, @{n = 'Version'; e = { $_.Version -as [version] } }, @{n = 'NewVersion'; e = { $_.NewVersion -as [version] } }
 
   if ($UpgradeApps.Count) {
-    $Message = "Chocolatey can upgrade $($UpgradeApps.Count) packages."
+    $Message = 'Chocolatey can upgrade {0} packages.' -f $UpgradeApps.Count
     Write-Output $Message
 
     if ($CheckOnly) {
@@ -59,17 +59,17 @@ https://chocolatey.org/docs/commands-upgrade
     }
     else {
       if ($PSCmdlet.ShouldProcess($Message, 'Perform upgrades')) {
-        Write-Verbose "Installing choco upgrades using 'choco upgrade --no-progress --limit-output $($UpgradeApps.Name -join ' ')'"
+        Write-Verbose 'Starting instal of choco upgrades'
         $CounterValue = 0
         $StartTime = [DateTime]::Now
         foreach ($UpApp in $UpgradeApps.Name) {
           $CounterValue++
           Write-MyProgress -StartTime $StartTime -Object $UpgradeApps.Name -CounterValue $CounterValue
 
-          $ChocoCommand = '& {1}choco.exe upgrade --no-progress --limit-output {0}{2}' -f $UpApp,([char][int]123),([char][int]125)
+          $ChocoCommand = '& {1}choco.exe upgrade --no-progress --limit-output {0}{2}' -f $UpApp, ([char][int]123), ([char][int]125)
 
-		  Start-Process -Wait -WindowStyle Minimized -FilePath powershell -ArgumentList "-NoProfile -NoLogo -Command $ChocoCommand"
-		  $ChocoCommand = $null
+          Start-Process -FilePath powershell -ArgumentList "-NoProfile -NoLogo -Command $ChocoCommand" -Wait -WindowStyle Minimized
+          $ChocoCommand = $null
         }
         Write-MyProgress -Completed
       }
