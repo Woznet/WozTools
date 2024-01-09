@@ -20,16 +20,16 @@ function Open-NotepadPlusPlus {
       assumes notepad++.exe is within $env:PATH
       Install with chocolatey if needed
   #>
-  [Alias('npp','Open-NPP')]
+  [Alias('npp', 'Open-NPP')]
   param(
-    [Parameter(ValueFromPipelineByPropertyName,ValueFromPipeline)]
+    [Parameter(ValueFromPipelineByPropertyName, ValueFromPipeline)]
     [Alias('FullName')]
     [ValidateScript({
-          if( -not ($_ | Test-Path -PathType Leaf) ) {
-            throw 'File does not exist'
-          }
-          return $true
-    })]
+        if ( -not ($_ | Test-Path -PathType Leaf) ) {
+          throw 'File does not exist'
+        }
+        return $true
+      })]
     [String[]]$Path
   )
   begin {
@@ -38,24 +38,22 @@ function Open-NotepadPlusPlus {
     }
   }
   process {
-    if ($Path) {
-      try {
-        foreach($File in ($ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path))){
-          & notepad++.exe $File
-        }
+    try {
+      foreach ($File in ($ExecutionContext.SessionState.Path.GetResolvedPSPathFromPSPath($Path))) {
+        & notepad++.exe $File
       }
-      catch {
-        [System.Management.Automation.ErrorRecord]$e = $_
-        [PSCustomObject]@{
-          Type      = $e.Exception.GetType().FullName
-          Exception = $e.Exception.Message
-          Reason    = $e.CategoryInfo.Reason
-          Target    = $e.CategoryInfo.TargetName
-          Script    = $e.InvocationInfo.ScriptName
-          Message   = $e.InvocationInfo.PositionMessage
-        }
-        Write-Warning $_
+    }
+    catch {
+      [System.Management.Automation.ErrorRecord]$e = $_
+      [PSCustomObject]@{
+        Type      = $e.Exception.GetType().FullName
+        Exception = $e.Exception.Message
+        Reason    = $e.CategoryInfo.Reason
+        Target    = $e.CategoryInfo.TargetName
+        Script    = $e.InvocationInfo.ScriptName
+        Message   = $e.InvocationInfo.PositionMessage
       }
+      Write-Warning $_
     }
   }
 }

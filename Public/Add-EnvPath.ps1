@@ -56,7 +56,7 @@ Function Add-EnvPath {
   }
   process {
     foreach ($NDir in $Path) {
-      $NDir = [System.IO.Path]::TrimEndingDirectorySeparator($NDir)
+      $NDir = $NDir.TrimEnd([System.IO.Path]::DirectorySeparatorChar)
       if ($NewPath -notcontains $NDir) { $null = $NewPath.Add($NDir) }
       else { Write-Warning -Message ('SKIPPING DUPLICATE: {0}' -f $NDir) }
     }

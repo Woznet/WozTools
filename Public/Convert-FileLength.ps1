@@ -43,7 +43,7 @@ function Convert-FileLength {
 [DllImport("Shlwapi.dll", CharSet = CharSet.Auto)]
 public static extern long StrFormatByteSize(long fileSize, System.Text.StringBuilder buffer, int bufferSize);
 '@
-      $LengthConverter = Add-Type -Name LengthConverter -Namespace 'WozDev.Win32API' -MemberDefinition $MemberDef
+      $LengthConverter = Add-Type -Name LengthConverter -Namespace 'WozDev' -MemberDefinition $MemberDef
     }
 
   }

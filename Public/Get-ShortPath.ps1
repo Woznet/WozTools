@@ -42,27 +42,31 @@ https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everythin
         [string]$Path = $PWD.Path
     )
     process {
-        if (-not ($null -eq $Host.UI.RawUI.WindowSize.Width)) {
-            $DirChar = [System.IO.Path]::DirectorySeparatorChar
-            $WindowSizeFactor = 3  # Determines how much of the window width the path should fill
-            $MaxPromptPath = [int]($Host.UI.RawUI.WindowSize.Width / $WindowSizeFactor)
+        if ($null -ne $Host.UI.RawUI.WindowSize.Width) {
+            $MaxPromptPath = [int]($Host.UI.RawUI.WindowSize.Width / 3)
             $CurrPath = $Path -replace '^[^:]+::'
+            $DSC = [System.IO.Path]::DirectorySeparatorChar
 
             if ($CurrPath.Length -ge $MaxPromptPath) {
-                $PathParts = $CurrPath.Split($DirChar)
-                $MyPath = $PathParts[0], '...', $PathParts[$PathParts.Length - 1] -join $DirChar
-                $Counter = $PathParts.Length - 2
+                $PathParts = $CurrPath.Split($DSC)
+                $EndPath = [System.Text.StringBuilder]::new()
 
-                while (($MyPath.Replace('...', ('...', $PathParts[$Counter] -join $DirChar)).Length -lt $MaxPromptPath) -and ($Counter -ne 0)) {
-                    $MyPath = $MyPath.Replace('...', ('...', $PathParts[$Counter] -join $DirChar))
-                    $Counter--
+                for ($i = $PathParts.Length - 1; $i -gt 0; $i--) {
+                    $TempPart = $PathParts[$i]
+                    $TempPath = [System.IO.Path]::Combine($EndPath.ToString(), $TempPart)
+                    if ($TempPath.Length -lt $MaxPromptPath) {
+                        [void]$EndPath.Insert(0, $TempPart + $DSC)
+                    }
+                    else {
+                        break
+                    }
                 }
+                $GSPath = '{0}{1}...{1}{2}' -f $PathParts[0], $DSC, $EndPath.ToString().TrimEnd($DSC)
             }
             else {
-                $MyPath = $CurrPath
+                $GSPath = $CurrPath
             }
-
-            return $MyPath
+            return $GSPath
         }
     }
 }
