@@ -31,6 +31,9 @@ function Get-GitHubUserRepo {
         .PARAMETER Languages
         The languages to filter repositories for when FilterByLanguage switch is used.
 
+        .PARAMETER Token
+        GitHub API token.  If not set, function checks for env:GITHUB_TOKEN and uses that for the Token parameter if it exists.
+
         .EXAMPLE
         Get-GitHubUserRepo -UserName WozNet -Path 'V:\git\users' -Exclude 'docs'
 
@@ -66,7 +69,13 @@ function Get-GitHubUserRepo {
         [string]$Token
     )
     Begin {
-
+        if (-not $Token) {
+            Write-Verbose 'Token parameter was not set, check for env var env:GITHUB_TOKEN'
+            if ($env:GITHUB_TOKEN) {
+                Write-Verbose 'env:GITHUB_TOKEN was found. Setting Token parameter to env:GITHUB_TOKEN'
+                $Token = $env:GITHUB_TOKEN
+            }
+        }
         Join-Path -Path $PSScriptRoot -ChildPath '..\Private' -Resolve | Get-ChildItem -Filter '*.ps1' | ForEach-Object { . $_.FullName }
 
         if (-not [System.IO.Path]::IsPathRooted($Path)) {
@@ -172,7 +181,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                     }
                     $UGist, $UGistDir = $null
                     Start-Sleep -Milliseconds 50
-                } -End { Write-MyProgress -Cleanup }
+                } -End { Write-MyProgress -Completed }
 
                 ### Delete .git folders from cloned gist
                 Get-ChildItem -Path $TempGistDir | ForEach-Object { Join-Path -Path $_ -ChildPath '.git' -Resolve } | Remove-Item -Recurse -Force
