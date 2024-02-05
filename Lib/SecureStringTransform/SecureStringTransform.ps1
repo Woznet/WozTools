@@ -21,7 +21,7 @@ Using the attribute in a function:
 function Test-SecureInput {
     param(
         [SecureStringTransform()]
-        [SecureString]$SecureInput
+        [securestring]$SecureInput
     )
     $SecureInput
 }
@@ -54,7 +54,7 @@ https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.argumen
 # create a transform attribute that transforms plain text and pscredential to secure string
 class SecureStringTransformAttribute : System.Management.Automation.ArgumentTransformationAttribute {
     [object] Transform([System.Management.Automation.EngineIntrinsics]$EngineIntrinsics, [object] $InputData) {
-        if ($InputData -is [SecureString]) {
+        if ($InputData -is [securestring]) {
             # Input is already a SecureString, return as-is:
             return $InputData
         }
