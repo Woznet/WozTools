@@ -25,7 +25,9 @@ Modified formatting of directory output to include Symlinks and Hardlinks
               <Frame>
                 <LeftIndent>4</LeftIndent>
                 <CustomItem>
-                  <Text AssemblyName="System.Management.Automation" BaseName="FileSystemProviderStrings" ResourceId="DirectoryDisplayGrouping"/>
+                  <Text AssemblyName="System.Management.Automation"
+                    BaseName="FileSystemProviderStrings"
+                    ResourceId="DirectoryDisplayGrouping"/>
                   <ExpressionBinding>
                     <ScriptBlock>$_.PSParentPath.Replace('Microsoft.PowerShell.Core\FileSystem::', '')</ScriptBlock>
                   </ExpressionBinding>
@@ -54,17 +56,17 @@ Modified formatting of directory output to include Symlinks and Hardlinks
           <TableColumnHeader>
             <Label>Mode</Label>
             <Width>7</Width>
-            <Alignment>left</Alignment>
+            <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>LastWriteTime</Label>
             <Width>25</Width>
-            <Alignment>right</Alignment>
+            <Alignment>Right</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Length</Label>
             <Width>14</Width>
-            <Alignment>right</Alignment>
+            <Alignment>Right</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Name</Label>
@@ -96,7 +98,7 @@ Modified formatting of directory output to include Symlinks and Hardlinks
                   elseif(-not [string]::IsNullOrEmpty($_.ResolvedTarget) -and -not [string]::IsNullOrEmpty($_.LinkType))
                   {'{0} -({2})-> {1}' -f $_.Name,$_.ResolvedTarget,$_.LinkType}
                   else {$_.Name}
-								</ScriptBlock>
+                </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

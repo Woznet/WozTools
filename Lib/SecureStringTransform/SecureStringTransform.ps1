@@ -50,7 +50,6 @@ https://powershell.one/powershell-internals/attributes/transformation
 https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.argumenttransformationattribute
 
 #>
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'necessary for script to function properly')]
 # create a transform attribute that transforms plain text and pscredential to secure string
 class SecureStringTransformAttribute : System.Management.Automation.ArgumentTransformationAttribute {
     [object] Transform([System.Management.Automation.EngineIntrinsics]$EngineIntrinsics, [object] $InputData) {
