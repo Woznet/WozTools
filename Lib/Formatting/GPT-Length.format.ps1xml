@@ -1,0 +1,38 @@
+<Configuration>
+    <ViewDefinitions>
+        <View>
+            <Name>System.IO.FileInfo</Name>
+            <ViewSelectedBy>
+                <TypeName>System.IO.FileInfo</TypeName>
+            </ViewSelectedBy>
+            <TableControl>
+                <TableHeaders>
+                    <TableColumnHeader>
+                        <Label>Name</Label>
+                        <Width>20</Width>
+                    </TableColumnHeader>
+                    <TableColumnHeader>
+                        <Label>Length (Custom)</Label>
+                        <Width>15</Width>
+                    </TableColumnHeader>
+                </TableHeaders>
+                <TableRowEntries>
+                    <TableRowEntry>
+                        <TableColumnItems>
+                            <TableColumnItem>
+                                <PropertyName>Name</PropertyName>
+                            </TableColumnItem>
+                            <TableColumnItem>
+                                <ScriptBlock>
+                        if     ($_ -is [System.IO.DirectoryInfo]) {''}
+                        elseif ($_.Length -as [int]) {(Convert-FileLength -Length $_.Length).ToString()}
+                        else   {$_.Length.ToString()}
+                                </ScriptBlock>
+                            </TableColumnItem>
+                        </TableColumnItems>
+                    </TableRowEntry>
+                </TableRowEntries>
+            </TableControl>
+        </View>
+    </ViewDefinitions>
+</Configuration>

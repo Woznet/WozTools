@@ -11,7 +11,8 @@ Add-Type -Path (Join-Path $PSScriptRoot -ChildPath 'LengthFormatter\LengthFormat
 
 . (Join-Path $PSScriptRoot -ChildPath 'SecureStringTransform\SecureStringTransform.ps1')
 
-Update-FormatData -PrependPath (Join-Path $PSScriptRoot -ChildPath 'Formatting\MyCustomFileInfo.format.ps1xml')
+# Update-FormatData -PrependPath (Join-Path $PSScriptRoot -ChildPath 'Formatting\MyCustomFileInfo.format.ps1xml')
+Update-FormatData -AppendPath (Join-Path $PSScriptRoot -ChildPath 'Formatting\MyCustomFileInfo.format.ps1xml')
 
 . (Join-Path $PSScriptRoot -ChildPath 'PSReadLine\PSReadLine-Config.ps1')
 
