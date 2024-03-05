@@ -57,7 +57,6 @@ System.IO.FileInfo
 If -PassThru is specified, the function outputs the downloaded file object.
 
 .NOTES
-
 Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invoke-Download.ps1
 #>
     [CmdletBinding()]
@@ -100,13 +99,12 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
     }
 
     process {
-
-        Write-Verbose "Requesting headers from URL '$URL'"
+        Write-Verbose ("Requesting headers from URL '{0}'" -f $URL)
 
         foreach ($UserAgentString in $UserAgent) {
             $null = $HttpClient.DefaultRequestHeaders.Remove('User-Agent')
             if ($UserAgentString) {
-                Write-Verbose "Using UserAgent '$UserAgentString'"
+                Write-Verbose ("Using UserAgent '{0}'" -f $UserAgentString)
                 $HttpClient.DefaultRequestHeaders.Add('User-Agent', $UserAgentString)
             }
 
@@ -123,20 +121,20 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
             Write-Verbose 'Successfully retrieved headers'
 
             if ($ResponseHeader.RequestMessage.RequestUri.AbsoluteUri -ne $URL) {
-                Write-Verbose "URL '$URL' redirects to '$($ResponseHeader.RequestMessage.RequestUri.AbsoluteUri)'"
+                Write-Verbose ("URL '{0}' redirects to '{1}'" -f $URL, $ResponseHeader.RequestMessage.RequestUri.AbsoluteUri)
             }
 
             try {
                 $FileSize = $null
                 $FileSize = [int]$ResponseHeader.Content.Headers.GetValues('Content-Length')[0]
                 $FileSizeReadable = switch ($FileSize) {
-                    { $_ -gt 1TB } { '{0:n2} TB' -f ($_ / 1TB); Break }
-                    { $_ -gt 1GB } { '{0:n2} GB' -f ($_ / 1GB); Break }
-                    { $_ -gt 1MB } { '{0:n2} MB' -f ($_ / 1MB); Break }
-                    { $_ -gt 1KB } { '{0:n2} KB' -f ($_ / 1KB); Break }
+                    { $_ -gt 1TB } { '{0:n2} TB' -f ($_ / 1TB); break }
+                    { $_ -gt 1GB } { '{0:n2} GB' -f ($_ / 1GB); break }
+                    { $_ -gt 1MB } { '{0:n2} MB' -f ($_ / 1MB); break }
+                    { $_ -gt 1KB } { '{0:n2} KB' -f ($_ / 1KB); break }
                     default { '{0} B' -f $_ }
                 }
-                Write-Verbose "File size: $FileSize bytes ($FileSizeReadable)"
+                Write-Verbose ('File size: {0} bytes ({1})' -f $FileSize, $FileSizeReadable)
             }
             catch {
                 Write-Verbose 'Unable to determine file size'
@@ -146,7 +144,7 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
             try {
                 $LastModified = $null
                 $LastModified = [DateTime]::ParseExact($ResponseHeader.Content.Headers.GetValues('Last-Modified')[0], 'r', [System.Globalization.CultureInfo]::InvariantCulture)
-                Write-Verbose "Last modified: $($LastModified.ToString())"
+                Write-Verbose ('Last modified: {0}' -f $LastModified.ToString())
             }
             catch {
                 Write-Verbose 'Last-Modified header not found'
@@ -154,14 +152,14 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
 
             if ($FileName) {
                 $FileName = $FileName.Trim()
-                Write-Verbose "Will use supplied filename '$FileName'"
+                Write-Verbose ("Will use supplied filename '{0}'" -f $FileName)
             }
             else {
                 # Get the file name from the "Content-Disposition" header if available
                 try {
                     $ContentDispositionHeader = $null
                     $ContentDispositionHeader = $ResponseHeader.Content.Headers.GetValues('Content-Disposition')[0]
-                    Write-Verbose "Content-Disposition header found: $ContentDispositionHeader"
+                    Write-Verbose ('Content-Disposition header found: {0}' -f $ContentDispositionHeader)
                 }
                 catch {
                     Write-Verbose 'Content-Disposition header not found'
@@ -176,7 +174,7 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
                         # If any further invalid filename characters are found, convert them to spaces.
                         [System.IO.Path]::GetinvalidFileNameChars() | ForEach-Object { $FileName = $FileName.Replace($_, ' ') }
                         $FileName = $FileName.Trim()
-                        Write-Verbose "Extracted filename '$FileName' from Content-Disposition header"
+                        Write-Verbose ("Extracted filename '{0}' from Content-Disposition header" -f $FileName)
                     }
                     else {
                         Write-Verbose 'Failed to extract filename from Content-Disposition header'
@@ -189,7 +187,7 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
                     $FileName = [System.IO.Path]::GetFileName([System.Web.HttpUtility]::UrlDecode($ResponseHeader.RequestMessage.RequestUri.AbsoluteUri.Split('?')[0]))
                     [System.IO.Path]::GetinvalidFileNameChars() | ForEach-Object { $FileName = $FileName.Replace($_, ' ') }
                     $FileName = $FileName.Trim()
-                    Write-Verbose "Extracted filename '$FileName' from absolute URL '$($ResponseHeader.RequestMessage.RequestUri.AbsoluteUri)'"
+                    Write-Verbose ("Extracted filename '{0}' from absolute URL '{1}'" -f $FileName, $ResponseHeader.RequestMessage.RequestUri.AbsoluteUri)
                 }
             }
         }
@@ -203,7 +201,7 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
             $FileName = [System.IO.Path]::GetFileName([System.Web.HttpUtility]::UrlDecode($URL.Split('?')[0]))
             [System.IO.Path]::GetInvalidFileNameChars() | ForEach-Object { $FileName = $FileName.Replace($_, ' ') }
             $FileName = $FileName.Trim()
-            Write-Verbose "Extracted filename '$FileName' from original URL '$URL'"
+            Write-Verbose ("Extracted filename '{0}' from original URL '{1}'" -f $FileName, $URL)
         }
 
         $DestinationFilePath = Join-Path $Destination $FileName
@@ -221,31 +219,30 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
 
             # Check TempPath exists and create it if not
             if (-not (Test-Path -LiteralPath $TempPath -PathType Container)) {
-                Write-Verbose "Temp folder '$TempPath' does not exist"
+                Write-Verbose ("Temp folder '{0}' does not exist" -f $TempPath)
                 try {
                     $null = New-Item -Path $Destination -ItemType Directory -Force
-                    Write-Verbose "Created temp folder '$TempPath'"
+                    Write-Verbose ("Created temp folder '{0}'" -f $TempPath)
                 }
                 catch {
-                    Write-Error "Unable to create temp folder '$TempPath': $_"
+                    Write-Error ("Unable to create temp folder '{0}': {1}" -f $TempPath, $_)
                     return
                 }
             }
 
             # Generate temp file name
-            # $TempFileName = (New-Guid).ToString('N') + '.tmp'
             $TempFileName = '{0}.tmp' -f [guid]::NewGuid().ToString('N')
             $TempFilePath = Join-Path $TempPath $TempFileName
 
             # Check Destiation exists and create it if not
             if (-not (Test-Path -LiteralPath $Destination -PathType Container)) {
-                Write-Verbose "Output folder '$Destination' does not exist"
+                Write-Verbose ("Output folder '{0}' does not exist" -f $Destination)
                 try {
                     $null = New-Item -Path $Destination -ItemType Directory -Force
-                    Write-Verbose "Created output folder '$Destination'"
+                    Write-Verbose ("Created output folder '{0}'" -f $Destination)
                 }
                 catch {
-                    Write-Error "Unable to create output folder '$Destination': $_"
+                    Write-Error ("Unable to create output folder '{0}': {1}" -f $Destination, $_)
                     return
                 }
             }
@@ -255,17 +252,17 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
                 $FileStream = [System.IO.File]::Create($TempFilePath)
             }
             catch {
-                Write-Error "Unable to create file '$TempFilePath': $_"
+                Write-Error ("Unable to create file '{0}': {1}" -f $TempFilePath, $_)
                 return
             }
 
             if ($FileStream.CanWrite) {
-                Write-Verbose "Downloading to temp file '$TempFilePath'..."
+                Write-Verbose ("Downloading to temp file '{0}'..." -f $TempFilePath)
 
                 $Buffer = [byte[]]::new(64KB)
                 $BytesDownloaded = 0
                 $ProgressIntervalMs = 250
-                $ProgressTimer = (Get-Date).AddMilliseconds(-$ProgressIntervalMs)
+                $ProgressTimer = [datetime]::Now.AddMilliseconds(-$ProgressIntervalMs)
 
                 while ($true) {
                     try {
@@ -274,28 +271,28 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
 
                         # Track bytes downloaded and display progress bar if enabled and file size is known
                         $BytesDownloaded += $ReadBytes
-                        if (!$NoProgress -and (Get-Date) -gt $ProgressTimer.AddMilliseconds($ProgressIntervalMs)) {
+                        if (!$NoProgress -and ([datetime]::Now -gt $ProgressTimer.AddMilliseconds($ProgressIntervalMs))) {
                             if ($FileSize) {
-                                $PercentComplete = [System.Math]::Floor($BytesDownloaded / $FileSize * 100)
-                                Write-Progress -Activity "Downloading $FileName" -Status "$BytesDownloaded of $FileSize bytes ($PercentComplete%)" -PercentComplete $PercentComplete
+                                $PercentComplete = [Math]::Floor($BytesDownloaded / $FileSize * 100)
+                                Write-Progress -Activity ('Downloading {0}' -f $FileName) -Status ('{0} of {1} bytes ({2}%)' -f $BytesDownloaded, $FileSize, $PercentComplete) -PercentComplete $PercentComplete
                             }
                             else {
-                                Write-Progress -Activity "Downloading $FileName" -Status "$BytesDownloaded of ? bytes" -PercentComplete 0
+                                Write-Progress -Activity ('Downloading {0}' -f $FileName) -Status ('{0} of ? bytes' -f $BytesDownloaded) -PercentComplete 0
                             }
-                            $ProgressTimer = Get-Date
+                            $ProgressTimer = [datetime]::Now
                         }
 
                         # If end of stream
                         if ($ReadBytes -eq 0) {
-                            Write-Progress -Activity "Downloading $FileName" -Completed
+                            Write-Progress -Activity ('Downloading {0}' -f $FileName) -Completed
                             $FileStream.Close()
                             $FileStream.Dispose()
                             try {
-                                Write-Verbose "Moving temp file to destination '$DestinationFilePath'"
+                                Write-Verbose ("Moving temp file to destination '{0}'" -f $DestinationFilePath)
                                 $DownloadedFile = Move-Item -LiteralPath $TempFilePath -Destination $DestinationFilePath -Force -PassThru
                             }
                             catch {
-                                Write-Error "Error moving file from '$TempFilePath' to '$DestinationFilePath': $_"
+                                Write-Error ("Error moving file from '{0}' to '{1}': {2}" -f $TempFilePath, $DestinationFilePath, $_)
                                 return
                             }
                             if ($IsWindows) {
@@ -320,8 +317,8 @@ Source: https://github.com/DanGough/PsDownload/blob/main/PsDownload/Public/Invok
                         $FileStream.Write($Buffer, 0, $ReadBytes)
                     }
                     catch {
-                        Write-Error "Error downloading file: $_"
-                        Write-Progress -Activity "Downloading $FileName" -Completed
+                        Write-Error ('Error downloading file: {0}' -f $_)
+                        Write-Progress -Activity ('Downloading {0}' -f $FileName) -Completed
                         $FileStream.Close()
                         $FileStream.Dispose()
                         break

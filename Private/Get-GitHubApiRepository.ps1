@@ -10,7 +10,7 @@ function Get-GitHubApiRepository {
         do {
             $ApiDataParams = @{}
             if ($Token) { $ApiDataParams.Add('Token', $Token) }
-            $ApiDataParams.Add('URI', ('https://api.github.com/users/{0}/repos?page={1}&per_page=100' -f $UserName, $Page))
+            $ApiDataParams.Add('Uri', ('https://api.github.com/users/{0}/repos?page={1}&per_page=100' -f $UserName, $Page))
             $Repo = Get-GitHubApiData @ApiDataParams
             if ($Repo) { $Repo } else { break }
             $Page++

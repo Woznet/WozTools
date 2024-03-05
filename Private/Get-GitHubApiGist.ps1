@@ -10,7 +10,7 @@ function Get-GitHubApiGist {
         do {
             $ApiDataParams = @{}
             if ($Token) { $ApiDataParams.Add('Token', $Token) }
-            $ApiDataParams.Add('URI', ('https://api.github.com/users/{0}/gists?page={1}&per_page=100' -f $UserName, $Page))
+            $ApiDataParams.Add('Uri', ('https://api.github.com/users/{0}/gists?page={1}&per_page=100' -f $UserName, $Page))
             $Gist = Get-GitHubApiData @ApiDataParams
             if ($Gist) { $Gist } else { break }
             $Page++

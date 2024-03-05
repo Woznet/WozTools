@@ -11,17 +11,14 @@ function Get-GitHubApiRepositoryLanguage {
         [string]$Token
     )
     process {
+        switch ($PSCmdlet.ParameterSetName) {
+            'Def' { $Uri = 'https://api.github.com/repos/{0}/{1}/languages' -f $UserName, $Repository }
+            'InputObject' { $Uri = $languages_url }
+        }
         $ApiDataParams = @{}
         if ($Token) { $ApiDataParams.Add('Token', $Token) }
-        $ApiDataParams.Add('URI', ( . {
-                    switch ($PSCmdlet.ParameterSetName) {
-                        'Def' { 'https://api.github.com/repos/{0}/{1}/languages' -f $UserName, $Repository }
-                        'InputObject' { $languages_url }
-                    }
-                }))
-
+        $ApiDataParams.Add('Uri', $Uri)
         $RepoLang = Get-GitHubApiData @ApiDataParams
-
         if ($RepoLang) { $RepoLang } else { break }
     }
 }
