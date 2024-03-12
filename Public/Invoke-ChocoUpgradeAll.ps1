@@ -30,7 +30,7 @@ If -CheckOnly is specified, outputs the list of outdated packages. Otherwise, it
 This function requires Chocolatey to be installed on the system and throws an error if 'choco.exe' is not found.
 
 .LINK
-https://chocolatey.org/docs/commands-upgrade
+https://github.com/Woznet/WozTools/blob/main/docs/Invoke-ChocoUpgradeAll.md
 #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
