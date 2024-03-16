@@ -9,13 +9,13 @@ if (-not ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOpt
         Import-Module -Name PSReadLine -Global -PassThru:$false -ErrorAction Stop
     }
 
-    Set-PSReadLineOption -PredictionSource History
     if ($PSVersionTable.PSEdition -eq 'Core') {
         try {
             Import-Module -Global -Name Az.Tools.Predictor -PassThru:$false -ErrorAction Stop
         }
         catch [System.IO.FileNotFoundException] {
-            Write-Warning -Message 'Az.Tools.Predictor - Attempting to install.'
+            Write-Warning -Message 'Az.Tools.Predictor - Has not been installed yet.'
+            Write-Warning -Message 'Attempting to install it now.'
             Find-Module -Name Az.Accounts, Az.Tools.Predictor | Install-Module -Scope AllUsers -Force -PassThru:$false
             Import-Module -Global -Name Az.Tools.Predictor -PassThru:$false -ErrorAction Stop
         }
@@ -34,6 +34,9 @@ if (-not ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOpt
             }
             Set-PSReadLineOption -PredictionSource History -ErrorAction Stop
         }
+    }
+    else {
+        Set-PSReadLineOption -PredictionSource History -ErrorAction Stop
     }
 
     Set-PSReadLineOption -Colors @{
@@ -67,6 +70,8 @@ if (-not ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOpt
 
     Add-Type -AssemblyName Microsoft.PowerShell.PSReadLine2
 
+    #######################################################
+
     Set-PSReadLineKeyHandler -Key '"', "'" -BriefDescription SmartInsertQuote -LongDescription 'Insert paired quotes if not already on a quote' -ScriptBlock {
         param($Key, $Arg)
         $Quote = $Key.KeyChar
@@ -87,7 +92,7 @@ if (-not ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOpt
         $ParseErrors = $null
         [PSConsoleReadLine]::GetBufferState([ref]$Ast, [ref]$Tokens, [ref]$ParseErrors, [ref]$null)
 
-        function FindToken {
+        function Find-Token {
             param($Tokens, $Cursor)
             foreach ($Token in $Tokens) {
                 if ($Cursor -lt $Token.Extent.StartOffset) { continue }
@@ -95,7 +100,7 @@ if (-not ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOpt
                     $Result = $Token
                     $Token = $Token -as [StringExpandableToken]
                     if ($Token) {
-                        $Nested = FindToken -Tokens $Token.NestedTokens -Cursor $Cursor
+                        $Nested = Find-Token -Tokens $Token.NestedTokens -Cursor $Cursor
                         if ($Nested) { $Result = $Nested }
                     }
                     return $Result
@@ -103,7 +108,7 @@ if (-not ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOpt
             }
             return $null
         }
-        $Token = FindToken -Tokens $Tokens -Cursor $Cursor
+        $Token = Find-Token -Tokens $Tokens -Cursor $Cursor
         # If we're on or inside a **quoted** string token (so not generic), we need to be smarter
         if ($Token -is [StringToken] -and $Token.Kind -ne [TokenKind]::Generic) {
             # If we're at the start of the string, assume we're inserting a new string
@@ -118,12 +123,8 @@ if (-not ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOpt
                 return
             }
         }
-        if (
-            $null -eq $Token -or
-            $Token.Kind -eq [TokenKind]::RParen -or
-            $Token.Kind -eq [TokenKind]::RCurly -or
-            $Token.Kind -eq [TokenKind]::RBracket
-        ) {
+        if ($null -eq $Token -or
+            $Token.Kind -eq [TokenKind]::RParen -or $Token.Kind -eq [TokenKind]::RCurly -or $Token.Kind -eq [TokenKind]::RBracket) {
             if ($Line[0..$Cursor].Where{$_ -eq $Quote}.Count % 2 -eq 1) {
                 # Odd number of quotes before the cursor, insert a single quote
                 [PSConsoleReadLine]::Insert($Quote)
@@ -177,50 +178,6 @@ if (-not ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOpt
         }
     }
 
-
-
-
-    #######################################################
-
-    Set-PSReadLineKeyHandler -Key Alt+@, Ctrl+@ -BriefDescription InsertPairedHereString -LongDescription 'Insert matching here string' -ScriptBlock {
-        param($Key, $Arg)
-
-        switch ($Key.Modifiers) {
-            'Alt' {
-                $OpenChar = "@`"" + "`n"
-                $CloseChar = "`n" + "`"@"
-                break
-            }
-            'Control' {
-                $OpenChar = "@'" + "`n"
-                $CloseChar = "`n" + "'@"
-                break
-            }
-            default {
-                $OpenChar = "@`"" + "`n"
-                $CloseChar = "`n" + "`"@"
-                break
-            }
-        }
-
-        $SelectionStart = $null
-        $SelectionLength = $null
-        [Microsoft.PowerShell.PSConsoleReadLine]::GetSelectionState([ref]$SelectionStart, [ref]$SelectionLength)
-        $Line = $null
-        $Cursor = $null
-        [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$Line, [ref]$Cursor)
-        if ($SelectionStart -ne -1) {
-            # Text is selected, wrap it in here string
-            [Microsoft.PowerShell.PSConsoleReadLine]::Replace($SelectionStart, $SelectionLength, $OpenChar + $Line.SubString($SelectionStart, $SelectionLength) + $CloseChar)
-            [Microsoft.PowerShell.PSConsoleReadLine]::SetCursorPosition($SelectionStart + $SelectionLength + 6)
-        }
-        else {
-            # No text is selected, insert a here string
-            [Microsoft.PowerShell.PSConsoleReadLine]::Insert("$($OpenChar)$CloseChar")
-            [Microsoft.PowerShell.PSConsoleReadLine]::SetCursorPosition($Cursor + 3)
-        }
-    }
-
     #######################################################
 
     # F1 for help on the command line - naturally
@@ -267,47 +224,90 @@ if (-not ($Host.PrivateData.ToString() -eq 'Microsoft.PowerShell.Host.ISE.ISEOpt
     #######################################################
 
     # Ctrl + e - Replace all aliases with the full command
-    Set-PSReadLineKeyHandler -Chord 'Ctrl+e' -Description 'Replace all aliases with the full command' -BriefDescription 'ExpandAliases' -ScriptBlock {
-        $Ast = $null
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+e' -Description 'Convert alias into the resolved command / parameter' -BriefDescription 'ExpandAlias' -ScriptBlock {
+        # Source: https://github.com/FriedrichWeinmann/PSSTemplates/blob/master/profile/Fred.profile.ps1
         $Tokens = $null
-        $Errors = $null
+        $Ast = $null
         $Cursor = $null
-        [PSConsoleReadLine]::GetBufferState(
-            [ref]$Ast,
-            [ref]$Tokens,
-            [ref]$Errors,
-            [ref]$Cursor
-        )
-        $StartAdjustment = 0
+        [PSConsoleReadLine]::GetBufferState([ref]$Ast, [ref]$Tokens, [ref]$null, [ref]$Cursor)
+        $Changes = [System.Collections.Generic.List[psobject]]::new()
+        $CurrentCommand = $null
+
         foreach ($Token in $Tokens) {
-            if ($Token.TokenFlags -band [TokenFlags]::CommandName) {
-                $Alias = $ExecutionContext.InvokeCommand.GetCommand($Token.Extent.Text, 'Alias')
-                if ($Alias -ne $null) {
-                    $ResolvedCommand = $Alias.Definition
-                    if ($ResolvedCommand -ne $null) {
-                        $Extent = $Token.Extent
-                        $Length = $Extent.EndOffset - $Extent.StartOffset
-                        [PSConsoleReadLine]::Replace(
-                            $Extent.StartOffset + $StartAdjustment,
-                            $Length,
-                            $ResolvedCommand
-                        )
-                        $StartAdjustment += ($ResolvedCommand.Length - $Length)
+            if (($Token.TokenFlags -eq 'CommandName')) {
+                $CurrentCommand = Get-Command $Token.Text -ErrorAction Ignore
+                if ($Alias = Get-Alias -Name $Token.Text -ErrorAction Ignore) {
+                    $CurrentCommand = $Alias.ResolvedCommand
+                    $Change = [psobject]@{
+                        Text = $Alias.ResolvedCommand.Name
+                        Start = $Token.Extent.StartOffset
+                        Length = $Token.Extent.EndOffset - $Token.Extent.StartOffset
                     }
+                    $Changes.Add($Change)
+                    $Change = $null
+                }
+                    }
+
+            if (($Token.Kind -eq 'Parameter') -and ($CurrentCommand -ne $null)) {
+                if ($CurrentCommand.Parameters.Keys -contains $Token.ParameterName) { }
+                else {
+                    $ParamHash = @{}
+                    foreach ($Parameter in $CurrentCommand.Parameters.Values) {
+                        $ParamHash[$Parameter.Name] = $Parameter.Name
+                        foreach ($A in $Parameter.Aliases) { $ParamHash[$A] = $Parameter.Name }
+                    }
+                    $ResolvedParameter = [string]::Empty
+                    if ($ParamHash.ContainsKey($Token.ParameterName)) { $ResolvedParameter = $ParamHash[$Token.ParameterName] }
+                    else {
+                        $Results = $null
+                        $Results = $ParamHash.Keys | Where-Object { $_ -like "$($Token.ParameterName)*" }
+                        if ($Results) {
+                            if (($Results | Measure-Object).Count -eq 1) {
+                                $ResolvedParameter = $ParamHash[$Results]
+                            }
+                        }
+                    }
+                    if ($ResolvedParameter -ne [string]::Empty) {
+                        $Change = [psobject]@{
+                            Text = ('-{0}' -f $ResolvedParameter)
+                            Start = $Token.Extent.StartOffset
+                            Length = $Token.Extent.EndOffset - $Token.Extent.StartOffset
+                        }
+                        $Changes.Add($Change)
+                        $Change = $null
                 }
             }
         }
     }
 
-    #######################################################
-
-
-    Set-PSReadLineKeyHandler -Chord Ctrl+w -ScriptBlock {
-        [Microsoft.PowerShell.PSConsoleReadLine]::Insert('| Where-Object {$_. }')
-        [Microsoft.PowerShell.PSConsoleReadLine]::BackwardChar()
-        [Microsoft.PowerShell.PSConsoleReadLine]::BackwardChar()
+        $SB = [System.Text.StringBuilder]::new()
+        if ($Changes.Count -eq 0) { return }
+        else {
+            $Source = $Ast.Extent.Text
+            $Count = 0
+            $Index = 0
+            while ($Count -lt $Changes.Count) {
+                if ($Changes[$Count].Start -gt $Index) {
+                    $null = $SB.Append($Source.SubString($Index, ($Changes[$Count].Start - $Index)))
+                }
+                $null = $SB.Append($Changes[$Count].Text)
+                $Index = $Changes[$Count].Start + $Changes[$Count].Length
+                $Count++
+            }
+            if (($Index + 1) -lt $Source.Length) {
+                $null = $SB.Append($Source.SubString($Index))
+            }
     }
 
+        $FinishedString = $SB.ToString()
+        [PSConsoleReadLine]::Replace(0, $Source.Length, $FinishedString, $null, $null)
+    }
+    #######################################################
 
+    Set-PSReadLineKeyHandler -Chord 'Ctrl+w' -ScriptBlock {
+        [PSConsoleReadLine]::Insert(' | Where-Object {$_ }')
+        [PSConsoleReadLine]::BackwardChar()
+        [PSConsoleReadLine]::BackwardChar()
+    }
     #######################################################
 }
