@@ -76,17 +76,20 @@ function Get-GitHubUserRepo {
                 $Token = $env:GITHUB_TOKEN
             }
         }
-        Join-Path -Path $PSScriptRoot -ChildPath '..\Private' -Resolve | Get-ChildItem -Filter '*.ps1' | ForEach-Object { . $_.FullName }
+        # Join-Path -Path $PSScriptRoot -ChildPath '..\Private' -Resolve | Get-ChildItem -Filter '*.ps1' | ForEach-Object { . $_.FullName }
+        [System.IO.Path]::Combine($PSScriptRoot, '..\Private') | Get-ChildItem | ForEach-Object {. $PSItem.FullName}
 
         if (-not [System.IO.Path]::IsPathRooted($Path)) {
             Write-Warning 'Odd errors when -Path parameter is not a rooted path.'
             Write-Warning ('Attempting to get complete path using [System.IO.Path]::GetFullPath({0}).' -f $Path)
             $Path = [System.IO.Path]::GetFullPath($Path)
         }
+
         if ($Token) {
             $PSDefaultParameterValues.GetEnumerator().Where({ $_.Key -match 'GitHubApi' }).ForEach({ $PSDefaultParameterValues.Remove($_.Key) })
             $PSDefaultParameterValues.Add('Get-GitHubApi*:Token', $Token)
         }
+
         Push-Location -Path $PWD.ProviderPath -StackName StartingPath
         Push-Location -Path $Path
 
@@ -100,6 +103,7 @@ function Get-GitHubUserRepo {
             Write-CustomError -ErrorRecord $_
             throw $_
         }
+
         $HTML = @'
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
 <div id="ph"></div>
