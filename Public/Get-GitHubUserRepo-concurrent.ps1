@@ -1,4 +1,4 @@
-function Get-GitHubUserRepo {
+function Get-GitHubUserRepoConCurrent {
     <#
         .Synopsis
         Download GitHub User Gists & Repositories using REST API
@@ -95,9 +95,11 @@ function Get-GitHubUserRepo {
 
         try {
             if (-not (Get-Command -Name git.exe)) { throw 'git.exe is missing' }
+            <#
             if (-not (Get-Command -Name Invoke-ForEachParallel -ErrorAction Ignore)) {
                 Import-Module -Name ([System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent), 'Lib\PForEach\PForEach.dll')) -PassThru:$false -ErrorAction Stop
             }
+            #>
         }
         catch {
             Write-CustomError -ErrorRecord $_
@@ -162,6 +164,9 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                 Write-Output ('{2}{0} Gists - {1}' -f $GitUser, $UserGist.Count, ("`n"))
 
                 Push-Location -Path $TempGistDir
+
+                ################################################################
+
                 ### Start Downloading Gist to temp dir
                 $Count = 0
                 $StartTime = Get-Date
@@ -186,6 +191,12 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                     $UGist, $UGistDir = $null
                     Start-Sleep -Milliseconds 50
                 } -End { Write-MyProgress -Completed }
+
+                ################################################################
+
+
+
+
 
                 ### Delete .git folders from cloned gist
                 Get-ChildItem -Path $TempGistDir | ForEach-Object { Join-Path -Path $_ -ChildPath '.git' -Resolve } | Remove-Item -Recurse -Force
@@ -233,7 +244,38 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
             Write-Output ('{0}{1} Repositories - {2} (excluded - {3})' -f "`n", $GitUser, $FilteredUserRepo.Count, ($UserRepo.Count - $FilteredUserRepo.Count))
             $FilteredUserRepo.name | Select-Object -Property @{e = { if ($_.Length -gt 27) { $_.Substring(0, 24) + '...' } else { $_ } } } | Format-Wide -AutoSize
-            $FilteredUserRepo | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
+
+
+            ################################################################
+            <#
+                Notes about converting - Invoke-ForEachParallel - into ConcurrentQueue
+                $UserPath - requires using = $using:UserPath
+            #>
+
+            $ConcurrentQueue = [System.Collections.Concurrent.ConcurrentQueue[object]]::new()
+            $FilteredUserRepo | ForEach-Object { $ConcurrentQueue.Enqueue($_) }
+            $null = 1..$ThrottleLimit | ForEach-Object {
+                Start-ThreadJob {
+                    $i = $null
+                    while ($args[0].Count -gt 0) {
+                        if ($args[0].TryDequeue([ref]$i)) {
+
+                            Start-Process -WorkingDirectory $using:UserPath -FilePath git.exe -ArgumentList ('clone --checkout --recurse-submodules {0}' -f $i.clone_url) -WindowStyle Hidden -Wait
+
+                            Start-Sleep -Milliseconds 150
+
+                            $RepoUpdatedDate = $i.updated_at
+                            $RepoDir = Get-Item -Path (Join-Path -Path $using:UserPath -ChildPath $i.name -Resolve)
+                            $RepoFiles = $RepoDir | Get-ChildItem -Recurse -Force:$false -ErrorAction SilentlyContinue
+                            $RepoDir.LastWriteTime = $RepoUpdatedDate
+                            $RepoFiles.ForEach({ $_.LastWriteTime = $RepoUpdatedDate })
+                        }
+                    }
+                } -ArgumentList $ConcurrentQueue
+            } | Wait-Job
+
+            <#
+                $FilteredUserRepo | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
                 Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem.clone_url) -WindowStyle Hidden -Wait
 
                 Start-Sleep -Milliseconds 150
@@ -243,7 +285,11 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                 $RepoFiles = $RepoDir | Get-ChildItem -Recurse -Force:$false -ErrorAction SilentlyContinue
                 $RepoDir.LastWriteTime = $RepoUpdatedDate
                 $RepoFiles.ForEach({ $_.LastWriteTime = $RepoUpdatedDate })
-            }
+        }
+                #>
+
+
+            ################################################################
         }
     }
     End {
