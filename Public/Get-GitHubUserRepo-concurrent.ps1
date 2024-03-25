@@ -78,6 +78,9 @@ function Get-GitHubUserRepoConCurrent {
         }
         # Join-Path -Path $PSScriptRoot -ChildPath '..\Private' -Resolve | Get-ChildItem -Filter '*.ps1' | ForEach-Object { . $_.FullName }
         [System.IO.Path]::Combine($PSScriptRoot, '..\Private') | Get-ChildItem | ForEach-Object { . $PSItem.FullName }
+        $HtmlFile = [System.IO.Path]::Combine($PSScriptRoot, '..\Lib\show-gists-template.html') | Get-Item
+        $HTML = [System.IO.File]::ReadAllText($HtmlFile)
+
 
         if (-not [System.IO.Path]::IsPathRooted($Path)) {
             Write-Warning 'Odd errors when -Path parameter is not a rooted path.'
@@ -95,51 +98,24 @@ function Get-GitHubUserRepoConCurrent {
 
         try {
             if (-not (Get-Command -Name git.exe)) { throw 'git.exe is missing' }
-            <#
-            if (-not (Get-Command -Name Invoke-ForEachParallel -ErrorAction Ignore)) {
-                Import-Module -Name ([System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent), 'Lib\PForEach\PForEach.dll')) -PassThru:$false -ErrorAction Stop
-            }
-            #>
         }
         catch {
             Write-CustomError -ErrorRecord $_
             throw $_
         }
 
-        $HTML = @'
-<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
-<div id="ph"></div>
-<script>
-var username = '---'
-$.getJSON('https://api.github.com/users/' + username + '/gists', function (data) {
-    for (var i in data) {
-        var oldDocumentWrite = document.write
-        document.write = function (scr_content) {
-            for (var i in data) {
-                if ( $.trim( $("#" + data[i].id ).text() ).length == 0 ) {
-                    $("#" + data[i].id ).append(scr_content);
-                    return;
-                }
-            }
-        }
-        var scr = document.createElement('script');
-        scr.src = 'https://gist.github.com/' + username + '/' + data[i].id + '.js';
-        $("#ph").append("<div><h2>" + data[i].description + "</h2></div>");
-        $("#ph").append(scr.outerHTML);
-        $("#ph").append('<div id="' + data[i].id + '"></div>');
-    }
-    document.write = oldDocumentWrite;
-});
-</script>
-'@
         $UserPathList = [System.Collections.Generic.List[string]]@()
         $StopWatch = [System.Diagnostics.Stopwatch]::New()
         $StopWatch.Start()
+        $Count = 0
+        $StartTime = Get-Date
     }
     Process {
-
         # Download
         foreach ($GitUser in $UserName) {
+            $Count++
+            Write-MyProgress -StartTime $StartTime -Object $UserName -Count $Count
+
             $UserPath = [System.IO.Path]::Combine($Path, $GitUser)
             $UserPathList.Add($UserPath)
 
@@ -165,38 +141,44 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
 
                 Push-Location -Path $TempGistDir
 
-                ################################################################
+                ######## ConcurrentQueue - Start
 
-                ### Start Downloading Gist to temp dir
-                $Count = 0
-                $StartTime = Get-Date
-                $UserGist | ForEach-Object -Process {
-                    $Count++
-                    Write-MyProgress -StartTime $StartTime -Object $UserGist -Count $Count
-                    $UGist = $PSItem
-                    $StartProcesParams = @{
-                        WorkingDirectory = $TempGistDir
-                        FilePath = 'git.exe'
-                        ArgumentList = ('clone --recursive {0}' -f $UGist.git_pull_url)
-                        WindowStyle = 'Hidden'
-                        Wait = $true
-                    }
-                    Start-Process @StartProcesParams
-                    $UGistDir = Join-Path -Path $TempGistDir -ChildPath $UGist.id
+                $ConcurrentQueue = [System.Collections.Concurrent.ConcurrentQueue[object]]::new()
+                # Set object to enqueue
+                $UserGist | ForEach-Object { $ConcurrentQueue.Enqueue($_) }
+
+                # Start processing ConcurrentQueue collection
+                $null = 1..$ThrottleLimit | ForEach-Object {
+                    Start-ThreadJob {
+                        $i = $null
+                        while ($args[0].Count -gt 0) {
+                            if ($args[0].TryDequeue([ref]$i)) {
+                                ###########################################################################
+
+                                $UGist = $i
+                                $StartProcesParams = @{
+                                    FilePath = 'git.exe'
+                                    ArgumentList = ('clone --recursive {0}' -f $UGist.git_pull_url)
+                                    WindowStyle = 'Hidden'
+                                    Wait = $true
+                                }
+                                Start-Process @StartProcesParams
+                                $UGistDir = Join-Path -Path $using:TempGistDir -ChildPath $UGist.id
                         ((Join-Path -Path $UGistDir -ChildPath . -Resolve),
                         (Join-Path -Path $UGistDir -ChildPath * -Resolve)) | Get-Item | ForEach-Object {
-                        Write-Verbose ('Changing LastWriteTime to Gist updated_at value - {0}' -f $_.Name)
-                        $_.LastWriteTime = $UGist.updated_at
-                    }
-                    $UGist, $UGistDir = $null
-                    Start-Sleep -Milliseconds 50
-                } -End { Write-MyProgress -Completed }
+                                    Write-Verbose ('Changing LastWriteTime to Gist updated_at value - {0}' -f $_.Name)
+                                    $_.LastWriteTime = $UGist.updated_at
+                                }
+                                $UGist, $UGistDir = $null
+                                Start-Sleep -Milliseconds 50
 
-                ################################################################
+                                ###########################################################################
+                            }
+                        }
+                    } -ArgumentList $ConcurrentQueue
+                } | Wait-Job
 
-
-
-
+                ######## ConcurrentQueue - End
 
                 ### Delete .git folders from cloned gist
                 Get-ChildItem -Path $TempGistDir | ForEach-Object { Join-Path -Path $_ -ChildPath '.git' -Resolve } | Remove-Item -Recurse -Force
@@ -252,13 +234,20 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                 $UserPath - requires using = $using:UserPath
             #>
 
+
+            ######## ConcurrentQueue - Start
+
             $ConcurrentQueue = [System.Collections.Concurrent.ConcurrentQueue[object]]::new()
+            # Set object to enqueue
             $FilteredUserRepo | ForEach-Object { $ConcurrentQueue.Enqueue($_) }
+
+            # Start processing ConcurrentQueue collection
             $null = 1..$ThrottleLimit | ForEach-Object {
                 Start-ThreadJob {
                     $i = $null
                     while ($args[0].Count -gt 0) {
                         if ($args[0].TryDequeue([ref]$i)) {
+                            ###########################################################################
 
                             Start-Process -WorkingDirectory $using:UserPath -FilePath git.exe -ArgumentList ('clone --checkout --recurse-submodules {0}' -f $i.clone_url) -WindowStyle Hidden -Wait
 
@@ -269,30 +258,20 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                             $RepoFiles = $RepoDir | Get-ChildItem -Recurse -Force:$false -ErrorAction SilentlyContinue
                             $RepoDir.LastWriteTime = $RepoUpdatedDate
                             $RepoFiles.ForEach({ $_.LastWriteTime = $RepoUpdatedDate })
+
+                            ###########################################################################
                         }
                     }
                 } -ArgumentList $ConcurrentQueue
             } | Wait-Job
 
-            <#
-                $FilteredUserRepo | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
-                Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem.clone_url) -WindowStyle Hidden -Wait
-
-                Start-Sleep -Milliseconds 150
-
-                $RepoUpdatedDate = $PSItem.updated_at
-                $RepoDir = Get-Item -Path (Join-Path -Path $UserPath -ChildPath $PSItem.name -Resolve)
-                $RepoFiles = $RepoDir | Get-ChildItem -Recurse -Force:$false -ErrorAction SilentlyContinue
-                $RepoDir.LastWriteTime = $RepoUpdatedDate
-                $RepoFiles.ForEach({ $_.LastWriteTime = $RepoUpdatedDate })
-        }
-                #>
-
+            ######## ConcurrentQueue - End
 
             ################################################################
         }
     }
     End {
+        Write-MyProgress -Completed
         $StopWatch.Stop()
         'Time - {0:m\:ss}{1}' -f $StopWatch.Elapsed, ("`n")
         'Updated User Directories:'

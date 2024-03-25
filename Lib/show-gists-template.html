@@ -1,0 +1,29 @@
+<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+<div id="ph"></div>
+<script>
+    var username = '---'
+    $.getJSON( 'https://api.github.com/users/' + username + '/gists', function ( data )
+    {
+        for ( var i in data )
+        {
+            var oldDocumentWrite = document.write
+            document.write = function ( scr_content )
+            {
+                for ( var i in data )
+                {
+                    if ( $.trim( $( "#" + data[ i ].id ).text() ).length == 0 )
+                    {
+                        $( "#" + data[ i ].id ).append( scr_content );
+                        return;
+                    }
+                }
+            }
+            var scr = document.createElement( 'script' );
+            scr.src = 'https://gist.github.com/' + username + '/' + data[ i ].id + '.js';
+            $( "#ph" ).append( "<div><h2>" + data[ i ].description + "</h2></div>" );
+            $( "#ph" ).append( scr.outerHTML );
+            $( "#ph" ).append( '<div id="' + data[ i ].id + '"></div>' );
+        }
+        document.write = oldDocumentWrite;
+    } );
+</script>
