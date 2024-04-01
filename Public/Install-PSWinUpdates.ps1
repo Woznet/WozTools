@@ -1,4 +1,4 @@
-function Get-PSWinUpdates {
+function Install-PSWinUpdates {
   <#
       .SYNOPSIS
       Get available Windows Updates
