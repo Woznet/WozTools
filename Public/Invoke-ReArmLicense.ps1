@@ -10,7 +10,8 @@ function Invoke-ReArmLicense {
         return $true
       })]
     [string[]]$ComputerName = $env:COMPUTERNAME,
-    [switch]$ReArm,
+    [Parameter()]
+		[switch]$ReArm,
     [switch]$Restart,
 
     [int]$Port,
@@ -27,7 +28,7 @@ function Invoke-ReArmLicense {
     try {
       $NewCimParams.ComputerName = $Computer
       $Cim = New-CimSession @NewCimParams
-      $SLP = Get-CimInstance -ClassName 'SoftwareLicensingProduct' -CimSession $Cim -ErrorAction Stop | Where-Object { $_.Name -match 'Windows|Eval' }
+      $SLP = Get-CimInstance -ClassName 'SoftwareLicensingProduct' -CimSession $Cim -ErrorAction Stop | Where-Object { $_.Name -like 'Windows*' }
       $SLS = Get-CimInstance -ClassName 'SoftwareLicensingService' -CimSession $Cim -ErrorAction Stop
     }
     catch {
@@ -45,17 +46,25 @@ function Invoke-ReArmLicense {
 
     try {
       $GraceLeft = [DateTime]::Now.Add([TimeSpan]::FromMinutes($SLP.GracePeriodRemaining))
+			$TimeSpan = [TimeSpan]::FromMinutes($SLP.GracePeriodRemaining)
     }
     catch {
       Write-Warning -Message 'Grace peroid has ended, evaluation has expired!'
     }
-    [pscustomobject] @{
+    $CurrentInfo = [pscustomobject] @{
       ComputerName   = $Computer
+			LicenseStatus  = [WozDev.LicenseStatus]$SLP.LicenseStatus
       ReArmLeft      = $SLP.RemainingSkuReArmCount
-      ExpirationDate = if ($GraceLeft) {
-        '({0} Days) {1}' -f [TimeSpan]::FromMinutes($SLP.GracePeriodRemaining).Days, $GraceLeft.ToShortDateString()
+      ExpirationDate = if ($TimeSpan) {
+        '({0} Days) {1}' -f [int]$TimeSpan.TotalDays, [datetime]::Now.AddMinutes($TimeSpan.TotalMinutes).ToShortDateString()
       }
+			else {
+				'Expired'
+			}
     }
+
+		$CurrentInfo
+
     if ($ReArm) {
       if ($SLS.RemainingWindowsReArmCount -gt 0) {
         try {
@@ -83,9 +92,6 @@ function Invoke-ReArmLicense {
       else {
         throw 'Unable to extend the trial license, the ReArm Count has reached 0.'
       }
-    }
-    else {
-      Write-Output ('{2}{2}{0}: Evaluation License expires: {1}{2}Use -ReArm to ReArm now' -f $Computer, $GraceLeft.ToShortDateString(), ("`n"))
     }
   }
 }
