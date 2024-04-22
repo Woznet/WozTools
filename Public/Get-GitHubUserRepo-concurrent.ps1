@@ -42,29 +42,29 @@ function Get-GitHubUserRepoConCurrent {
     #>
     [CmdletBinding()]
     [Alias('dlgit')]
-    Param(
-        # Param1 help - GitHub Usernames
-        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = 'Github UserName')]
-        [String[]]$UserName,
+Param(
+    [Parameter(Mandatory, ValueFromPipeline, HelpMessage = 'GitHub UserName')]
+    [String[]]$UserName,
 
-        # Param2 help - Directory to save User Gists and Repositories
-        [ValidateScript({
-                Test-Path -Path $_ -PathType Container
-            })]
-        [String]$Path = 'D:\vlab\git\users',
+    [Parameter(HelpMessage = 'Directory to save User Gists and Repositories')]
+    [ValidateScript({Test-Path -Path $_ -PathType Container})]
+    [String]$Path = 'D:\vlab\git\users',
 
-        # Param3 help - Exclude Repositories with Names matching these strings
-        [String[]]$Exclude = @('docs'),
+    [Parameter(HelpMessage = 'Exclude Repositories with Names matching these strings')]
+    [String[]]$Exclude = @('docs'),
 
-        # Param4 help - ThrottleLimit for ConcurrentQueue parallel processing
-        [int]$ThrottleLimit = 5,
-        # Param5 help - Filters repository by language, only repos with the programming languages set in Languages parameter will be cloned
-        [switch]$FilterByLanguage,
-        # Param6 help - Programming languages to download when FilterByLanguage is enabled, repos with other programming languages will be excluded
-        [string[]]$Languages = @('PowerShell', 'C#'),
-        # Param7 help - GitHub Api token
-        [string]$Token
-    )
+    [Parameter(HelpMessage = 'ThrottleLimit for ConcurrentQueue parallel processing')]
+    [int]$ThrottleLimit = 5,
+
+    [Parameter(HelpMessage = 'Filters repository by language, only repos with the specified programming languages will be cloned')]
+    [switch]$FilterByLanguage,
+
+    [Parameter(HelpMessage = 'Programming languages to download when FilterByLanguage is enabled, repos with other programming languages will be excluded')]
+    [string[]]$Languages = @('PowerShell', 'C#'),
+
+    [Parameter(HelpMessage = 'GitHub Api token')]
+    [string]$Token
+)
     Begin {
         if (-not $Token) {
             Write-Verbose 'Token parameter was not set, check for env var env:GITHUB_TOKEN'

@@ -1,21 +1,24 @@
-Function Get-RedirectedUrl {
+function Get-RedirectedUrl {
     <#
 .SYNOPSIS
-Retrieves the final redirected URL(s) of the given URI(s).
+Checks URI redirection using HTTP HEAD requests.
 
 .DESCRIPTION
-The Get-RedirectedUrl function performs synchronous HTTP HEAD requests to the specified URI(s) and retrieves the final redirected URL(s). It can handle multiple URIs and is designed to be used in scenarios where you need to resolve the final destination of URL redirections.
+'Get-RedirectedUrl' determines if URIs redirect to other locations by performing HTTP HEAD requests.
+It can operate in synchronous mode, processing each URI sequentially, or in asynchronous mode,
+handling multiple URIs in parallel for enhanced efficiency.
 
 .PARAMETER Uri
-Specifies the URI(s) for which to retrieve the final redirected URL. The URI must be an absolute URI. This parameter accepts multiple URIs and supports pipeline input.
+Specifies an array of absolute URIs for HTTP HEAD requests. Mandatory and accepts pipeline input.
+
+.PARAMETER NoAsync
+Switches to synchronous operation, processing URIs sequentially.
 
 .EXAMPLE
-Get-RedirectedUrl 'https://aka.ms/ad/list'
-This example retrieves the final redirected URL for 'https://aka.ms/ad/list'.
+PS> Get-RedirectedUrl -Uri 'http://example.com', 'http://example.org'
 
 .EXAMPLE
-'https://aka.ms/admin', 'https://aka.ms/ad/list' | Get-RedirectedUrl
-This example demonstrates using the function with pipeline input to retrieve redirected URLs for multiple URIs.
+PS> 'http://example.com', 'http://example.org' | Get-RedirectedUrl -NoAsync
 
 .INPUTS
 System.String[]
@@ -26,11 +29,10 @@ System.String
 Outputs the final redirected URL for each input URI.
 
 .NOTES
-This function uses the System.Net.Http.HttpClient class to perform web requests. Each URI is processed synchronously, and the function disposes of all resources properly upon completion.
+This script requires the System.Net.Http assembly
 
-.LINK
-https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient
 #>
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
         [ValidateScript({
@@ -39,26 +41,82 @@ https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient
                 }
                 return $true
             })]
-        [string[]]$Uri
+        [string[]]$Uri,
+        [switch]$NoAsync
     )
     begin {
         Add-Type -AssemblyName System.Net.Http -PassThru:$false -ErrorAction Stop
         $HttpClient = [System.Net.Http.HttpClient]::new()
+        $Tasks = if (-not $NoAsync) {
+            [System.Collections.Generic.List[System.Threading.Tasks.Task[System.Net.Http.HttpResponseMessage]]]::new()
+        }
     }
     process {
         foreach ($Url in $Uri) {
             try {
                 $HttpRequestMessage = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Head, $Url)
-                $Response = $HttpClient.SendAsync($HttpRequestMessage).GetAwaiter().GetResult()
-                $Response.RequestMessage.RequestUri.AbsoluteUri
+                if ($NoAsync) {
+                    # Synchronous execution
+                    $Response = $HttpClient.SendAsync($HttpRequestMessage).GetAwaiter().GetResult()
+                    $Response.RequestMessage.RequestUri.AbsoluteUri
+                    $Response.Dispose()
+                }
+                else {
+                    # Asynchronous execution
+                    $Task = $HttpClient.SendAsync($HttpRequestMessage)
+                    $Task.ContinueWith({param($t) $HttpRequestMessage.Dispose()})
+                    $Tasks.Add($Task)
+                }
+            }
+            catch {
+                $e = [System.Management.Automation.ErrorRecord]$_
+                $errorDetails = [pscustomobject]@{
+                    Type = $e.Exception.GetType().FullName
+                    Exception = $e.Exception.Message
+                    Reason = $e.CategoryInfo.Reason
+                    Target = $e.CategoryInfo.TargetName
+                    Script = $e.InvocationInfo.ScriptName
+                    Message = $e.InvocationInfo.PositionMessage
+                }
+                Write-Error $errorDetails
             }
             finally {
-                $HttpRequestMessage.Dispose()
-                $Response.Dispose()
+                if ($NoAsync) {
+                    $HttpRequestMessage.Dispose()
+                }
             }
         }
     }
     end {
-        $HttpClient.Dispose()
+        if (-not $NoAsync) {
+            try {
+                [System.Threading.Tasks.Task]::WaitAll($Tasks.ToArray())
+                foreach ($Task in $Tasks) {
+                    if ($Task.IsCompletedSuccessfully) {
+                        $Response = $Task.Result
+                        $Response.RequestMessage.RequestUri.AbsoluteUri
+                        $Response.Dispose()
+                    }
+                    elseif ($Task.IsFaulted) {
+                        $e = [System.Management.Automation.ErrorRecord]$Task.Exception
+                        $errorDetails = [pscustomobject]@{
+                            Type = $e.Exception.GetType().FullName
+                            Exception = $e.Exception.Message
+                            Reason = $e.CategoryInfo.Reason
+                            Target = $e.CategoryInfo.TargetName
+                            Script = $e.InvocationInfo.ScriptName
+                            Message = $e.InvocationInfo.PositionMessage
+                        }
+                        Write-Error $errorDetails
+                    }
+                }
+            }
+            finally {
+                $HttpClient.Dispose()
+            }
+        }
+        else {
+            $HttpClient.Dispose()
+        }
     }
 }
