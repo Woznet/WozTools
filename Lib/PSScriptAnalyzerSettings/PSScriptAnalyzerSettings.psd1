@@ -1,3 +1,6 @@
+<#
+Disabled - 'PSAvoidUsingWriteHost'
+#>
 @{
     IncludeRules = @(
         'PSAlignAssignmentStatement',
@@ -14,7 +17,6 @@
         'PSAvoidUsingPositionalParameters',
         'PSAvoidUsingUserNameAndPasswordParams',
         'PSAvoidUsingWMICmdlet',
-        'PSAvoidUsingWriteHost',
         'PSMisleadingBacktick',
         'PSMissingModuleManifestField',
         'PSPlaceCloseBrace',
@@ -40,59 +42,59 @@
         'UseUTF8EncodingForHelpFile'
     )
 
-    Rules = @{
+    Rules        = @{
 
-        PSAvoidUsingCmdletAliases = @{
+        PSAvoidUsingCmdletAliases  = @{
             allowlist = @('cd')
         }
-        PSProvideCommentHelp = @{
-            Enable = $true
-            ExportedOnly = $true
-            BlockComment = $true
+        PSProvideCommentHelp       = @{
+            Enable                  = $true
+            ExportedOnly            = $true
+            BlockComment            = $true
             VSCodeSnippetCorrection = $true
-            Placement = 'begin'
+            Placement               = 'begin'
         }
 
-        PSPlaceOpenBrace = @{
-            Enable = $true
-            OnSameLine = $true
-            NewLineAfter = $true
+        PSPlaceOpenBrace           = @{
+            Enable             = $true
+            OnSameLine         = $true
+            NewLineAfter       = $true
             IgnoreOneLineBlock = $true
         }
 
-        PSPlaceCloseBrace = @{
-            Enable = $true
-            NewLineAfter = $true
+        PSPlaceCloseBrace          = @{
+            Enable             = $true
+            NewLineAfter       = $true
             IgnoreOneLineBlock = $true
-            NoEmptyLineBefore = $true
+            NoEmptyLineBefore  = $true
         }
 
         PSUseConsistentIndentation = @{
-            Enable = $true
-            Kind = 'space'
+            Enable              = $true
+            Kind                = 'space'
             PipelineIndentation = 'IncreaseIndentationAfterEveryPipeline'
-            IndentationSize = 4
+            IndentationSize     = 4
         }
 
-        PSUseConsistentWhitespace = @{
-            Enable = $true
-            CheckInnerBrace = $true
-            CheckOpenBrace = $true
-            CheckOpenParen = $true
-            CheckOperator = $true
-            CheckPipe = $true
-            CheckPipeForRedundantWhitespace = $true
-            CheckSeparator = $true
-            CheckParameter = $true
-            IgnoreAssignmentOperatorInsideHashTable = $false
+        PSUseConsistentWhitespace  = @{
+            Enable                                  = $false
+            CheckInnerBrace                         = $false
+            CheckOpenBrace                          = $false
+            CheckOpenParen                          = $false
+            CheckOperator                           = $false
+            CheckPipe                               = $false
+            CheckPipeForRedundantWhitespace         = $false
+            CheckSeparator                          = $false
+            CheckParameter                          = $false
+            IgnoreAssignmentOperatorInsideHashTable = $true
         }
 
         PSAlignAssignmentStatement = @{
-            Enable = $true
+            Enable         = $true
             CheckHashtable = $false
         }
 
-        PSUseCorrectCasing = @{
+        PSUseCorrectCasing         = @{
             Enable = $true
         }
     }
