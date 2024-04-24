@@ -40,7 +40,7 @@ jobs:
           path: .\
           recurse: true
           # Include your own basic security rules. Removing this option will run all the rules
-          settings: Lib/PSScriptAnalyzerSettings/PSScriptAnalyzerSettings.psd1
+          settings: ./Lib/PSScriptAnalyzerSettings/PSScriptAnalyzerSettings.psd1
           output: results.sarif
 
       # Upload the SARIF file generated in the previous step
