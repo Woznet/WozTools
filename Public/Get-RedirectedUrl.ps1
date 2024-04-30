@@ -47,8 +47,8 @@ This script requires the System.Net.Http assembly
     begin {
         Add-Type -AssemblyName System.Net.Http -PassThru:$false -ErrorAction Stop
         $HttpClient = [System.Net.Http.HttpClient]::new()
-        $Tasks = if (-not $NoAsync) {
-            [System.Collections.Generic.List[System.Threading.Tasks.Task[System.Net.Http.HttpResponseMessage]]]::new()
+        if (-not $NoAsync) {
+            $Tasks = [System.Collections.Generic.List[System.Threading.Tasks.Task[System.Net.Http.HttpResponseMessage]]]::new()
         }
     }
     process {
@@ -70,7 +70,7 @@ This script requires the System.Net.Http assembly
             }
             catch {
                 $e = [System.Management.Automation.ErrorRecord]$_
-                $errorDetails = [pscustomobject]@{
+                $ErrorDetails = [pscustomobject]@{
                     Type = $e.Exception.GetType().FullName
                     Exception = $e.Exception.Message
                     Reason = $e.CategoryInfo.Reason
@@ -78,7 +78,8 @@ This script requires the System.Net.Http assembly
                     Script = $e.InvocationInfo.ScriptName
                     Message = $e.InvocationInfo.PositionMessage
                 }
-                Write-Error $errorDetails
+                $ErrorDetails
+                Write-Error -Exception $_
             }
             finally {
                 if ($NoAsync) {
@@ -99,7 +100,7 @@ This script requires the System.Net.Http assembly
                     }
                     elseif ($Task.IsFaulted) {
                         $e = [System.Management.Automation.ErrorRecord]$Task.Exception
-                        $errorDetails = [pscustomobject]@{
+                        $ErrorDetails = [pscustomobject]@{
                             Type = $e.Exception.GetType().FullName
                             Exception = $e.Exception.Message
                             Reason = $e.CategoryInfo.Reason
@@ -107,7 +108,8 @@ This script requires the System.Net.Http assembly
                             Script = $e.InvocationInfo.ScriptName
                             Message = $e.InvocationInfo.PositionMessage
                         }
-                        Write-Error $errorDetails
+                        $ErrorDetails
+                        Write-Error -Exception $Task.Exception
                     }
                 }
             }
