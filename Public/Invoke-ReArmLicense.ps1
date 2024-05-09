@@ -11,7 +11,7 @@ function Invoke-ReArmLicense {
       })]
     [string[]]$ComputerName = $env:COMPUTERNAME,
     [Parameter()]
-		[switch]$ReArm,
+    [switch]$ReArm,
     [switch]$Restart,
 
     [int]$Port,
@@ -63,24 +63,24 @@ namespace WozDev
 
     try {
       $GraceLeft = [DateTime]::Now.Add([TimeSpan]::FromMinutes($SLP.GracePeriodRemaining))
-			$TimeSpan = [TimeSpan]::FromMinutes($SLP.GracePeriodRemaining)
+      $TimeSpan = [TimeSpan]::FromMinutes($SLP.GracePeriodRemaining)
     }
     catch {
       Write-Warning -Message 'Grace peroid has ended, evaluation has expired!'
     }
     $CurrentInfo = [pscustomobject] @{
       ComputerName   = $Computer
-			LicenseStatus  = [WozDev.LicenseStatus]$SLP.LicenseStatus
+      LicenseStatus  = [WozDev.LicenseStatus]$SLP.LicenseStatus
       ReArmLeft      = $SLP.RemainingSkuReArmCount
       ExpirationDate = if ($TimeSpan) {
         '({0} Days) {1}' -f [int]$TimeSpan.TotalDays, [datetime]::Now.AddMinutes($TimeSpan.TotalMinutes).ToShortDateString()
       }
-			else {
-				'Expired'
-			}
+      else {
+        'Expired'
+      }
     }
 
-		$CurrentInfo
+    $CurrentInfo
 
     if ($ReArm) {
       if ($SLS.RemainingWindowsReArmCount -gt 0) {
@@ -112,3 +112,4 @@ namespace WozDev
     }
   }
 }
+

@@ -1,5 +1,5 @@
 Function Invoke-psEdit {
-	<#
+    <#
 .SYNOPSIS
 Opens files in the PowerShell Integrated Scripting Environment (ISE) editor.
 
@@ -30,8 +30,9 @@ This function only works within the PowerShell Integrated Scripting Environment 
 
 .LINK
 https://docs.microsoft.com/en-us/powershell/scripting/windows-powershell/ise/the-windows-powershell-ise?view=powershell-7.1
-	#>
-	[Alias('psEdit')]
+#>
+    [CmdletBinding()]
+    [Alias('psEdit')]
     param(
         [Parameter(
             ValueFromPipelineByPropertyName,
@@ -40,11 +41,11 @@ https://docs.microsoft.com/en-us/powershell/scripting/windows-powershell/ise/the
         )]
         [Alias('FullName')]
         [ValidateScript({
-            if (-not (Test-Path -Path $_)) {
-                throw "Something went wrong.`nCheck Path - $_"
-            }
-            return $true
-        })]
+                if (-not (Test-Path -Path $_)) {
+                    throw "Something went wrong.`nCheck Path - $_"
+                }
+                return $true
+            })]
         [string[]]$Path
     )
     Begin {
