@@ -30,10 +30,7 @@ Outputs a custom object with detailed error information.
 
 .NOTES
 This function is useful for standardizing error handling and logging in scripts and functions.
-
-.LINK
-https://docs.microsoft.com/en-us/dotnet/api/system.management.automation.errorrecord
-#>
+		#>
     param(
         [Parameter(Mandatory)]
         [System.Management.Automation.ErrorRecord]$ErrorRecord

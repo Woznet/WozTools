@@ -1,24 +1,4 @@
 function Remove-Diacritics {
-  <#
-      .SYNOPSIS
-      Decompose characters to their base character equivilents and remove diacritics.
-
-      .EXAMPLE
-      PS >Remove-Diacritics 'àáâãäåÀÁÂÃÄÅﬁ⁵ẛ'
-
-      Decompose characters to their base character equivilents and remove diacritics.
-
-      .EXAMPLE
-      PS >Remove-Diacritics 'àáâãäåÀÁÂÃÄÅﬁ⁵ẛ' -CompatibilityDecomposition
-
-      Decompose composite characters to their base character equivilents and remove diacritics.
-
-      .INPUTS
-      System.String
-
-      .LINK
-      https://github.com/jasoth/Utility.PS
-  #>
   [CmdletBinding()]
   param(
     # String value to transform.

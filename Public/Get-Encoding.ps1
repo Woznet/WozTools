@@ -35,9 +35,8 @@ function Get-Encoding {
 
         .LINK
         https://github.com/TobiasPSP/GetEncoding
-        https://github.com/errepi/ude
-        https://techblog.dorogin.com/changing-source-files-encoding-and-some-fun-with-powershell-df23bf8410ab
 #>
+    [CmdletBinding()]
     param(
         [Parameter(ValueFromPipelineByPropertyName, ValueFromPipeline, Mandatory)]
         [ValidateScript({
@@ -60,12 +59,12 @@ function Get-Encoding {
             catch {
                 [System.Management.Automation.ErrorRecord]$e = $_
                 [PSCustomObject]@{
-                    Type      = $e.Exception.GetType().FullName
+                    Type = $e.Exception.GetType().FullName
                     Exception = $e.Exception.Message
-                    Reason    = $e.CategoryInfo.Reason
-                    Target    = $e.CategoryInfo.TargetName
-                    Script    = $e.InvocationInfo.ScriptName
-                    Message   = $e.InvocationInfo.PositionMessage
+                    Reason = $e.CategoryInfo.Reason
+                    Target = $e.CategoryInfo.TargetName
+                    Script = $e.InvocationInfo.ScriptName
+                    Message = $e.InvocationInfo.PositionMessage
                 }
                 throw $_
             }
@@ -109,10 +108,10 @@ function Get-Encoding {
         # return findings as a custom object:
         if ($Bom -or !$BomOnly.IsPresent) {
             [PSCustomObject]@{
-                BOM        = $Bom
-                Encoding   = $BodyName.ToUpper()
+                BOM = $Bom
+                Encoding = $BodyName.ToUpper()
                 Confidence = $Confidence
-                Path       = $Path
+                Path = $Path
             }
         }
     }

@@ -64,22 +64,21 @@ This script requires the System.Net.Http assembly
                 else {
                     # Asynchronous execution
                     $Task = $HttpClient.SendAsync($HttpRequestMessage)
-                    $Task.ContinueWith({param($t) $HttpRequestMessage.Dispose()})
+                    $null = $Task.ContinueWith([System.Action[System.Threading.Tasks.Task]] { param($t)$HttpRequestMessage.Dispose() })
                     $Tasks.Add($Task)
                 }
             }
             catch {
                 $e = [System.Management.Automation.ErrorRecord]$_
-                $ErrorDetails = [pscustomobject]@{
-                    Type = $e.Exception.GetType().FullName
+                [pscustomobject]@{
+                    Type      = $e.Exception.GetType().FullName
                     Exception = $e.Exception.Message
-                    Reason = $e.CategoryInfo.Reason
-                    Target = $e.CategoryInfo.TargetName
-                    Script = $e.InvocationInfo.ScriptName
-                    Message = $e.InvocationInfo.PositionMessage
-                }
-                $ErrorDetails
-                Write-Error -Exception $_
+                    Reason    = $e.CategoryInfo.Reason
+                    Target    = $e.CategoryInfo.TargetName
+                    Script    = $e.InvocationInfo.ScriptName
+                    Message   = $e.InvocationInfo.PositionMessage
+                } | Out-String | Write-Error
+                Write-Error -ErrorRecord $_
             }
             finally {
                 if ($NoAsync) {
@@ -100,16 +99,16 @@ This script requires the System.Net.Http assembly
                     }
                     elseif ($Task.IsFaulted) {
                         $e = [System.Management.Automation.ErrorRecord]$Task.Exception
-                        $ErrorDetails = [pscustomobject]@{
-                            Type = $e.Exception.GetType().FullName
+                        [pscustomobject]@{
+                            Type      = $e.Exception.GetType().FullName
                             Exception = $e.Exception.Message
-                            Reason = $e.CategoryInfo.Reason
-                            Target = $e.CategoryInfo.TargetName
-                            Script = $e.InvocationInfo.ScriptName
-                            Message = $e.InvocationInfo.PositionMessage
-                        }
-                        $ErrorDetails
-                        Write-Error -Exception $Task.Exception
+                            Reason    = $e.CategoryInfo.Reason
+                            Target    = $e.CategoryInfo.TargetName
+                            Script    = $e.InvocationInfo.ScriptName
+                            Message   = $e.InvocationInfo.PositionMessage
+                        } | Out-String | Write-Error
+                        Write-Error -ErrorRecord $e
+                        # Write-Error -Exception $Task.Exception
                     }
                 }
             }

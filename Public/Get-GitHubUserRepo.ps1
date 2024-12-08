@@ -1,23 +1,23 @@
 function Get-GitHubUserRepo {
     <#
         .Synopsis
-        Download GitHub User Gists & Repositories using REST API
+        Download GitHub User Gists & Repositories using REST API and ConcurrentQueue collections for improved performance
 
         .DESCRIPTION
         Uses git.exe to clone the gists and repositories of a github user.
-        Can Exclude repositories with names that match the string/strings defined with -Exclude
+        You can filter repositories by name and language.
+        -Exclude parameter will exclude any repositories that match the string/strings listed.
+        To filter by programming language use FilterByLanguage to enable the filter by language feature
+        then use the -Languages parameter to list the programming languages you want downloaded
 
         Requires git.exe
-
-        I included the source file for PForEach because it is no longer visible in the powershellgallery and github
-        Vasily Larionov - https://www.powershellgallery.com/profiles/vlariono | https://github.com/vlariono
-        PForEach - https://www.powershellgallery.com/packages/PForEach
 
         .PARAMETER UserName
         The name of the user whose repositories are to be downloaded
 
         .PARAMETER Path
         Directory where the user's repositories are to be downloaded.
+        Repositories are downlaoded to $Path\GITHUB_USERNAME\REPOSITORY_NAME
 
         .PARAMETER Exclude
         Exclude repositories whose names match the string/strings defined with -Exclude
@@ -42,30 +42,27 @@ function Get-GitHubUserRepo {
     #>
     [CmdletBinding()]
     [Alias('dlgit')]
-    Param(
-        # Param1 help - GitHub Usernames
-        [Parameter(
-            Mandatory,
-            HelpMessage = 'Github UserName',
-            ValueFromPipeline
-        )]
-        [ValidateNotNullOrEmpty()]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = 'GitHub UserName')]
         [String[]]$UserName,
 
-        # Param2 help - Directory to save User Gists and Repositories
-        [ValidateScript({
-                Test-Path -Path $_ -PathType Container
-            })]
+        [Parameter(HelpMessage = 'Directory to save User Gists and Repositories')]
+        [ValidateScript({Test-Path -Path $_ -PathType Container})]
         [String]$Path = 'D:\vlab\git\users',
 
-        # Param3 help - Exclude Repositories with Names matching these strings
+        [Parameter(HelpMessage = 'Exclude Repositories with Names matching these strings')]
         [String[]]$Exclude = @('docs'),
 
-        # Param4 help - ThrottleLimit for Invoke-ForEachParallel
+        [Parameter(HelpMessage = 'ThrottleLimit for ConcurrentQueue parallel processing')]
         [int]$ThrottleLimit = 5,
+
+        [Parameter(HelpMessage = 'Filters repository by language, only repos with the specified programming languages will be cloned')]
         [switch]$FilterByLanguage,
+
+        [Parameter(HelpMessage = 'Programming languages to download when FilterByLanguage is enabled, repos with other programming languages will be excluded')]
         [string[]]$Languages = @('PowerShell', 'C#'),
-        # Param5 help - GitHub Api token
+
+        [Parameter(HelpMessage = 'GitHub Api token')]
         [string]$Token
     )
     Begin {
@@ -76,8 +73,10 @@ function Get-GitHubUserRepo {
                 $Token = $env:GITHUB_TOKEN
             }
         }
-        # Join-Path -Path $PSScriptRoot -ChildPath '..\Private' -Resolve | Get-ChildItem -Filter '*.ps1' | ForEach-Object { . $_.FullName }
+
         [System.IO.Path]::Combine($PSScriptRoot, '..\Private') | Get-ChildItem | ForEach-Object { . $PSItem.FullName }
+        $HtmlFile = [System.IO.Path]::Combine($PSScriptRoot, '..\Lib\show-gists-template.html') | Get-Item
+        $HTML = [System.IO.File]::ReadAllText($HtmlFile)
 
         if (-not [System.IO.Path]::IsPathRooted($Path)) {
             Write-Warning 'Odd errors when -Path parameter is not a rooted path.'
@@ -90,54 +89,29 @@ function Get-GitHubUserRepo {
             $PSDefaultParameterValues.Add('Get-GitHubApi*:Token', $Token)
         }
 
-        Push-Location -Path $PWD.ProviderPath -StackName StartingPath
+        Push-Location -Path $PWD.ProviderPath -StackName 'StartingPath'
         Push-Location -Path $Path
 
         try {
             if (-not (Get-Command -Name git.exe)) { throw 'git.exe is missing' }
-            if (-not (Get-Command -Name Invoke-ForEachParallel -ErrorAction Ignore)) {
-                Import-Module -Name ([System.IO.Path]::Combine((Split-Path -Path $PSScriptRoot -Parent), 'Lib\PForEach\PForEach.dll')) -PassThru:$false -ErrorAction Stop
-            }
         }
         catch {
             Write-CustomError -ErrorRecord $_
             throw $_
         }
 
-        $HTML = @'
-<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
-<div id="ph"></div>
-<script>
-var username = '---'
-$.getJSON('https://api.github.com/users/' + username + '/gists', function (data) {
-    for (var i in data) {
-        var oldDocumentWrite = document.write
-        document.write = function (scr_content) {
-            for (var i in data) {
-                if ( $.trim( $("#" + data[i].id ).text() ).length == 0 ) {
-                    $("#" + data[i].id ).append(scr_content);
-                    return;
-                }
-            }
-        }
-        var scr = document.createElement('script');
-        scr.src = 'https://gist.github.com/' + username + '/' + data[i].id + '.js';
-        $("#ph").append("<div><h2>" + data[i].description + "</h2></div>");
-        $("#ph").append(scr.outerHTML);
-        $("#ph").append('<div id="' + data[i].id + '"></div>');
-    }
-    document.write = oldDocumentWrite;
-});
-</script>
-'@
         $UserPathList = [System.Collections.Generic.List[string]]@()
         $StopWatch = [System.Diagnostics.Stopwatch]::New()
         $StopWatch.Start()
+        $Count = 0
+        $StartTime = [datetime]::Now
     }
     Process {
-
         # Download
         foreach ($GitUser in $UserName) {
+            $Count++
+            Write-MyProgress -StartTime $StartTime -Object $UserName -Count $Count
+
             $UserPath = [System.IO.Path]::Combine($Path, $GitUser)
             $UserPathList.Add($UserPath)
 
@@ -149,7 +123,7 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                 if (Test-Path -Path .git) { $null = git pull --all *>&1 }
             }
 
-            # Get Gist
+            #region - Get Gist
             $UserGist = Get-GitHubApiGist -UserName $GitUser
             if ($UserGist) {
                 $GistDir = [System.IO.Path]::Combine($UserPath, '_gist')
@@ -162,30 +136,45 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                 Write-Output ('{2}{0} Gists - {1}' -f $GitUser, $UserGist.Count, ("`n"))
 
                 Push-Location -Path $TempGistDir
-                ### Start Downloading Gist to temp dir
-                $Count = 0
-                $StartTime = Get-Date
-                $UserGist | ForEach-Object -Process {
-                    $Count++
-                    Write-MyProgress -StartTime $StartTime -Object $UserGist -Count $Count
-                    $UGist = $PSItem
-                    $StartProcesParams = @{
-                        WorkingDirectory = $TempGistDir
-                        FilePath = 'git.exe'
-                        ArgumentList = ('clone --recursive {0}' -f $UGist.git_pull_url)
-                        WindowStyle = 'Hidden'
-                        Wait = $true
-                    }
-                    Start-Process @StartProcesParams
-                    $UGistDir = Join-Path -Path $TempGistDir -ChildPath $UGist.id
-                        ((Join-Path -Path $UGistDir -ChildPath . -Resolve),
-                        (Join-Path -Path $UGistDir -ChildPath * -Resolve)) | Get-Item | ForEach-Object {
-                        Write-Verbose ('Changing LastWriteTime to Gist updated_at value - {0}' -f $_.Name)
-                        $_.LastWriteTime = $UGist.updated_at
-                    }
-                    $UGist, $UGistDir = $null
-                    Start-Sleep -Milliseconds 50
-                } -End { Write-MyProgress -Completed }
+
+                #region Gist - ConcurrentQueue
+                $ConcurrentQueue = [System.Collections.Concurrent.ConcurrentQueue[object]]::new()
+                $UserGist | ForEach-Object { $ConcurrentQueue.Enqueue($_) }
+
+                # Start processing ConcurrentQueue collection
+                $null = 1..$ThrottleLimit | ForEach-Object {
+                    Start-ThreadJob {
+                        $i = $null
+                        while ($args[0].Count -gt 0) {
+                            if ($args[0].TryDequeue([ref]$i)) {
+                                ###########################################################################
+
+                                $UGist = $i
+                                $StartProcesParams = @{
+                                    FilePath = 'git.exe'
+                                    ArgumentList = ('clone --recursive {0}' -f $UGist.git_pull_url)
+                                    WindowStyle = 'Hidden'
+                                    Wait = $true
+                                }
+                                Start-Process @StartProcesParams
+                                $UGistDir = Join-Path -Path $using:TempGistDir -ChildPath $UGist.id
+                                (
+                                    (Join-Path -Path $UGistDir -ChildPath . -Resolve),
+                                    (Join-Path -Path $UGistDir -ChildPath * -Resolve)
+                                ) | Get-Item | ForEach-Object {
+                                    Write-Verbose ('Changing LastWriteTime to Gist updated_at value - {0}' -f $_.Name)
+                                    $_.LastWriteTime = $UGist.updated_at
+                                }
+                                $UGist, $UGistDir = $null
+                                Start-Sleep -Milliseconds 50
+
+                                ###########################################################################
+                            }
+                        }
+                    } -ArgumentList $ConcurrentQueue
+                } | Wait-Job
+
+                #endregion Gist - ConcurrentQueue
 
                 ### Delete .git folders from cloned gist
                 Get-ChildItem -Path $TempGistDir | ForEach-Object { Join-Path -Path $_ -ChildPath '.git' -Resolve } | Remove-Item -Recurse -Force
@@ -220,8 +209,10 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                 ### Cleaning up Temp Gist Dir
                 Remove-Item -Path $TempGistDir -Recurse -Force
             }
+            #endregion - Get Gist
 
-            # Get Repo
+            #region - Get Repo
+            Push-Location -Path $UserPath
             $FilteredUserRepo = $UserRepo = Get-GitHubApiRepository -UserName $GitUser
 
             if ($Exclude) {
@@ -231,22 +222,59 @@ $.getJSON('https://api.github.com/users/' + username + '/gists', function (data)
                 $FilteredUserRepo = $FilteredUserRepo.Where({ ($_ | Get-GitHubApiRepositoryLanguage).psobject.Properties.Name -match ($Languages -join '|') })
             }
 
-            Write-Output ('{0}{1} Repositories - {2} (excluded - {3})' -f "`n", $GitUser, $FilteredUserRepo.Count, ($UserRepo.Count - $FilteredUserRepo.Count))
-            $FilteredUserRepo.name | Select-Object -Property @{e = { if ($_.Length -gt 27) { $_.Substring(0, 24) + '...' } else { $_ } } } | Format-Wide -AutoSize
-            $FilteredUserRepo | Invoke-ForEachParallel -ThrottleLimit $ThrottleLimit -Process {
-                Start-Process -WorkingDirectory $UserPath -FilePath git.exe -ArgumentList ('clone --recursive {0}' -f $PSItem.clone_url) -WindowStyle Hidden -Wait
+            $FilteredRepos = Compare-Object -ReferenceObject $UserRepo.name -DifferenceObject $FilteredUserRepo.name -PassThru
 
-                Start-Sleep -Milliseconds 150
+            [pscustomobject]@{
+                User = $GitUser
+                Repo2Clone = $FilteredUserRepo.Count
+                Excluded = $FilteredRepos -join ', '
+            } | Format-List | Out-String
 
-                $RepoUpdatedDate = $PSItem.updated_at
-                $RepoDir = Get-Item -Path (Join-Path -Path $UserPath -ChildPath $PSItem.name -Resolve)
-                $RepoFiles = $RepoDir | Get-ChildItem -Recurse -Force:$false -ErrorAction SilentlyContinue
-                $RepoDir.LastWriteTime = $RepoUpdatedDate
-                $RepoFiles.ForEach({ $_.LastWriteTime = $RepoUpdatedDate })
-            }
+            $FilteredUserRepo | Format-Wide -Property @{e = { if ($_.name.Length -gt 27) { $_.name.Substring(0, 24) + '...' } else { $_.name } } } -AutoSize
+
+            #region Repo - ConcurrentQueue
+            $ConcurrentQueue = [System.Collections.Concurrent.ConcurrentQueue[object]]::new()
+            $FilteredUserRepo | ForEach-Object { $ConcurrentQueue.Enqueue($_) }
+
+            # Start processing ConcurrentQueue collection
+            $null = 1..$ThrottleLimit | ForEach-Object {
+                Start-ThreadJob {
+                    $i = $null
+                    while ($args[0].Count -gt 0) {
+                        if ($args[0].TryDequeue([ref]$i)) {
+                            ###########################################################################
+
+                            $URepo = $i
+                            $StartProcesParams = @{
+                                FilePath = 'git.exe'
+                                ArgumentList = ('clone --checkout --recurse-submodules {0}' -f $URepo.clone_url)
+                                WindowStyle = 'Hidden'
+                                Wait = $true
+                            }
+                            Start-Process @StartProcesParams
+
+                            Start-Sleep -Milliseconds 50
+
+                            $RepoUpdatedDate = $URepo.updated_at
+                            $RepoDir = Join-Path -Path $using:UserPath -ChildPath $URepo.name -Resolve | Get-Item
+                            $RepoFiles = $RepoDir | Get-ChildItem -Recurse -Force:$false -ErrorAction SilentlyContinue
+                            $RepoDir.LastWriteTime = $RepoUpdatedDate
+                            $RepoFiles.ForEach({ $_.LastWriteTime = $RepoUpdatedDate })
+
+                            ###########################################################################
+                        }
+                    }
+                } -ArgumentList $ConcurrentQueue
+            } | Wait-Job
+
+            #endregion Repo - ConcurrentQueue
+
+            ################################################################
+            #endregion - Get Repo
         }
     }
     End {
+        Write-MyProgress -Completed
         $StopWatch.Stop()
         'Time - {0:m\:ss}{1}' -f $StopWatch.Elapsed, ("`n")
         'Updated User Directories:'

@@ -1,54 +1,54 @@
 ﻿function Add-Font {
-  <#
-      .SYNOPSIS
-      Add fonts to system
+    <#
+.SYNOPSIS
+Add fonts to system
 
-      .DESCRIPTION
-      Install a font from file path using CSharp code, compatitable fonts are available for use within the console font list.
+.DESCRIPTION
+Install a font from file path using CSharp code, compatitable fonts are available for use within the console font list.
 
-      .PARAMETER Path
-      Path of Font File, can accept multiple font files
-      Supported File Types - .ttc, .ttf, .fnt, .otf, .fon
+.PARAMETER Path
+Path of Font File, can accept multiple font files
+Supported File Types - .ttc, .ttf, .fnt, .otf, .fon
 
-      .EXAMPLE
-      Add-Font -Path C:\temp\mononoki-nerdfont.ttf
+.EXAMPLE
+Add-Font -Path C:\temp\mononoki-nerdfont.ttf
 
-      .NOTES
-      Administartor privileges are required
-  #>
-  param(
-    [Parameter(Mandatory)]
-    [ValidateScript({
-          if(-not ($_ | Test-Path -PathType Leaf) ){
-            throw 'File does not exist'
-          }
-          return $true
-    })]
-    [ValidatePattern('(\.ttc|\.ttf|\.fnt|\.otf|\.fon)$')]
-    [string[]]$Path,
-    [switch]$Remove
-  )
-  begin {
+.NOTES
+Administartor privileges are required
+#>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateScript({
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
+                    throw 'File does not exist'
+                }
+                return $true
+            })]
+        [ValidatePattern('(\.ttc|\.ttf|\.fnt|\.otf|\.fon)$')]
+        [string[]]$Path,
+        [switch]$Remove
+    )
+    begin {
+        $IsAdmin = ([System.Security.Principal.WindowsPrincipal][System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
+        if (-not ($IsAdmin)) {
+            throw 'This must run with admin privileges'
+        }
 
-    $IsAdmin = ([System.Security.Principal.WindowsPrincipal][System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
-    if (-not ($IsAdmin)) {
-      throw 'This must run with admin privileges'
-    }
+        $FontsFolderPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::Fonts)
 
-    $FontsFolderPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::Fonts)
+        # Define constants
+        Set-Variable -Name CSIDL_FONTS -Value 0x14 -Option Constant -Force
 
-    # Define constants
-    Set-Variable -Name CSIDL_FONTS -Value 0x14 -Option Constant -Force
+        # Create hashtable containing valid font file extensions and text to append to Registry entry name.
+        $HashFontFileTypes = @{}
+        $HashFontFileTypes.Add('.fon', '')
+        $HashFontFileTypes.Add('.fnt', '')
+        $HashFontFileTypes.Add('.ttf', ' (TrueType)')
+        $HashFontFileTypes.Add('.ttc', ' (TrueType)')
+        $HashFontFileTypes.Add('.otf', ' (OpenType)')
 
-    # Create hashtable containing valid font file extensions and text to append to Registry entry name.
-    $HashFontFileTypes = @{}
-    $HashFontFileTypes.Add('.fon', '')
-    $HashFontFileTypes.Add('.fnt', '')
-    $HashFontFileTypes.Add('.ttf', ' (TrueType)')
-    $HashFontFileTypes.Add('.ttc', ' (TrueType)')
-    $HashFontFileTypes.Add('.otf', ' (OpenType)')
-
-    $FontCSharpCode = @'
+        $FontCSharpCode = @'
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -57,7 +57,7 @@ using System.Runtime.InteropServices;
 
 namespace FontResource
 {
-    public class AddRemoveFonts
+    public class FontUtility
     {
         private static IntPtr HWND_BROADCAST = new IntPtr(0xffff);
         private static IntPtr HWND_TOP = new IntPtr(0);
@@ -351,81 +351,86 @@ namespace FontResource
     }
 }
 '@
-    $AddFontCode = Add-Type -TypeDefinition $FontCSharpCode -PassThru
-
-  }
-  process {
-    foreach($FilePath in $Path) {
-
-      $FileInfo = [System.IO.FileInfo]::new($FilePath)
-
-      if ($Remove) {
-        $RetVal = [FontResource.AddRemoveFonts]::RemoveFont($FilePath.FullName)
-        if ($RetVal -eq 0) {
-          throw ('Failed to remove font - "{0}"' -f ($FileInfo.FullName))
-        }
-        else {
-          $RegFonts = Get-Item -Path 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts\'
-          $RFData = $RegFonts.GetValueNames() | ForEach-Object {
-            try {
-              [pscustomobject]@{
-                Font = $_
-                Path = (Join-Path -Path 'C:\Windows\Fonts\' -ChildPath $rf.GetValue($_) -Resolve -ErrorAction Stop)
-              }
-            }
-            catch {}
-          }
-
-          $RFItem = $RFData | Where-Object {$_.Path -eq $FileInfo.FullName}
-          $RFItem | Write-Verbose -Verbose
-          Remove-ItemProperty -Path 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts\' -Name $RFItem.Font -Force -Verbose
-          Get-Item -Path $RFItem.Path | Remove-Item -Force -Verbose
-        }
-      }
-      else {
-        try {
-
-          $Shell = New-Object -ComObject Shell.Application
-          $MyFolder = $Shell.Namespace($FileInfo.DirectoryName)
-          $FileObj = $MyFolder.Items().Item($FileInfo.Name)
-          $FontName = $MyFolder.GetDetailsOf($FileObj,21)
-          if ($FontName -eq '') { $FontName = $FileInfo.BaseName }
-
-          $FontFinalPath = Copy-Item -Path $FileInfo.FullName -Destination $FontsFolderPath -PassThru -Force -ErrorAction Stop
-          $RetVal = [FontResource.AddRemoveFonts]::AddFont($FontFinalPath.FullName)
-
-          if ($RetVal -eq 0) {
-            throw ('Failed to install font - "{0}"' -f ($FileInfo.FullName))
-          }
-          else {
-            $SetItemProp = @{
-              Path = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
-              Name = '{0}{1}' -f $FontName, $HashFontFileTypes.Item($FileInfo.Extension)
-              Value = $FileInfo.Name
-              Type = 'String'
-              Force = $true
-              ErrorAction = 'Stop'
-            }
-            $null = Set-ItemProperty @SetItemProp
-            Write-Host ('Font install successful - "{0}"' -f ($FileInfo.FullName)) -ForegroundColor Green
-            Write-Host ''
-          }
-        }
-        catch {
-          Write-Host ''
-          [System.Management.Automation.ErrorRecord]$e = $_
-          [PSCustomObject]@{
-            Type      = $e.Exception.GetType().FullName
-            Exception = $e.Exception.Message
-            Reason    = $e.CategoryInfo.Reason
-            Target    = $e.CategoryInfo.TargetName
-            Script    = $e.InvocationInfo.ScriptName
-            Message   = $e.InvocationInfo.PositionMessage
-          }
-          Write-Host ''
-          throw ('An error occured installing - "{0}"' -f ($FileInfo.FullName))
-        }
-      }
+        $null = Add-Type -TypeDefinition $FontCSharpCode -PassThru
     }
-  }
+    process {
+        foreach ($FilePath in $Path) {
+            $FileInfo = [System.IO.FileInfo]::new($FilePath)
+
+            if ($Remove) {
+                #region - Remove Font
+                $RetVal = [FontResource.FontUtility]::RemoveFont($FilePath.FullName)
+                if ($RetVal -eq 0) {
+                    throw ('Failed to remove font - "{0}"' -f ($FileInfo.FullName))
+                }
+                else {
+                    $RegFonts = Get-Item -Path 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts\'
+                    $RFData = $RegFonts.GetValueNames() | ForEach-Object {
+                        try {
+                            [pscustomobject]@{
+                                Font = $_
+                                Path = (Join-Path -Path 'C:\Windows\Fonts\' -ChildPath $rf.GetValue($_) -Resolve -ErrorAction Stop)
+                            }
+                        }
+                        catch {
+                            $null
+                        }
+                    }
+
+                    $RFItem = $RFData | Where-Object {$_.Path -eq $FileInfo.FullName}
+                    $RFItem | Write-Verbose -Verbose
+                    Remove-ItemProperty -Path 'registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts\' -Name $RFItem.Font -Force -Verbose
+                    Get-Item -Path $RFItem.Path | Remove-Item -Force -Verbose
+                }
+                #endregion - Remove Font
+            }
+            else {
+                #region - Add Font
+                try {
+                    try {
+                        $FontCollection = [System.Drawing.Text.PrivateFontCollection]::new()
+                        $FontCollection.AddFontFile($FilePath.FullName)
+                        $FontName = $FontCollection.Families[0].Name
+                    }
+                    finally {
+                        $FontCollection.Dispose()
+                        Remove-Variable -Name FontCollection -Force -ErrorAction Ignore
+                    }
+                    if ($FontName -eq '') { $FontName = $FileInfo.BaseName }
+
+                    $FontFinalPath = Copy-Item -Path $FileInfo.FullName -Destination $FontsFolderPath -PassThru -Force -ErrorAction Stop
+                    $RetVal = [FontResource.FontUtility]::AddFont($FontFinalPath.FullName)
+
+                    if ($RetVal -eq 0) {
+                        throw ('Failed to install font - "{0}"' -f ($FileInfo.FullName))
+                    }
+                    else {
+                        $SetItemProp = @{
+                            Path = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
+                            Name = '{0}{1}' -f $FontName, $HashFontFileTypes.Item($FileInfo.Extension)
+                            Value = $FileInfo.Name
+                            Type = 'String'
+                            Force = $true
+                            ErrorAction = 'Stop'
+                        }
+                        $null = Set-ItemProperty @SetItemProp
+                        Write-Host ('Font install successful - "{0}"' -f ($FileInfo.FullName)) -ForegroundColor Green
+                    }
+                }
+                catch {
+                    [System.Management.Automation.ErrorRecord]$e = $_
+                    [PSCustomObject]@{
+                        Type = $e.Exception.GetType().FullName
+                        Exception = $e.Exception.Message
+                        Reason = $e.CategoryInfo.Reason
+                        Target = $e.CategoryInfo.TargetName
+                        Script = $e.InvocationInfo.ScriptName
+                        Message = $e.InvocationInfo.PositionMessage
+                    }
+                    throw ('An error occured installing - "{0}"' -f ($FileInfo.FullName))
+                }
+                #endregion - Add Font
+            }
+        }
+    }
 }

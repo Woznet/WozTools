@@ -1,15 +1,24 @@
 function Get-UserAgent {
     [CmdletBinding()]
     param()
-
     process {
         try {
-
             # Accessing the non-public static member 'UserAgent' from PSUserAgent class
-            [Microsoft.PowerShell.Commands.PSUserAgent].GetMembers('Static, NonPublic').Where{ $_.Name -eq 'UserAgent' }.GetValue($null, $null)
+            $BindingFlags = [System.Reflection.BindingFlags]::NonPublic -bor [System.Reflection.BindingFlags]::Static
+            $UserAgent = [Microsoft.PowerShell.Commands.PSUserAgent].GetProperty('UserAgent', $BindingFlags).GetValue($null, $null)
+            $UserAgent
         }
         catch {
-            Write-CustomError -ErrorRecord $_
+            # Log and rethrow the caught exception with more contextual information
+            $e = [System.Management.Automation.ErrorRecord]$_
+            [pscustomobject]@{
+                Type      = $e.Exception.GetType().FullName
+                Exception = $e.Exception.Message
+                Reason    = $e.CategoryInfo.Reason
+                Target    = $e.CategoryInfo.TargetName
+                Script    = $e.InvocationInfo.ScriptName
+                Message   = $e.InvocationInfo.PositionMessage
+            } | Out-String | Write-Error
             throw $_
         }
     }

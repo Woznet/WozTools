@@ -33,15 +33,11 @@ Takes a Windows path from the pipeline and converts it to WSL format.
 .NOTES
 - Paths should be provided in the correct format for the desired conversion direction (WSL to Windows or vice versa). Mixing path formats is not supported and may result in errors.
 - This function requires the Windows Subsystem for Linux (WSL) to be installed and accessible on the system.
-
-.LINK
-https://docs.microsoft.com/en-us/windows/wsl/
-
 #>
     [CmdletBinding(DefaultParameterSetName = 'WSL')]
-    [Alias('wslpath')]
+    [Alias()]
     [OutputType()]
-    Param(
+    param(
         # Specifies the path(s) to convert
         [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
         [ValidateScript({
@@ -58,7 +54,7 @@ https://docs.microsoft.com/en-us/windows/wsl/
         [Parameter(ParameterSetName = 'WSL')]
         [switch]$ToWSL
     )
-    Begin {
+    begin {
         if (-not (Get-Command -Name wsl.exe -ErrorAction Ignore)) {
             throw 'Cannot locate WSL'
         }
@@ -67,10 +63,9 @@ https://docs.microsoft.com/en-us/windows/wsl/
             'Win' { '-w' ; break }
         }
     }
-    Process {
-        foreach ($Item in $Path) {
-            $ArgString = 'wslpath', '-a', $ConvertTo, ($Item.Replace('\', '\\'))
-            (& wsl.exe --exec $ArgString) -replace ([char][int]61532)
+    process {
+			foreach ($Item in $Path) {
+            & wsl.exe -- $('wslpath', '-a', "$ConvertTo", ($Item.Replace('\', '\\')))
         }
     }
 }

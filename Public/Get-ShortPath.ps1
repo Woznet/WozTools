@@ -1,72 +1,67 @@
 function Get-ShortPath {
     <#
 .SYNOPSIS
-Shortens a file path based on the width of the PowerShell host window.
+Shortens a filesystem path based on the width of the PowerShell window.
 
 .DESCRIPTION
-The Get-ShortPath function takes a file path and shortens it if necessary, based on the current width of the PowerShell host window. It ensures that the path is displayed in a more readable format, especially useful in environments with limited screen space.
+This function takes a filesystem path and shortens it if necessary to fit within one-third of the PowerShell window's width, focusing on preserving the end of the path.
 
 .PARAMETER Path
-Specifies the file path to shorten. If not provided, the function uses the current working directory. The path must be a valid file system path.
+The filesystem path to shorten. If not provided, defaults to the current working directory.
 
 .EXAMPLE
-Get-ShortPath -Path 'C:\Users\Username\Documents\PowerShell\Scripts\MyVeryLongScriptName.ps1'
-Shortens the specified file path based on the current PowerShell window width.
+Get-ShortPath -Path 'C:\Users\ExampleUser\Documents\PowerShell\Scripts\VeryLongDirectoryName'
 
 .EXAMPLE
-'C:\Users\Username\Documents\PowerShell\Scripts\MyVeryLongScriptName.ps1' | Get-ShortPath
-Demonstrates how to use the function with pipeline input.
-
-.INPUTS
-System.String
-You can pipe a string representing the file path to Get-ShortPath.
-
-.OUTPUTS
-System.String
-Outputs the shortened file path.
-
-.NOTES
-The function is particularly useful for displaying paths in a concise manner in scenarios like custom PowerShell prompts or logging where screen real estate is limited.
-
-.LINK
-https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-paths
+'C:\Users\ExampleUser\Documents\PowerShell\Scripts\VeryLongDirectoryName' | Get-ShortPath
 #>
+    [CmdletBinding()]
+    [Alias('GetShortPath')]
     param(
-        [Parameter(ValueFromPipeline)]
         [ValidateScript({
-                if (-not ($_ | Test-Path -IsValid)) {
-                    throw 'Path is not valid.'
+                if (-not ($_ | Test-Path -IsValid -PathType Container)) {
+                    throw ('{0} - Invalid Directory Path' -f $_)
                 }
                 return $true
             })]
+        [Parameter(ValueFromPipeline)]
         [string]$Path = $PWD.Path
     )
     process {
-        if ($null -ne $Host.UI.RawUI.WindowSize.Width) {
-            $MaxPromptPath = [int]($Host.UI.RawUI.WindowSize.Width / 3)
-            $CurrPath = $Path -replace '^[^:]+::'
-            $DSC = [System.IO.Path]::DirectorySeparatorChar
-
-            if ($CurrPath.Length -ge $MaxPromptPath) {
-                $PathParts = $CurrPath.Split($DSC)
-                $EndPath = [System.Text.StringBuilder]::new()
-
-                for ($i = $PathParts.Length - 1; $i -gt 0; $i--) {
-                    $TempPart = $PathParts[$i]
-                    $TempPath = [System.IO.Path]::Combine($EndPath.ToString(), $TempPart)
-                    if ($TempPath.Length -lt $MaxPromptPath) {
-                        [void]$EndPath.Insert(0, $TempPart + $DSC)
-                    }
-                    else {
-                        break
-                    }
-                }
-                $GSPath = '{0}{1}...{1}{2}' -f $PathParts[0], $DSC, $EndPath.ToString().TrimEnd($DSC)
-            }
-            else {
-                $GSPath = $CurrPath
-            }
-            return $GSPath
+        if ($Host.UI.RawUI.BufferSize.Width) {
+            $MaxPromptPath = [int]($Host.UI.RawUI.BufferSize.Width / 3)
         }
+        else {
+            $MaxPromptPath = 48
+        }
+        $CurrPath = $Path -replace '^[^:]+::'
+        $DSC = [System.IO.Path]::DirectorySeparatorChar
+
+        if ($CurrPath.Length -gt ($MaxPromptPath + 4)) {
+            $PathParts = $CurrPath.Split($DSC)
+            $EndPath = [System.Text.StringBuilder]::new()
+            $ShortPath = [System.Text.StringBuilder]::new()
+
+            for ($i = $PathParts.Length - 1; $i -gt 0; $i--) {
+                $TempPart = $PathParts[$i]
+                $TempPath = [System.IO.Path]::Combine($EndPath.ToString(), $TempPart)
+                if ($TempPath.Length -lt $MaxPromptPath) {
+                    [void]$EndPath.Insert(0, $TempPart + $DSC)
+                }
+                else {
+                    break
+                }
+            }
+            $null = $ShortPath.Append($PathParts[0])
+            $null = $ShortPath.Append($DSC)
+            $null = $ShortPath.Append([char]::ConvertFromUtf32(8230))
+            $null = $ShortPath.Append($DSC)
+            $null = $ShortPath.Append($EndPath.ToString().TrimEnd($DSC))
+            $GSPath = $ShortPath.ToString()
+        }
+        else {
+            $GSPath = $CurrPath
+        }
+        return $GSPath
     }
 }

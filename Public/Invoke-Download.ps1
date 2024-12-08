@@ -43,11 +43,6 @@ Invoke-Download -URL 'http://example.com/file.zip' -Destination 'C:\Downloads'
 
 # Downloads 'file.zip' from 'http://example.com' to the 'C:\Downloads' folder.
 
-.EXAMPLE
-'http://example.com/file.zip' | Invoke-Download -NoProgress
-
-# Downloads 'file.zip' from 'http://example.com' to the current directory without showing progress.
-
 .INPUTS
 String
 You can pipe a URL to Invoke-Download.

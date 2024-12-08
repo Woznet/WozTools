@@ -1,35 +1,32 @@
 function Join-Url {
     <#
 .SYNOPSIS
-Joins a base URI with a child path segment.
+Combines a base URI with one or more child segments into a single valid URL.
 
 .DESCRIPTION
-The Join-Url function takes a base URI and a child path segment, and combines them into a single well-formed URI. It handles the proper inclusion of slashes between the base and child segments. By default, it outputs the combined URI as a string, but it can also return a URI object.
+The Join-Url function takes a base URI and one or more child segments and combines them into a complete URL.
+It ensures proper handling of trailing and leading slashes to avoid malformed URLs.
+The function can output the result as either a [string] or a [uri] object.
 
 .PARAMETER Base
-The base URI to which the child path will be appended. It must be a valid URI.
+The base URI to which child segments will be appended. This must be a valid URI object.
 
 .PARAMETER Child
-The child path segment to append to the base URI.
+One or more child segments to append to the base URI.
+Each segment will be normalized to avoid duplicate slashes or missing slashes.
 
 .PARAMETER OutUri
-If specified, the function returns the result as a [uri] object. Otherwise, it returns a string.
+If specified, the function returns the combined URL as a [uri] object.
+By default, the function returns the URL as a [string].
 
 .EXAMPLE
-Join-Url -Base 'http://example.com' -Child 'path/segment'
-
-Returns 'http://example.com/path/segment'.
+Join-Url -Base 'https://example.com' -Child 'path', 'to', 'resource'
+https://example.com/path/to/resource
 
 .EXAMPLE
-Join-Url -Base 'http://example.com' -Child '/path/segment' -OutUri
+'https://example.com' | Join-Url -Child 'nested/path','funtimes'
+https://example.com/nested/path/funtimes
 
-Returns a URI object for 'http://example.com/path/segment'.
-
-.INPUTS
-[uri], [string]
-
-.OUTPUTS
-[uri] or [string]
 #>
     [CmdletBinding()]
     param(
@@ -37,23 +34,26 @@ Returns a URI object for 'http://example.com/path/segment'.
         [uri]$Base,
 
         [Parameter(Mandatory, Position = 1)]
-        [string]$Child,
+        [ValidateNotNullOrEmpty()]
+        [string[]]$Child,
 
         [switch]$OutUri
     )
-
     process {
         try {
             # Convert base URI to string once for efficiency
-            $BaseUriString = $Base.ToString()
+            $BaseString = $Base.ToString().Trim()
 
-            # Ensure the base URI ends with a slash
-            if (-not $BaseUriString.EndsWith('/')) {
-                $BaseUriString += '/'
+            # Ensure the base URI ends with a single slash
+            if ($BaseString -notmatch '/$') {
+                $BaseString += '/'
             }
 
+            # Normalize and join child strings
+            $ChildString = $Child.ForEach({$_.Split('/').TrimStart('/')}) -join '/'
+
             # Create the combined URI
-            $Uri = [uri]::new($BaseUriString, $Child.TrimStart('/'))
+            $Uri = [uri]::new(([uri]$BaseString), $ChildString)
 
             # Return either URI object or string based on OutUri switch
             if ($OutUri) {
@@ -73,7 +73,7 @@ Returns a URI object for 'http://example.com/path/segment'.
                 Script = $e.InvocationInfo.ScriptName
                 Message = $e.InvocationInfo.PositionMessage
             }
-            Write-Error "Error in joining URI: $_"
+            $e | Write-Error
         }
     }
 }

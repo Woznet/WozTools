@@ -19,17 +19,17 @@ The script block should contain the commands that you want to run. This paramete
 .EXAMPLE
 Invoke-InDirectory -Path 'C:\Projects\Project1' -ScriptBlock { Get-ChildItem }
 
-# This example executes 'Get-ChildItem' in the 'C:\Projects\Project1' directory.
+This example executes 'Get-ChildItem' in the 'C:\Projects\Project1' directory.
 
 .EXAMPLE
 Get-ChildItem -Path 'C:\Projects\' -Directory | Invoke-InDirectory -ScriptBlock { git status }
 
-# This example fetches all directories under 'C:\Projects\' and runs 'git status' in each of them.
+This example fetches all directories under 'C:\Projects\' and runs 'git status' in each of them.
 
 .EXAMPLE
 'C:\Projects\Project1', 'C:\Projects\Project2' | Invoke-InDirectory -ScriptBlock { git pull }
 
-# This example demonstrates using the function with pipeline input to execute 'git pull' in both 'C:\Projects\Project1' and 'C:\Projects\Project2'.
+This example demonstrates using the function with pipeline input to execute 'git pull' in both 'C:\Projects\Project1' and 'C:\Projects\Project2'.
 
 .INPUTS
 System.String, System.IO.DirectoryInfo
@@ -41,9 +41,8 @@ Depends on the script block's output. The function outputs whatever the script b
 .NOTES
 Remember to ensure that the script block commands are appropriate for the directory context and that they handle any relative path dependencies correctly.
 
-.LINK
-https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-pscustomobject
 #>
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ValueFromPipeline)]
         [ValidateScript({

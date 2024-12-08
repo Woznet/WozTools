@@ -1,104 +1,112 @@
 function Write-MyProgress {
-  <#
-      .SYNOPSIS
-      Displays a progress bar within a Windows PowerShell command window.
+    <#
+        .SYNOPSIS
+        Displays a progress bar within a Windows PowerShell command window.
 
-      .DESCRIPTION
-      The Write-Progress cmdlet displays a progress bar in a Windows PowerShell command window that depicts the status of a running command or script.
+        .DESCRIPTION
+        The Write-MyProgress cmdlet displays a progress bar in a Windows PowerShell command window that depicts the status of a running command or script.
 
-      .NOTES
-      File Name   : Write-MyProgress.ps1
-      Author      : Woz
-      Date        : 2017-05-10
-      Last Update : 2023-11-29
-      Version     : 2.1.0
+        .PARAMETER Object
+        The collection of objects being processed in the loop.
 
-      .PARAMETER id
-      Specifies an ID that distinguishes each progress bar from the others.
+        .PARAMETER Status
+        A status message to display in the progress bar.
 
-      .PARAMETER ParentId
-      Specifies the parent activity of the current activity.
+        .PARAMETER StartTime
+        The start time of the process.
 
-      .PARAMETER StartTime
-      StartTime of the process
+        .PARAMETER CounterValue
+        The current position within the loop.
 
-      .PARAMETER Object
-      Objects used in your foreach processing
+        .PARAMETER Id
+        Specifies an ID that distinguishes each progress bar from the others.
 
-      .PARAMETER CounterValue
-      Current position within the loop
+        .PARAMETER ParentId
+        Specifies the parent activity of the current activity.
 
-      .PARAMETER Completed
-      Cleanup any uncleared Progress bars
+        .PARAMETER Completed
+        A switch parameter to clean up any uncleared progress bars.
 
-      .EXAMPLE
-      $GetProcess = Get-Process
 
-      $CounterValue = 0
-      $StartTime = Get-Date
-      foreach($Process in $GetProcess) {
-      $CounterValue++
-      Write-MyProgress -StartTime $StartTime -Object $GetProcess -CounterValue $CounterValue
+        .EXAMPLE
+        $GetProcess = Get-Process
 
-      Write-Host "-> $($Process.ProcessName)"
-      Start-Sleep -Seconds 1
-      }
-      Write-MyProgress -Completed
+        $CounterValue = 0
+        $StartTime = Get-Date
+        foreach($Process in $GetProcess) {
+            $CounterValue++
+            Write-MyProgress -StartTime $StartTime -Object $GetProcess -CounterValue $CounterValue
 
-      .NOTES
-      https://github.com/Netboot-France/Write-MyProgress
-  #>
-  Param(
+            Write-Host ('-> {0}' -f $Process.ProcessName)
+            Start-Sleep -Seconds 1
+        }
+        Write-MyProgress -Completed
+
+        .NOTES
+        File Name   : Write-MyProgress.ps1
+        Author      : Woz
+        Date        : 2017-05-10
+        Last Update : 2024-06-08
+        Version     : 2.5.0
+        Source      : https://github.com/Netboot-France/Write-MyProgress
+    #>
     [CmdletBinding(DefaultParameterSetName = 'Normal')]
-    [Parameter(
-        Mandatory,
-        ParameterSetName = 'Normal'
-    )]
-    [Array]$Object,
-    [Parameter(
-        Mandatory,
-        ParameterSetName = 'Normal'
-    )]
-    [DateTime]$StartTime,
-    [Parameter(
-        Mandatory,
-        ParameterSetName = 'Normal'
-    )]
-    [Int]$CounterValue,
-    [Int]$Id = $null,
-    [Int]$ParentId = -1,
-    [Parameter(
-        Mandatory,
-        ParameterSetName = 'Completed'
-    )]
-    [switch]$Completed
-  )
+    param(
+        [Parameter(Mandatory,ParameterSetName = 'Normal')]
+        [ValidateNotNullOrEmpty()]
+        [Array]$Object,
 
-  switch ($PSCmdlet.ParameterSetName) {
-    'Normal' {
-      $SecondsElapsed = ([datetime]::Now - $StartTime).TotalSeconds
-      $PercentComplete = ($CounterValue / ($Object.Count)) * 100
+        [String]$Status,
 
-      $Argument = @{}
-      $Argument.Add('Activity', ('Processing {0} of {1}' -f $CounterValue, $Object.Count))
-      $Argument.Add('PercentComplete', $PercentComplete)
-      $Argument.Add('CurrentOperation', ('{0:N2}% Complete' -f $PercentComplete))
-      $Argument.Add('SecondsRemaining', ($SecondsElapsed / ($CounterValue / $Object.Count)) - $SecondsElapsed)
+        [Parameter(Mandatory,ParameterSetName = 'Normal')]
+        [ValidateNotNull()]
+        [DateTime]$StartTime,
 
-      if ($Id -ne $null) { $Argument.Add('Id', $Id) }
-      if ($ParentId -ne $null) { $Argument.Add('ParentId', $ParentId) }
+        [Parameter(Mandatory,ParameterSetName = 'Normal')]
+        [ValidateRange(0, [int]::MaxValue)]
+        [Int]$CounterValue,
 
-      break
+        [Int]$Id,
+
+        [Int]$ParentId,
+
+        [Parameter(Mandatory,ParameterSetName = 'Completed')]
+        [switch]$Completed
+    )
+    try {
+        switch ($PSCmdlet.ParameterSetName) {
+            'Normal' {
+                $SecondsElapsed = ([datetime]::Now - $StartTime).TotalSeconds
+                $PercentComplete = ($CounterValue / ($Object.Count)) * 100
+
+                $Argument = @{
+                    Activity = "Object $CounterValue of $($Object.Count)"
+                    PercentComplete = $PercentComplete
+                    CurrentOperation = '{0:N2}% Complete' -f $PercentComplete
+                    SecondsRemaining = ($SecondsElapsed / ($CounterValue / $Object.Count)) - $SecondsElapsed
+                }
+
+                if ($Id) { $Argument.Add('Id', $Id) }
+                if ($ParentId) { $Argument.Add('ParentId', $ParentId) }
+                if ($Status) { $Argument.Add('Status', $Status) } else {$Argument.Add('Status', 'Processing {0} of {1}' -f $CounterValue, $Object.Count)}
+
+                Write-Progress @Argument
+            }
+            'Completed' {
+                Write-Progress -Activity 'Write-MyProgress Completed' -Completed:$true
+            }
+        }
     }
-    'Completed' {
-      $Argument = @{}
-      $Argument.Add('Completed', $true)
-      $Argument.Add('Activity', 'Write-MyProgress Completed')
-
-      break
+    catch {
+        $e = [System.Management.Automation.ErrorRecord]$_
+        [pscustomobject]@{
+            Type = $e.Exception.GetType().FullName
+            Exception = $e.Exception.Message
+            Reason = $e.CategoryInfo.Reason
+            Target = $e.CategoryInfo.TargetName
+            Script = $e.InvocationInfo.ScriptName
+            Message = $e.InvocationInfo.PositionMessage
+        } | Out-String | Write-Error
+        Write-Error -ErrorRecord $_
     }
-  }
-
-  Write-Progress @Argument
-
 }

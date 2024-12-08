@@ -4,7 +4,6 @@ function Test-PendingReboot {
         Test the pending reboot status on a local and/or remote computer.
         Updated to be compatible with powershell 7+, converted Invoke-WmiMethod to Invoke-CimMethod.
 
-
         .DESCRIPTION
         This function will query the registry on a local and/or remote computer and determine if the
         system is pending a reboot, from Microsoft/Windows updates, Configuration Manager Client SDK, Pending
@@ -85,16 +84,12 @@ function Test-PendingReboot {
         WindowsUpdateAutoUpdate          : True
         IsRebootPending                  : True
 
-        .LINK
-
         .NOTES
         Author:  Woz
         Updated: 12-4-2023
 
         Original Author:  Brian Wilhite
         Email:   bcwilhite (at) live.com
-
-
 
         Background:
         https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/10/determine-pending-reboot-statuspowershell-style-part-1/
@@ -135,11 +130,11 @@ function Test-PendingReboot {
             try {
 
                 $InvokeCimMethodParameters = @{
-                    Namespace = 'root/default'
-                    ClassName = 'StdRegProv'
-                    Name = 'EnumKey'
+                    Namespace    = 'root/default'
+                    ClassName    = 'StdRegProv'
+                    Name         = 'EnumKey'
                     ComputerName = $Computer
-                    ErrorAction = 'Stop'
+                    ErrorAction  = 'Stop'
                 }
 
                 $HKLM = [UInt32] '0x80000002'
@@ -150,7 +145,7 @@ function Test-PendingReboot {
 
                 ## Query the Component Based Servicing Reg Key
                 $InvokeCimMethodParameters.Arguments = @{
-                    hDefKey = $HKLM
+                    hDefKey     = $HKLM
                     sSubKeyName = 'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\'
                 }
 
@@ -158,14 +153,14 @@ function Test-PendingReboot {
 
                 ## Query WUAU from the registry
                 $InvokeCimMethodParameters.Arguments = @{
-                    hDefKey = $HKLM
+                    hDefKey     = $HKLM
                     sSubKeyName = 'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\'
                 }
                 $RegistryWindowsUpdateAutoUpdate = (Invoke-CimMethod @InvokeCimMethodParameters).sNames -contains 'RebootRequired'
 
                 ## Query JoinDomain key from the registry - These keys are present if pending a reboot from a domain join operation
                 $InvokeCimMethodParameters.Arguments = @{
-                    hDefKey = $HKLM
+                    hDefKey     = $HKLM
                     sSubKeyName = 'SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\'
                 }
                 $RegistryNetlogon = (Invoke-CimMethod @InvokeCimMethodParameters).sNames
@@ -174,16 +169,16 @@ function Test-PendingReboot {
                 ## Query ComputerName and ActiveComputerName from the registry and setting the MethodName to GetMultiStringValue
                 $InvokeCimMethodParameters.Name = 'GetMultiStringValue'
                 $InvokeCimMethodParameters.Arguments = @{
-                    hDefKey = $HKLM
+                    hDefKey     = $HKLM
                     sSubKeyName = 'SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName\'
-                    sValueName = 'ComputerName'
+                    sValueName  = 'ComputerName'
                 }
                 $RegistryActiveComputerName = (Invoke-CimMethod @InvokeCimMethodParameters).sNames
 
                 $InvokeCimMethodParameters.Arguments = @{
-                    hDefKey = $HKLM
+                    hDefKey     = $HKLM
                     sSubKeyName = 'SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName\'
-                    sValueName = 'ComputerName'
+                    sValueName  = 'ComputerName'
                 }
                 $RegistryComputerName = (Invoke-CimMethod @InvokeCimMethodParameters).sNames
 
@@ -192,9 +187,9 @@ function Test-PendingReboot {
                 ## Query PendingFileRenameOperations from the registry
                 if (-not $PSBoundParameters.ContainsKey('SkipPendingFileRenameOperationsCheck')) {
                     $InvokeCimMethodParameters.Arguments = @{
-                        hDefKey = $HKLM
+                        hDefKey     = $HKLM
                         sSubKeyName = 'SYSTEM\CurrentControlSet\Control\Session Manager\'
-                        sValueName = 'PendingFileRenameOperations'
+                        sValueName  = 'PendingFileRenameOperations'
                     }
                     $RegistryPendingFileRenameOperations = (Invoke-CimMethod @InvokeCimMethodParameters).sValue
                     $RegistryPendingFileRenameOperationsBool = [bool]$RegistryPendingFileRenameOperations
@@ -219,23 +214,22 @@ function Test-PendingReboot {
                     }
                 }
 
-                $IsRebootPending = $RegistryComponentBasedServicing -or `
-                    $PendingComputerRename -or `
-                    $PendingDomainJoin -or `
-                    $RegistryPendingFileRenameOperationsBool -or `
-                    $SystemCenterConfigManager -or `
-                    $RegistryWindowsUpdateAutoUpdate
-
+                $IsRebootPending = $RegistryComponentBasedServicing -or
+                $PendingComputerRename -or
+                $PendingDomainJoin -or
+                $RegistryPendingFileRenameOperationsBool -or
+                $SystemCenterConfigManager -or
+                $RegistryWindowsUpdateAutoUpdate
 
                 $Results = [PSCustomObject]@{
-                    ComputerName = $Computer
-                    ComponentBasedServicing = $RegistryComponentBasedServicing
-                    PendingComputerRenameDomainJoin = $PendingComputerRename
-                    PendingFileRenameOperations = $RegistryPendingFileRenameOperationsBool
+                    ComputerName                     = $Computer
+                    ComponentBasedServicing          = $RegistryComponentBasedServicing
+                    PendingComputerRenameDomainJoin  = $PendingComputerRename
+                    PendingFileRenameOperations      = $RegistryPendingFileRenameOperationsBool
                     PendingFileRenameOperationsValue = $RegistryPendingFileRenameOperations
-                    SystemCenterConfigManager = $SystemCenterConfigManager
-                    WindowsUpdateAutoUpdate = $RegistryWindowsUpdateAutoUpdate
-                    IsRebootPending = $IsRebootPending
+                    SystemCenterConfigManager        = $SystemCenterConfigManager
+                    WindowsUpdateAutoUpdate          = $RegistryWindowsUpdateAutoUpdate
+                    IsRebootPending                  = $IsRebootPending
                 }
 
                 if ($PSBoundParameters.ContainsKey('Detailed')) {
@@ -248,14 +242,14 @@ function Test-PendingReboot {
             catch {
                 [System.Management.Automation.ErrorRecord]$e = $_
                 [PSCustomObject]@{
-                    Type = $e.Exception.GetType().FullName
+                    Type      = $e.Exception.GetType().FullName
                     Exception = $e.Exception.Message
-                    Reason = $e.CategoryInfo.Reason
-                    Target = $e.CategoryInfo.TargetName
-                    Script = $e.InvocationInfo.ScriptName
-                    Message = $e.InvocationInfo.PositionMessage
+                    Reason    = $e.CategoryInfo.Reason
+                    Target    = $e.CategoryInfo.TargetName
+                    Script    = $e.InvocationInfo.ScriptName
+                    Message   = $e.InvocationInfo.PositionMessage
                 }
-                Write-Verbose -Message ('{0}: {1}' -f $Computer, $_)
+                Write-Error -ErrorRecord $_
             }
         }
     }
