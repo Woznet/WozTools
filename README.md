@@ -63,3 +63,8 @@ If you would like to contribute to WozTools, please feel free to fork the reposi
 ## License
 
 This project is licensed under the MIT License.
+
+---
+<p align="center">
+<a href="https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2FWoznet%2FWozTools"><img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FWoznet%2FWozTools&countColor=%23263759" /></a>
+</p>
